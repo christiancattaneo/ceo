@@ -51,12 +51,12 @@
       position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     }
     .ab {
-      position:absolute; border-radius:50%; filter:blur(100px);
+      position:absolute; border-radius:50%; filter:blur(75px);
       animation:drift 22s ease-in-out infinite alternate;
     }
-    .ab:nth-child(1){ width:900px; height:900px; background:#ddd6fe; opacity:.25; top:-350px; left:-250px; animation-delay:0s; }
-    .ab:nth-child(2){ width:700px; height:700px; background:#f5d0fe; opacity:.18; top:35%; right:-250px; animation-delay:-8s; }
-    .ab:nth-child(3){ width:600px; height:600px; background:#bae6fd; opacity:.14; bottom:-150px; left:35%; animation-delay:-16s; }
+    .ab:nth-child(1){ width:900px; height:900px; background:#6d28d9; opacity:.22; top:-350px; left:-250px; animation-delay:0s; }
+    .ab:nth-child(2){ width:700px; height:700px; background:#9d174d; opacity:.16; top:30%; right:-250px; animation-delay:-8s; }
+    .ab:nth-child(3){ width:650px; height:650px; background:#0e7490; opacity:.12; bottom:-150px; left:30%; animation-delay:-16s; }
     @keyframes drift {
       0%  { transform:translate(0,0) scale(1); }
       50% { transform:translate(40px,-30px) scale(1.06); }
@@ -618,7 +618,7 @@
     el: '#vanta-hero', THREE,
     mouseControls:true, touchControls:true, gyroControls:false,
     minHeight:200, minWidth:200, scale:1, scaleMobile:1,
-    color:      0x8b5cf6,   // soft violet nodes
+    color:      0x3b0764,   // soft violet nodes
     backgroundColor: 0xffffff,
     points: 10, maxDistance: 24, spacing: 20,
   });
