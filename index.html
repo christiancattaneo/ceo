@@ -8,29 +8,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    /* ── TOKENS ──────────────────────────────────────── */
     :root {
-      /* Hero (dark) */
-      --hbg:   #0e0514;
-      --v:     #9333ea;
-      --m:     #e11d7a;
-      --c:     #06b6d4;
-      --t1:    #f3e8ff;
-      --t2:    #a78bca;
-      --t3:    #4a3568;
-      --bord:  rgba(147,51,234,0.2);
-
-      /* Content (light) */
-      --bg:    #ffffff;
-      --bg2:   #f8f7fc;
+      --bg:    #fdfcff;
+      --bg2:   #f7f5fd;
       --ink:   #0d0a14;
-      --ink2:  #52445e;
-      --ink3:  #a39ab5;
+      --ink2:  #5a4e72;
+      --ink3:  #b0a8c4;
+      --v:     #7c3aed;
+      --v2:    #9333ea;
+      --m:     #db2777;
+      --g:     #059669;
       --line:  #ede9f5;
-      --lv:    #7c3aed;   /* violet on light */
-      --lv-s:  rgba(124,58,237,0.07);
-      --lv-m:  rgba(124,58,237,0.14);
-
+      --vs:    rgba(124,58,237,0.07);
+      --vm:    rgba(124,58,237,0.14);
       --mono:  'JetBrains Mono', monospace;
       --sans:  'Space Grotesk', sans-serif;
     }
@@ -39,337 +29,304 @@
     html { scroll-behavior:smooth; }
     body { font-family:var(--sans); background:var(--bg); color:var(--ink); overflow-x:hidden; cursor:none; }
 
-    /* ── CURSOR ─────────────────────────────────────── */
+    /* CURSOR */
     #cur {
       position:fixed; z-index:9999; pointer-events:none;
-      width:12px; height:12px; border-radius:50%;
-      background:var(--v); mix-blend-mode:multiply;
-      transform:translate(-50%,-50%);
-      transition:width .2s, height .2s;
+      width:10px; height:10px; border-radius:50%; background:var(--v);
+      transform:translate(-50%,-50%); mix-blend-mode:multiply;
+      transition:width .18s, height .18s;
     }
-    #cur.big { width:42px; height:42px; opacity:.3; }
+    #cur.big { width:40px; height:40px; opacity:.2; }
     #cur-ring {
       position:fixed; z-index:9998; pointer-events:none;
-      width:32px; height:32px; border-radius:50%;
-      border:1.5px solid rgba(147,51,234,.35);
+      width:30px; height:30px; border-radius:50%;
+      border:1px solid rgba(124,58,237,.4);
       transform:translate(-50%,-50%);
-      transition:left .14s ease, top .14s ease, width .25s, height .25s;
+      transition:left .13s ease, top .13s ease, width .22s, height .22s;
     }
     #cur-ring.big { width:52px; height:52px; }
 
-    /* ── AURORA (hero only) ──────────────────────────── */
+    /* AURORA — very subtle on white */
     .aurora {
-      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+      position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     }
     .ab {
-      position:absolute; border-radius:50%; filter:blur(90px); opacity:.2;
-      animation:drift 20s ease-in-out infinite alternate;
+      position:absolute; border-radius:50%; filter:blur(100px);
+      animation:drift 22s ease-in-out infinite alternate;
     }
-    .ab:nth-child(1){ width:700px; height:700px; background:var(--v); top:-200px; left:-200px; animation-delay:0s; }
-    .ab:nth-child(2){ width:550px; height:550px; background:var(--m); top:20%; right:-180px; animation-delay:-7s; }
-    .ab:nth-child(3){ width:450px; height:450px; background:var(--c); bottom:-100px; left:35%; animation-delay:-14s; opacity:.1; }
+    .ab:nth-child(1){ width:800px; height:800px; background:#c084fc; opacity:.06; top:-300px; left:-200px; animation-delay:0s; }
+    .ab:nth-child(2){ width:600px; height:600px; background:#f0abfc; opacity:.05; top:40%; right:-200px; animation-delay:-8s; }
+    .ab:nth-child(3){ width:500px; height:500px; background:#a5f3fc; opacity:.04; bottom:-100px; left:40%; animation-delay:-16s; }
     @keyframes drift {
       0%  { transform:translate(0,0) scale(1); }
-      40% { transform:translate(50px,-30px) scale(1.08); }
-      100%{ transform:translate(-30px,40px) scale(.95); }
+      50% { transform:translate(40px,-30px) scale(1.06); }
+      100%{ transform:translate(-20px,30px) scale(.96); }
     }
 
-    /* grain */
-    .aurora::after {
-      content:''; position:absolute; inset:0; pointer-events:none; opacity:.035;
-      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size:180px;
-    }
-
-    /* ── NAV ─────────────────────────────────────────── */
+    /* NAV */
     nav {
       position:fixed; top:0; left:0; right:0; z-index:500;
       display:flex; align-items:center; justify-content:space-between;
-      padding:0 48px; height:62px;
-      background:rgba(14,5,20,.75); backdrop-filter:blur(28px) saturate(180%);
-      border-bottom:1px solid rgba(147,51,234,.12);
+      padding:0 48px; height:60px;
+      background:rgba(253,252,255,.85); backdrop-filter:blur(24px);
+      border-bottom:1px solid var(--line);
     }
     .nav-brand {
-      display:flex; align-items:center; gap:9px;
-      font-weight:600; font-size:16px; text-decoration:none; color:var(--t1); letter-spacing:-.2px;
+      display:flex; align-items:center; gap:9px; text-decoration:none;
+      font-size:15px; font-weight:600; color:var(--ink); letter-spacing:-.2px;
     }
-    .nav-brand .dot { color:var(--v); }
-    .nav-links { display:flex; gap:36px; }
-    .nav-links a { font-size:13px; font-weight:400; color:rgba(167,139,202,.7); text-decoration:none; letter-spacing:.01em; transition:color .2s; }
-    .nav-links a:hover { color:var(--t1); }
-    @media(max-width:640px){ .nav-links { display:none; } }
-    .nav-cta {
-      font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.06em;
-      padding:8px 20px; border-radius:100px; text-decoration:none;
-      background:linear-gradient(135deg,var(--v),var(--m)); color:#fff;
-      box-shadow:0 4px 20px rgba(147,51,234,.35); transition:all .25s;
+    .nav-brand svg { flex-shrink:0; }
+    .nav-slash { color:var(--v); font-family:var(--mono); font-weight:400; font-size:14px; }
+    .nav-links { display:flex; gap:32px; }
+    .nav-links a { font-size:13px; font-weight:400; color:var(--ink2); text-decoration:none; transition:color .2s; }
+    .nav-links a:hover { color:var(--ink); }
+    @media(max-width:640px){ .nav-links{display:none;} }
+    .nav-btn {
+      font-size:13px; font-weight:600; padding:8px 20px; border-radius:100px;
+      background:var(--v); color:#fff; text-decoration:none;
+      box-shadow:0 2px 14px rgba(124,58,237,.3); transition:all .22s;
     }
-    .nav-cta:hover { transform:translateY(-1px); box-shadow:0 8px 32px rgba(147,51,234,.5); }
+    .nav-btn:hover { background:#6d28d9; box-shadow:0 4px 22px rgba(124,58,237,.45); transform:translateY(-1px); }
 
-    /* ── HERO ────────────────────────────────────────── */
+    /* HERO */
     #vanta-hero {
       position:relative; min-height:100vh;
       display:flex; align-items:center;
-      padding-top:62px; overflow:hidden;
-      background:var(--hbg);
+      padding-top:60px; overflow:hidden;
     }
-    .hero-inner {
+    .hero-wrap {
       position:relative; z-index:10;
-      max-width:1140px; margin:0 auto; padding:80px 48px;
-      display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;
+      width:100%; max-width:1140px; margin:0 auto; padding:80px 48px;
+      display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center;
     }
-    @media(max-width:880px){ .hero-inner { grid-template-columns:1fr; padding:60px 24px; } }
+    @media(max-width:880px){ .hero-wrap { grid-template-columns:1fr; padding:60px 24px; } }
 
-    .hero-eyebrow {
-      display:inline-flex; align-items:center; gap:8px;
-      font-family:var(--mono); font-size:11px; letter-spacing:.08em;
-      color:rgba(167,139,202,.8); margin-bottom:24px;
+    .hero-tag {
+      display:inline-flex; align-items:center; gap:7px; margin-bottom:22px;
+      font-family:var(--mono); font-size:10.5px; color:var(--v); letter-spacing:.06em;
     }
-    .eyebrow-dot { width:6px; height:6px; background:var(--v); border-radius:50%; box-shadow:0 0 8px var(--v); animation:pulse 2s ease-in-out infinite; }
-    @keyframes pulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.4)} }
+    .htag-dot { width:6px; height:6px; background:var(--v); border-radius:50%; animation:pulse 2s ease-in-out infinite; }
+    @keyframes pulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.5)} }
 
     h1 {
-      font-size:clamp(50px,6vw,84px); font-weight:700;
-      line-height:.94; letter-spacing:-3px; margin-bottom:24px;
+      font-size:clamp(48px,5.5vw,80px); font-weight:700;
+      line-height:.95; letter-spacing:-3px; margin-bottom:22px;
+      color:var(--ink);
     }
-    @media(max-width:480px){ h1 { letter-spacing:-1.5px; } }
-    h1 .plain { display:block; color:var(--t1); }
+    @media(max-width:480px){ h1{letter-spacing:-1.5px;} }
     h1 .grad {
-      display:block;
-      background:linear-gradient(135deg,#c084fc 0%,#e879f9 40%,#fb7185 70%,#fbbf24 100%);
+      background:linear-gradient(135deg,#7c3aed,#c026d3,#db2777,#f97316);
       -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-      background-size:300% 300%; animation:shimmer 7s ease infinite;
+      background-size:250% 250%; animation:shimmer 6s ease infinite;
     }
     @keyframes shimmer{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
-    .hero-sub { font-size:17px; font-weight:300; color:var(--t2); line-height:1.8; max-width:440px; margin-bottom:40px; }
+    .hero-p { font-size:17px; font-weight:300; color:var(--ink2); line-height:1.8; max-width:420px; margin-bottom:36px; }
 
-    .ctas { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:56px; }
-    .btn-main {
-      display:inline-flex; align-items:center; gap:7px;
-      padding:13px 28px; border-radius:100px;
-      background:linear-gradient(135deg,var(--v),var(--m));
-      font-size:14px; font-weight:600; color:#fff; text-decoration:none;
-      box-shadow:0 4px 24px rgba(147,51,234,.4); transition:all .25s;
+    .hero-btns { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:52px; }
+    .btn-fill {
+      padding:12px 26px; border-radius:100px; font-size:14px; font-weight:600;
+      background:var(--v); color:#fff; text-decoration:none;
+      box-shadow:0 4px 18px rgba(124,58,237,.3); transition:all .22s;
     }
-    .btn-main:hover { transform:translateY(-2px); box-shadow:0 10px 36px rgba(147,51,234,.55); }
-    .btn-line {
-      display:inline-flex; align-items:center; gap:7px;
-      padding:12px 27px; border-radius:100px;
-      border:1px solid rgba(147,51,234,.3); color:rgba(167,139,202,.8);
-      font-size:14px; font-weight:500; text-decoration:none; transition:all .25s;
+    .btn-fill:hover { background:#6d28d9; transform:translateY(-1px); box-shadow:0 8px 28px rgba(124,58,237,.4); }
+    .btn-ghost {
+      padding:11px 25px; border-radius:100px; font-size:14px; font-weight:500;
+      border:1px solid var(--line); color:var(--ink2); text-decoration:none; transition:all .22s;
     }
-    .btn-line:hover { border-color:rgba(147,51,234,.6); color:var(--t1); }
+    .btn-ghost:hover { border-color:var(--v); color:var(--v); }
 
-    .hero-stats { display:flex; gap:36px; flex-wrap:wrap; border-top:1px solid rgba(147,51,234,.15); padding-top:28px; }
-    .hstat-val { font-family:var(--mono); font-size:26px; font-weight:600; color:var(--t1); line-height:1; }
-    .hstat-lab { font-size:12px; font-weight:400; color:var(--t3); margin-top:4px; }
+    .hero-stats { display:flex; gap:32px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:24px; }
+    .hs-val { font-family:var(--mono); font-size:24px; font-weight:600; color:var(--ink); line-height:1; }
+    .hs-lab { font-size:12px; color:var(--ink3); margin-top:4px; font-weight:400; }
 
-    /* ── GLASS CARD (hero terminal) ──────────────────── */
-    .glass-card {
-      background:rgba(255,255,255,.05); backdrop-filter:blur(20px);
-      border:1px solid rgba(255,255,255,.09); border-radius:20px; overflow:hidden;
-      box-shadow:0 0 0 1px rgba(147,51,234,.1), 0 32px 80px rgba(0,0,0,.45);
-      position:relative;
+    /* TERMINAL CARD */
+    .term-card {
+      border-radius:18px; overflow:hidden;
+      background:#ffffff;
+      border:1px solid var(--line);
+      box-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 32px rgba(0,0,0,.07), 0 32px 64px rgba(124,58,237,.06);
     }
-    .glass-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:1px;
-      background:linear-gradient(90deg,transparent,rgba(147,51,234,.6),transparent);
+    .tbar { display:flex; align-items:center; gap:6px; padding:12px 16px; border-bottom:1px solid var(--line); background:#faf9fd; }
+    .td  { width:10px; height:10px; border-radius:50%; }
+    .td.r{background:#ff5f57} .td.y{background:#ffbd2e} .td.g{background:#28c840}
+    .ttitle { margin-left:8px; font-family:var(--mono); font-size:10px; color:var(--ink3); }
+    .tbody  {
+      padding:20px 22px; font-family:var(--mono); font-size:12px;
+      line-height:1.9; min-height:220px;
+      background:#0d0a14; color:#c4b5d8;
     }
-    .tbar { display:flex; align-items:center; gap:6px; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.05); }
-    .td { width:10px; height:10px; border-radius:50%; }
-    .td.r{background:#ff5f57}.td.y{background:#ffbd2e}.td.g{background:#28c840}
-    .ttitle { margin-left:8px; font-family:var(--mono); font-size:10px; color:var(--t3); letter-spacing:.03em; }
-    .tbody { padding:20px 22px; font-family:var(--mono); font-size:12px; line-height:1.9; min-height:250px; color:#d4b8f0; }
-    .tl { display:block; }
-    .tp  { color:#c084fc; }
-    .ta  { color:#e879f9; font-weight:500; }
-    .tok { color:#34d399; }
-    .terr{ color:#fb7185; }
-    .tdim{ color:#3d2a55; }
-    .thi { color:#34d399; font-weight:600; }
-    .tlo { color:#fb7185; font-weight:600; }
-    .tcur{ display:inline-block; width:7px; height:13px; background:#c084fc; vertical-align:middle; animation:blink .9s step-end infinite; }
+    .tl  { display:block; }
+    .tp  { color:#a78bfa; }
+    .ta  { color:#c084fc; font-weight:500; }
+    .tok { color:#6ee7b7; }
+    .terr{ color:#fca5a5; }
+    .tdim{ color:#3d2e52; }
+    .thi { color:#6ee7b7; font-weight:600; }
+    .tlo { color:#fca5a5; font-weight:600; }
+    .tcur{ display:inline-block; width:7px; height:12px; background:#a78bfa; vertical-align:middle; animation:blink .9s step-end infinite; }
     @keyframes blink{ 0%,100%{opacity:1}50%{opacity:0} }
 
-    /* score strip */
     .score-strip {
-      margin:0 22px 22px; padding:14px 18px;
-      background:rgba(147,51,234,.1); border:1px solid rgba(147,51,234,.2); border-radius:12px;
+      padding:14px 18px; border-top:1px solid var(--line);
+      background:#faf9fd;
     }
     .ss-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-    .ss-lbl { font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--t3); }
-    .ss-val { font-family:var(--mono); font-size:24px; font-weight:600; color:#c084fc; line-height:1; }
-    .ss-bar { height:3px; background:rgba(255,255,255,.07); border-radius:100px; overflow:hidden; }
+    .ss-lbl { font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); }
+    .ss-val { font-family:var(--mono); font-size:22px; font-weight:600; color:var(--v); line-height:1; }
+    .ss-bar { height:3px; background:var(--line); border-radius:100px; overflow:hidden; }
     .ss-fill { height:100%; background:linear-gradient(90deg,var(--v),var(--m)); width:0%; border-radius:100px; transition:width 2s cubic-bezier(.22,.68,0,1.2); }
-    .ss-sub { font-family:var(--mono); font-size:10px; color:var(--t3); margin-top:8px; display:flex; align-items:center; gap:5px; }
-    .live { width:5px; height:5px; background:#34d399; border-radius:50%; animation:pulse 1.5s ease-in-out infinite; flex-shrink:0; }
+    .ss-note { font-family:var(--mono); font-size:10px; color:var(--ink3); margin-top:8px; display:flex; align-items:center; gap:5px; }
+    .ldot { width:5px; height:5px; background:var(--g); border-radius:50%; animation:pulse 1.5s ease-in-out infinite; flex-shrink:0; }
 
-    /* ── TRANSITION ──────────────────────────────────── */
-    .hero-fade {
-      height:100px; position:relative; z-index:2;
-      background:linear-gradient(to bottom, var(--hbg), var(--bg));
-    }
-
-    /* ── MARQUEE ─────────────────────────────────────── */
+    /* MARQUEE */
     .mq-wrap {
-      overflow:hidden; padding:14px 0; background:var(--bg);
-      border-bottom:1px solid var(--line); position:relative; z-index:2;
+      overflow:hidden; padding:12px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+      position:relative; z-index:2;
     }
-    .mq-wrap::before,.mq-wrap::after {
-      content:''; position:absolute; top:0; bottom:0; width:120px; z-index:3; pointer-events:none;
+    .mq-wrap::before,.mq-wrap::after{
+      content:''; position:absolute; top:0; bottom:0; width:100px; z-index:3; pointer-events:none;
     }
     .mq-wrap::before{ left:0; background:linear-gradient(90deg,var(--bg),transparent); }
     .mq-wrap::after { right:0; background:linear-gradient(-90deg,var(--bg),transparent); }
     .mq-track { display:flex; animation:mq 32s linear infinite; width:max-content; }
     @keyframes mq { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-    .mq-item { display:inline-flex; align-items:center; gap:8px; padding:0 24px; font-family:var(--mono); font-size:10px; color:var(--ink3); white-space:nowrap; letter-spacing:.06em; text-transform:uppercase; }
-    .mq-item strong { color:var(--ink2); }
-    .mq-dot { width:3px; height:3px; background:var(--lv); border-radius:50%; opacity:.5; }
+    .mq-item { display:inline-flex; align-items:center; gap:8px; padding:0 22px; font-family:var(--mono); font-size:10px; color:var(--ink3); white-space:nowrap; letter-spacing:.06em; text-transform:uppercase; }
+    .mq-item strong { color:var(--ink2); font-weight:500; }
+    .mq-sep { color:var(--v); opacity:.35; }
 
-    /* ── LIGHT SECTIONS ──────────────────────────────── */
-    .section { padding:100px 0; position:relative; z-index:2; }
-    .section.alt { background:var(--bg2); }
+    /* SECTIONS */
+    .sec { padding:96px 0; position:relative; z-index:2; }
+    .sec.tinted { background:var(--bg2); }
     .wrap { max-width:1140px; margin:0 auto; padding:0 48px; }
-    @media(max-width:640px){ .wrap { padding:0 24px; } }
+    @media(max-width:640px){ .wrap{padding:0 24px;} }
 
-    .sec-eyebrow {
-      font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase;
-      color:var(--lv); margin-bottom:16px; display:block;
-    }
-    .sec-h { font-size:clamp(32px,4.5vw,52px); font-weight:700; letter-spacing:-1.5px; line-height:1.05; color:var(--ink); margin-bottom:16px; }
-    .sec-sub { font-size:16px; font-weight:400; color:var(--ink2); line-height:1.75; max-width:520px; }
+    .eyebrow { font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--v); margin-bottom:14px; display:block; }
+    .sec-h { font-size:clamp(30px,4.2vw,48px); font-weight:700; letter-spacing:-1.5px; line-height:1.06; color:var(--ink); margin-bottom:14px; }
+    .sec-p { font-size:15px; font-weight:400; color:var(--ink2); line-height:1.75; max-width:480px; }
 
-    /* ── CARDS ────────────────────────────────────────── */
+    /* CARDS */
     .card {
-      background:var(--bg); border:1px solid var(--line);
-      border-radius:18px; padding:32px;
-      transition:border-color .25s, box-shadow .25s, transform .25s;
+      background:#fff; border:1px solid var(--line); border-radius:16px; padding:28px;
+      transition:border-color .22s, box-shadow .22s, transform .22s;
     }
-    .section.alt .card { background:var(--bg2); }
-    .card:hover { border-color:rgba(124,58,237,.25); transform:translateY(-3px); box-shadow:0 4px 24px rgba(124,58,237,.08), 0 20px 48px rgba(0,0,0,.06); }
+    .sec.tinted .card { background:var(--bg); }
+    .card:hover { border-color:rgba(124,58,237,.2); transform:translateY(-2px); box-shadow:0 4px 20px rgba(124,58,237,.07), 0 16px 40px rgba(0,0,0,.05); }
 
-    .card-hero-v {
-      background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(225,29,122,.03));
-      border:1px solid rgba(124,58,237,.15); border-radius:20px; padding:40px;
-      position:relative; overflow:hidden;
+    .feature-card-lg {
+      background:#fff; border:1px solid rgba(124,58,237,.12);
+      border-radius:20px; padding:36px; position:relative; overflow:hidden;
+      box-shadow:0 1px 3px rgba(0,0,0,.04), 0 12px 40px rgba(124,58,237,.06);
     }
-    .card-hero-v::after {
-      content:''; position:absolute; top:-60px; right:-60px;
-      width:280px; height:280px; border-radius:50%;
-      background:radial-gradient(circle,rgba(124,58,237,.12),transparent 65%); pointer-events:none;
+    .feature-card-lg::before {
+      content:''; position:absolute; top:-80px; right:-80px; width:300px; height:300px; border-radius:50%;
+      background:radial-gradient(circle,rgba(124,58,237,.08),transparent 65%); pointer-events:none;
     }
 
     .ci {
-      width:44px; height:44px; border-radius:12px;
-      background:var(--lv-s); border:1px solid var(--lv-m);
-      display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+      width:40px; height:40px; border-radius:10px;
+      background:var(--vs); border:1px solid var(--vm);
+      display:flex; align-items:center; justify-content:center; margin-bottom:18px;
     }
-    .ci svg { width:20px; height:20px; stroke:var(--lv); fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7; }
-    .ct { font-size:16px; font-weight:600; letter-spacing:-.2px; color:var(--ink); margin-bottom:8px; }
-    .cb { font-size:13.5px; font-weight:400; color:var(--ink2); line-height:1.65; }
-    .ctags { display:flex; gap:6px; flex-wrap:wrap; margin-top:16px; }
-    .ctag {
-      font-family:var(--mono); font-size:9px; font-weight:500; letter-spacing:.08em; text-transform:uppercase;
-      padding:3px 9px; border-radius:6px; background:var(--lv-s); border:1px solid var(--lv-m); color:var(--lv);
-    }
+    .ci svg { width:18px; height:18px; stroke:var(--v); fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7; }
+    .ct { font-size:15px; font-weight:600; letter-spacing:-.1px; color:var(--ink); margin-bottom:7px; }
+    .cb { font-size:13px; font-weight:400; color:var(--ink2); line-height:1.65; }
+    .ctags { display:flex; gap:5px; flex-wrap:wrap; margin-top:14px; }
+    .ctag { font-family:var(--mono); font-size:9px; letter-spacing:.07em; text-transform:uppercase; padding:2px 8px; border-radius:5px; background:var(--vs); border:1px solid var(--vm); color:var(--v); font-weight:500; }
 
-    /* BENTO */
-    .bento { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-top:56px; }
-    .b-8  { grid-column:span 8; }
-    .b-4  { grid-column:span 4; }
-    .b-6  { grid-column:span 6; }
-    .b-4t { grid-column:span 4; }
-    @media(max-width:900px){ .b-8,.b-4 { grid-column:span 12; } }
-    @media(max-width:760px){ .b-6,.b-4t { grid-column:span 12; } }
+    /* GRID */
+    .grid { display:grid; gap:16px; margin-top:52px; }
+    .g-2-1 { grid-template-columns:2fr 1fr; }
+    .g-3   { grid-template-columns:repeat(3,1fr); }
+    .g-1-2 { grid-template-columns:1fr 2fr; }
+    .g-2   { grid-template-columns:1fr 1fr; }
+    @media(max-width:860px){ .g-2-1,.g-1-2,.g-2 { grid-template-columns:1fr; } }
+    @media(max-width:680px){ .g-3 { grid-template-columns:1fr 1fr; } }
+    @media(max-width:440px){ .g-3 { grid-template-columns:1fr; } }
 
-    /* ── STEPS ────────────────────────────────────────── */
-    .steps-grid {
-      display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
-      background:var(--line); border-radius:4px; overflow:hidden; margin-top:56px;
-    }
-    @media(max-width:700px){ .steps-grid { grid-template-columns:1fr; } }
-    .step { background:var(--bg); padding:44px 36px; }
-    .section.alt .step { background:var(--bg2); }
-    .step-n {
-      font-family:var(--mono); font-size:64px; font-weight:600; line-height:1;
+    /* STEPS */
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); margin-top:52px; background:var(--line); gap:1px; border-radius:4px; overflow:hidden; }
+    @media(max-width:680px){ .steps { grid-template-columns:1fr; } }
+    .step { background:#fff; padding:40px 32px; }
+    .sec.tinted .step { background:var(--bg); }
+    .sn {
+      font-family:var(--mono); font-size:60px; font-weight:600; line-height:1;
       color:transparent; -webkit-text-stroke:1px rgba(124,58,237,.15);
-      margin-bottom:22px; display:block; transition:-webkit-text-stroke-color .3s;
+      margin-bottom:20px; display:block; transition:-webkit-text-stroke-color .25s;
     }
-    .step:hover .step-n { -webkit-text-stroke-color:rgba(124,58,237,.4); }
-    .step-title { font-size:19px; font-weight:600; color:var(--ink); margin-bottom:10px; }
-    .step-body  { font-size:14px; font-weight:400; color:var(--ink2); line-height:1.7; }
-    .step-cmd   {
-      margin-top:20px; font-family:var(--mono); font-size:11px; color:var(--lv);
-      background:var(--lv-s); border:1px solid var(--lv-m); padding:8px 12px; border-radius:8px; display:inline-block;
-    }
+    .step:hover .sn { -webkit-text-stroke-color:rgba(124,58,237,.38); }
+    .st { font-size:18px; font-weight:600; color:var(--ink); margin-bottom:8px; }
+    .sb { font-size:13px; color:var(--ink2); line-height:1.7; }
+    .sc { margin-top:18px; font-family:var(--mono); font-size:10.5px; color:var(--v); background:var(--vs); border:1px solid var(--vm); padding:7px 11px; border-radius:7px; display:inline-block; }
 
-    /* ── COMPARE ─────────────────────────────────────── */
-    .cmp-wrap { margin-top:56px; border:1px solid var(--line); border-radius:16px; overflow:hidden; }
-    .cmp-head { display:grid; grid-template-columns:1.6fr 1fr 1fr; background:var(--bg2); border-bottom:1px solid var(--line); }
-    .cmp-row  { display:grid; grid-template-columns:1.6fr 1fr 1fr; border-bottom:1px solid rgba(0,0,0,.03); transition:background .15s; }
-    .cmp-row:hover { background:rgba(124,58,237,.025); }
-    .cmp-row:last-child { border-bottom:none; }
-    .cc { padding:13px 22px; font-size:13px; color:var(--ink2); display:flex; align-items:center; gap:6px; border-right:1px solid var(--line); }
+    /* COMPARE */
+    .cmp { margin-top:52px; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+    .ch { display:grid; grid-template-columns:1.6fr 1fr 1fr; background:var(--bg2); border-bottom:1px solid var(--line); }
+    .cr { display:grid; grid-template-columns:1.6fr 1fr 1fr; border-bottom:1px solid rgba(0,0,0,.03); transition:background .15s; }
+    .cr:hover { background:rgba(124,58,237,.02); }
+    .cr:last-child { border-bottom:none; }
+    .cc { padding:12px 20px; font-size:13px; color:var(--ink2); display:flex; align-items:center; gap:5px; border-right:1px solid var(--line); }
     .cc:last-child { border-right:none; }
-    .cc.hd { font-family:var(--mono); font-size:9.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); }
-    .cc.feat { color:var(--ink); font-weight:500; font-size:13.5px; }
-    .cc.viol { background:rgba(124,58,237,.03); }
-    .viol-head { border-bottom:2px solid var(--lv); color:var(--lv) !important; }
-    .cc svg { width:14px; height:14px; flex-shrink:0; }
+    .cc.hd { font-family:var(--mono); font-size:9px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); }
+    .cc.feat { color:var(--ink); font-weight:500; }
+    .cc.hi { background:rgba(124,58,237,.03); }
+    .ch .hi { border-bottom:2px solid var(--v); }
+    .ch .hi.cc.hd { color:var(--v); }
+    .cc svg { width:13px; height:13px; flex-shrink:0; }
     .yes  { color:#059669; font-weight:600; }
     .no   { color:var(--ink3); }
-    .part { color:#b45309; font-weight:600; }
+    .part { color:#92400e; font-weight:600; }
 
-    /* ── CTA ─────────────────────────────────────────── */
-    .cta-wrap { padding:100px 0; background:var(--bg); }
-    .cta-card {
-      border-radius:24px; padding:72px 64px; overflow:hidden; position:relative;
-      background:linear-gradient(135deg,rgba(124,58,237,.08) 0%,rgba(225,29,122,.05) 100%);
-      border:1px solid rgba(124,58,237,.18);
+    /* CTA */
+    .cta-sec { padding:96px 0; position:relative; z-index:2; }
+    .cta-box {
+      border-radius:22px; padding:64px 60px; position:relative; overflow:hidden;
+      background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(219,39,119,.04));
+      border:1px solid rgba(124,58,237,.14);
+      box-shadow:0 2px 8px rgba(0,0,0,.04), 0 24px 60px rgba(124,58,237,.06);
     }
-    @media(max-width:700px){ .cta-card { padding:48px 28px; } }
-    .cta-card::before {
-      content:''; position:absolute; inset:0; border-radius:24px;
-      background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(124,58,237,.1),transparent 70%); pointer-events:none;
+    @media(max-width:680px){ .cta-box{padding:44px 28px;} }
+    .cta-box::before {
+      content:''; position:absolute; inset:0; border-radius:22px;
+      background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(124,58,237,.08),transparent 65%);
+      pointer-events:none;
     }
-    .cta-grid { position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; }
-    @media(max-width:700px){ .cta-grid { grid-template-columns:1fr; gap:40px; } }
-    .cta-h { font-size:clamp(34px,4.5vw,52px); font-weight:700; letter-spacing:-1.5px; line-height:.98; color:var(--ink); margin-bottom:14px; }
-    .cta-sub { font-size:15px; font-weight:400; color:var(--ink2); line-height:1.75; }
-    .form-stack { display:flex; flex-direction:column; gap:10px; }
-    .finput {
-      width:100%; padding:13px 16px; border-radius:10px;
-      background:var(--bg); border:1px solid var(--line); color:var(--ink);
-      font-family:var(--sans); font-size:14px; font-weight:400; outline:none;
+    .cta-inner { position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
+    @media(max-width:680px){ .cta-inner{grid-template-columns:1fr;gap:36px;} }
+    .cta-h { font-size:clamp(30px,4vw,46px); font-weight:700; letter-spacing:-1.5px; line-height:.98; color:var(--ink); margin-bottom:12px; }
+    .cta-p { font-size:15px; color:var(--ink2); line-height:1.7; }
+    .form { display:flex; flex-direction:column; gap:10px; }
+    .inp {
+      width:100%; padding:12px 16px; border-radius:10px;
+      background:#fff; border:1px solid var(--line); color:var(--ink);
+      font-family:var(--sans); font-size:14px; outline:none;
       transition:border-color .2s, box-shadow .2s;
     }
-    .finput::placeholder { color:var(--ink3); }
-    .finput:focus { border-color:rgba(124,58,237,.4); box-shadow:0 0 0 3px rgba(124,58,237,.08); }
-    .btn-submit {
-      padding:13px 24px; border-radius:100px; border:none; cursor:none;
-      background:linear-gradient(135deg,var(--lv),var(--m));
-      font-family:var(--sans); font-size:14px; font-weight:600; color:#fff;
-      box-shadow:0 4px 20px rgba(124,58,237,.3); transition:all .25s;
+    .inp::placeholder { color:var(--ink3); }
+    .inp:focus { border-color:rgba(124,58,237,.35); box-shadow:0 0 0 3px rgba(124,58,237,.07); }
+    .sub {
+      padding:12px; border-radius:100px; border:none; cursor:none;
+      background:var(--v); font-family:var(--sans); font-size:14px; font-weight:600; color:#fff;
+      box-shadow:0 4px 16px rgba(124,58,237,.28); transition:all .22s;
     }
-    .btn-submit:hover { transform:translateY(-1px); box-shadow:0 8px 32px rgba(124,58,237,.45); }
-    .fnote { font-family:var(--mono); font-size:10px; color:var(--ink3); letter-spacing:.03em; }
-    .ok-msg { display:none; font-size:14px; color:#059669; font-weight:500; }
+    .sub:hover { background:#6d28d9; transform:translateY(-1px); box-shadow:0 8px 28px rgba(124,58,237,.4); }
+    .fnote { font-family:var(--mono); font-size:10px; color:var(--ink3); }
+    .ok { display:none; font-size:14px; color:var(--g); font-weight:500; }
 
-    /* ── FOOTER ──────────────────────────────────────── */
+    /* FOOTER */
     footer {
-      border-top:1px solid var(--line); padding:28px 48px;
-      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
-      background:var(--bg);
+      border-top:1px solid var(--line); padding:26px 48px;
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
+      background:#fff; position:relative; z-index:2;
     }
-    .f-logo { font-size:14px; font-weight:600; color:var(--ink2); letter-spacing:-.1px; }
-    .f-logo span { color:var(--lv); }
-    footer p, footer a { font-family:var(--mono); font-size:11px; color:var(--ink3); text-decoration:none; transition:color .2s; }
-    footer a:hover { color:var(--lv); }
-    .f-links { display:flex; gap:24px; }
+    .f-brand { font-size:14px; font-weight:600; color:var(--ink2); }
+    .f-brand span { color:var(--v); }
+    footer p, footer a { font-family:var(--mono); font-size:10.5px; color:var(--ink3); text-decoration:none; transition:color .2s; }
+    footer a:hover { color:var(--v); }
+    .flinks { display:flex; gap:22px; }
 
-    /* ── REVEAL ──────────────────────────────────────── */
-    .reveal { opacity:0; transform:translateY(18px); transition:opacity .55s ease, transform .55s ease; }
+    /* REVEAL */
+    .reveal { opacity:0; transform:translateY(16px); transition:opacity .5s ease, transform .5s ease; }
     .reveal.in { opacity:1; transform:none; }
   </style>
 </head>
@@ -378,16 +335,23 @@
   <div id="cur"></div>
   <div id="cur-ring"></div>
 
+  <!-- AURORA -->
+  <div class="aurora" aria-hidden="true">
+    <div class="ab"></div>
+    <div class="ab"></div>
+    <div class="ab"></div>
+  </div>
+
   <!-- NAV -->
   <nav>
     <a href="#" class="nav-brand">
-      <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-        <path d="M7 4 Q9 14 6 24" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M14 3 Q17 13 15 24" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M21 5 Q25 15 23 24" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M6 24 Q11 20 14 24 Q17 28 23 24" stroke="#c084fc" stroke-width="1.3" stroke-linecap="round" opacity=".5"/>
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <path d="M7 4 Q9 14 6 24" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M14 3 Q17 13 15 24" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M21 5 Q25 15 23 24" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M6 24 Q11 20 14 24 Q17 28 23 24" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round" opacity=".5"/>
       </svg>
-      CEO<span class="dot" style="color:#9333ea;font-family:var(--mono);">/</span>OpenClaw
+      CEO<span class="nav-slash">/</span>OpenClaw
     </a>
     <div class="nav-links">
       <a href="#how">How it works</a>
@@ -395,57 +359,34 @@
       <a href="#compare">Compare</a>
       <a href="https://maxxer.ai" target="_blank">Maxxer</a>
     </div>
-    <a href="#waitlist" class="nav-cta">Get access</a>
+    <a href="#waitlist" class="nav-btn">Get access</a>
   </nav>
 
-  <!-- HERO (Vanta NET stays dark) -->
+  <!-- HERO (Vanta on white) -->
   <section id="vanta-hero">
-    <div class="aurora" aria-hidden="true">
-      <div class="ab"></div>
-      <div class="ab"></div>
-      <div class="ab"></div>
-    </div>
-
-    <div class="hero-inner">
-      <!-- LEFT -->
+    <div class="hero-wrap">
       <div>
-        <div class="hero-eyebrow">
-          <span class="eyebrow-dot"></span>
+        <div class="hero-tag">
+          <span class="htag-dot"></span>
           Claw Engine Optimization
         </div>
-
         <h1>
-          <span class="plain">Every agent</span>
-          <span class="plain">knows your</span>
-          <span class="grad">name.</span>
+          Every agent<br>knows your<br><span class="grad">name.</span>
         </h1>
-
-        <p class="hero-sub">The agentic web runs on the Claw Engine. CEO makes your product native to it — indexed, ranked, and callable by every OpenClaw agent.</p>
-
-        <div class="ctas">
-          <a href="#waitlist" class="btn-main">Join the waitlist</a>
-          <a href="#how" class="btn-line">How it works</a>
+        <p class="hero-p">The agentic web runs on the Claw Engine. CEO makes your product native to it — indexed, ranked, and callable by every OpenClaw agent.</p>
+        <div class="hero-btns">
+          <a href="#waitlist" class="btn-fill">Join the waitlist</a>
+          <a href="#how" class="btn-ghost">How it works</a>
         </div>
-
         <div class="hero-stats">
-          <div>
-            <div class="hstat-val" id="s1">0</div>
-            <div class="hstat-lab">Active agents</div>
-          </div>
-          <div>
-            <div class="hstat-val" id="s2">0</div>
-            <div class="hstat-lab">Products indexed</div>
-          </div>
-          <div>
-            <div class="hstat-val" id="s3">0</div>
-            <div class="hstat-lab">Queries / day</div>
-          </div>
+          <div><div class="hs-val" id="s1">0</div><div class="hs-lab">Active agents</div></div>
+          <div><div class="hs-val" id="s2">0</div><div class="hs-lab">Products indexed</div></div>
+          <div><div class="hs-val" id="s3">0</div><div class="hs-lab">Queries / day</div></div>
         </div>
       </div>
 
-      <!-- RIGHT: TERMINAL -->
       <div>
-        <div class="glass-card">
+        <div class="term-card">
           <div class="tbar">
             <div class="td r"></div><div class="td y"></div><div class="td g"></div>
             <span class="ttitle">claw-optimizer · CEO Engine · v3</span>
@@ -457,228 +398,202 @@
               <span class="ss-val" id="sc-num">0</span>
             </div>
             <div class="ss-bar"><div class="ss-fill" id="sc-fill"></div></div>
-            <div class="ss-sub"><span class="live"></span><span id="sc-txt">Calculating agent reach...</span></div>
+            <div class="ss-note"><span class="ldot"></span><span id="sc-txt">Calculating agent reach...</span></div>
           </div>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- FADE TRANSITION -->
-  <div class="hero-fade"></div>
 
   <!-- MARQUEE -->
   <div class="mq-wrap" aria-hidden="true">
     <div class="mq-track">
-      <span class="mq-item"><span class="mq-dot"></span><strong>llms.txt</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Claw Engine Registry</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Capability Schema</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Agent Analytics</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>A2A Endpoints</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>CEO Score</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>OpenClaw</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Agentic Discovery</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Action Endpoints</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Trust Proof</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>MCP Server</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>llms.txt</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Claw Engine Registry</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Capability Schema</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Agent Analytics</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>A2A Endpoints</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>CEO Score</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>OpenClaw</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Agentic Discovery</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Action Endpoints</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>Trust Proof</strong></span>
-      <span class="mq-item"><span class="mq-dot"></span><strong>MCP Server</strong></span>
+      <span class="mq-item"><strong>llms.txt</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Claw Engine Registry</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Capability Schema</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Agent Analytics</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>A2A Endpoints</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>CEO Score</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>OpenClaw</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Agentic Discovery</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Action Endpoints</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Trust Proof</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>MCP Server</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>llms.txt</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Claw Engine Registry</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Capability Schema</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Agent Analytics</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>A2A Endpoints</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>CEO Score</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>OpenClaw</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Agentic Discovery</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Action Endpoints</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>Trust Proof</strong><span class="mq-sep"> · </span></span>
+      <span class="mq-item"><strong>MCP Server</strong><span class="mq-sep"> · </span></span>
     </div>
   </div>
 
-  <!-- WHAT IS CEO -->
-  <section class="section">
+  <!-- WHAT -->
+  <section class="sec">
     <div class="wrap">
       <div class="reveal">
-        <span class="sec-eyebrow">What is CEO</span>
+        <span class="eyebrow">What is CEO</span>
         <h2 class="sec-h">The Claw Engine finds products.<br>Make yours impossible to miss.</h2>
-        <p class="sec-sub">OpenClaw agents query the Claw Engine before they act. CEO puts you in that index — structured, ranked, and ready to be used.</p>
+        <p class="sec-p">OpenClaw agents query the Claw Engine before they act. CEO puts you in that index — structured, ranked, and ready.</p>
       </div>
-
-      <div class="bento">
-        <div class="b-8 reveal">
-          <div class="card-hero-v" style="height:100%;">
-            <div class="ci"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg></div>
-            <div class="ct" style="font-size:20px;margin-bottom:12px;">Claw Engine Registry</div>
-            <div class="cb" style="max-width:500px;margin-bottom:22px;">Your product in the discovery database every OpenClaw agent queries before acting. Ranked by capability, relevance, and trust — updated daily. Without it, you don't exist to the agentic web.</div>
-            <div class="ctags"><span class="ctag">Daily Index</span><span class="ctag">Relevance Score</span><span class="ctag">Pricing Signals</span><span class="ctag">API Surface</span></div>
-          </div>
+      <div class="grid g-2-1">
+        <div class="feature-card-lg reveal">
+          <div class="ci"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg></div>
+          <div class="ct" style="font-size:19px;margin-bottom:10px;">Claw Engine Registry</div>
+          <div class="cb" style="max-width:480px;margin-bottom:20px;">Your product in the discovery database every OpenClaw agent queries before acting. Ranked by capability, relevance, and trust score — updated daily. Without it, you're invisible to the agentic web.</div>
+          <div class="ctags"><span class="ctag">Daily Index</span><span class="ctag">Relevance Score</span><span class="ctag">Pricing Signals</span><span class="ctag">API Surface</span></div>
         </div>
-        <div class="b-4 reveal" style="display:flex;flex-direction:column;gap:16px;">
-          <div class="card" style="flex:1;">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card reveal" style="flex:1;">
             <div class="ci"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
             <div class="ct">Discovery</div>
-            <div class="cb">Without CEO, agents can't find you. With it, you're the first result — every time an agent queries your category.</div>
+            <div class="cb">Without CEO, agents can't find you. With it, you're the first result every time an agent queries your category.</div>
           </div>
-          <div class="card" style="flex:1;">
+          <div class="card reveal" style="flex:1;">
             <div class="ci"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
             <div class="ct">Action</div>
-            <div class="cb">CEO exposes your APIs as agent-callable endpoints. Agents can purchase and act — no human required.</div>
+            <div class="cb">CEO exposes your APIs as agent-callable endpoints. Agents can purchase and act — no human in the loop.</div>
           </div>
         </div>
-        <div class="b-4t reveal">
-          <div class="card">
-            <div class="ci"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-            <div class="ct">CEO Score</div>
-            <div class="cb">0–100 daily score. Every deduction explained, every fix suggested. Benchmarked against your category.</div>
-            <div class="ctags"><span class="ctag">Daily Audit</span></div>
-          </div>
+      </div>
+      <div class="grid g-3" style="margin-top:16px;">
+        <div class="card reveal">
+          <div class="ci"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="ct">CEO Score</div>
+          <div class="cb">0–100 daily score. Every deduction explained, every fix suggested. Benchmarked against your category.</div>
+          <div class="ctags"><span class="ctag">Daily Audit</span></div>
         </div>
-        <div class="b-4t reveal">
-          <div class="card">
-            <div class="ci"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-            <div class="ct">llms.txt Generator</div>
-            <div class="cb">Auto-generates your OpenClaw-format product representation. Stays synced every time you deploy.</div>
-            <div class="ctags"><span class="ctag">Auto-Sync</span></div>
-          </div>
+        <div class="card reveal">
+          <div class="ci"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="ct">llms.txt Generator</div>
+          <div class="cb">Auto-generates your OpenClaw-format product file — docs, APIs, pricing — synced every deploy.</div>
+          <div class="ctags"><span class="ctag">Auto-Sync</span></div>
         </div>
-        <div class="b-4t reveal">
-          <div class="card">
-            <div class="ci"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-            <div class="ct">Trust Proof</div>
-            <div class="cb">Cryptographic capability proof registered with the Claw Engine. Agents verify before acting — no proof, no calls.</div>
-            <div class="ctags"><span class="ctag">Signed</span></div>
-          </div>
+        <div class="card reveal">
+          <div class="ci"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="ct">Trust Proof</div>
+          <div class="cb">Cryptographic capability proof registered with the Claw Engine. No proof — no agent calls.</div>
+          <div class="ctags"><span class="ctag">Signed</span></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-  <section id="how" class="section alt">
+  <!-- HOW -->
+  <section id="how" class="sec tinted">
     <div class="wrap">
       <div class="reveal">
-        <span class="sec-eyebrow">Process</span>
+        <span class="eyebrow">Process</span>
         <h2 class="sec-h">Audit. Optimize. Publish.</h2>
-        <p class="sec-sub">Three steps from invisible to agent-native. Takes minutes, not months.</p>
+        <p class="sec-p">Three steps from invisible to agent-native. Takes minutes, not months.</p>
       </div>
-      <div class="steps-grid">
+      <div class="steps">
         <div class="step reveal">
-          <span class="step-n">01</span>
-          <div class="step-title">Audit</div>
-          <div class="step-body">CEO scans your product and returns a CEO score — 0 to 100. Every gap mapped: missing llms.txt, no capability schema, unregistered in the Claw Engine.</div>
-          <div class="step-cmd">$ claw scan --url your.com</div>
+          <span class="sn">01</span>
+          <div class="st">Audit</div>
+          <div class="sb">CEO scans your product and returns a CEO score — 0 to 100. Every gap mapped: missing llms.txt, no capability schema, unregistered in the Claw Engine.</div>
+          <div class="sc">$ claw scan --url your.com</div>
         </div>
         <div class="step reveal">
-          <span class="step-n">02</span>
-          <div class="step-title">Optimize</div>
-          <div class="step-body">Auto-generates your llms.txt, builds your capability manifest, and maps your existing APIs to A2A action endpoints — one command, zero dev work.</div>
-          <div class="step-cmd">$ claw optimize --auto</div>
+          <span class="sn">02</span>
+          <div class="st">Optimize</div>
+          <div class="sb">Auto-generates your llms.txt, builds your capability manifest, maps your APIs to A2A action endpoints — one command, zero dev work.</div>
+          <div class="sc">$ claw optimize --auto</div>
         </div>
         <div class="step reveal">
-          <span class="step-n">03</span>
-          <div class="step-title">Publish</div>
-          <div class="step-body">Published to the Claw Engine registry. OpenClaw agents start finding you immediately. Analytics show who, when, and for what queries.</div>
-          <div class="step-cmd">$ claw publish --registry</div>
+          <span class="sn">03</span>
+          <div class="st">Publish</div>
+          <div class="sb">Published to the Claw Engine registry. Agents start finding you. Analytics show who, when, and for what — real time.</div>
+          <div class="sc">$ claw publish --registry</div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- FEATURES -->
-  <section id="features" class="section">
+  <section id="features" class="sec">
     <div class="wrap">
       <div class="reveal">
-        <span class="sec-eyebrow">Features</span>
+        <span class="eyebrow">Features</span>
         <h2 class="sec-h">Everything to be agent-native.</h2>
       </div>
-      <div class="bento" style="margin-top:56px;">
-        <div class="b-6 reveal">
-          <div class="card" style="height:100%;">
-            <div class="ci"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-            <div class="ct" style="font-size:18px;">Capability Manifest</div>
-            <div class="cb">A structured schema telling agents what your product does, what it costs, who it's for, and how to interact with it — in the Claw Engine's native format. Updated every deploy.</div>
-            <div class="ctags"><span class="ctag">Schema</span><span class="ctag">Structured</span><span class="ctag">Auto-Deploy</span></div>
-          </div>
+      <div class="grid g-2" style="margin-top:52px;">
+        <div class="card reveal">
+          <div class="ci"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <div class="ct" style="font-size:17px;">Capability Manifest</div>
+          <div class="cb">Structured schema telling agents what your product does, costs, and how to use it — in the Claw Engine's native format. Updated every deploy.</div>
+          <div class="ctags"><span class="ctag">Schema</span><span class="ctag">Auto-Deploy</span></div>
         </div>
-        <div class="b-6 reveal">
-          <div class="card" style="height:100%;">
-            <div class="ci"><svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
-            <div class="ct" style="font-size:18px;">Action Endpoints</div>
-            <div class="cb">CEO maps your existing APIs into A2A-compatible endpoints that agents can call directly. No new backend. Your existing surface, made agent-ready in one command.</div>
-            <div class="ctags"><span class="ctag">A2A</span><span class="ctag">Zero Dev Work</span><span class="ctag">Auto-Mapped</span></div>
-          </div>
+        <div class="card reveal">
+          <div class="ci"><svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+          <div class="ct" style="font-size:17px;">Action Endpoints</div>
+          <div class="cb">Maps your existing APIs into A2A-compatible endpoints agents call directly. No new backend — your existing surface, agent-ready in one command.</div>
+          <div class="ctags"><span class="ctag">A2A</span><span class="ctag">Zero Dev Work</span></div>
         </div>
-        <div class="b-4t reveal">
-          <div class="card">
-            <div class="ci"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
-            <div class="ct">Agent Analytics</div>
-            <div class="cb">Which agents are finding you, what queries, where you rank. Full discovery funnel, automated gap reports.</div>
-            <div class="ctags"><span class="ctag">Real-time</span></div>
-          </div>
+        <div class="card reveal">
+          <div class="ci"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <div class="ct">Agent Analytics</div>
+          <div class="cb">Which agents find you, what queries they run, where you rank. Full discovery funnel with automated gap reports.</div>
+          <div class="ctags"><span class="ctag">Real-time</span></div>
         </div>
-        <div class="b-4t reveal">
-          <div class="card">
-            <div class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><line x1="12" y1="9" x2="17" y2="7"/><line x1="12" y1="9" x2="7" y2="7"/><line x1="12" y1="15" x2="17" y2="17"/><line x1="12" y1="15" x2="7" y2="17"/></svg></div>
-            <div class="ct">Competitive Rank</div>
-            <div class="cb">How you rank vs. competitors in the Claw Engine across every query category. Weekly delta tracked.</div>
-            <div class="ctags"><span class="ctag">Weekly</span></div>
-          </div>
-        </div>
-        <div class="b-4t reveal">
-          <div class="card">
-            <div class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            <div class="ct">Continuous Sync</div>
-            <div class="cb">CEO hooks into your deploy pipeline. Every push updates your registry entry, score, and endpoints automatically.</div>
-            <div class="ctags"><span class="ctag">CI/CD</span></div>
-          </div>
+        <div class="card reveal">
+          <div class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><line x1="12" y1="9" x2="17" y2="7"/><line x1="12" y1="9" x2="7" y2="7"/><line x1="12" y1="15" x2="17" y2="17"/><line x1="12" y1="15" x2="7" y2="17"/></svg></div>
+          <div class="ct">Competitive Rank</div>
+          <div class="cb">See how you rank vs. competitors across every query category in the Claw Engine. Weekly delta tracked automatically.</div>
+          <div class="ctags"><span class="ctag">Weekly</span></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- COMPARE -->
-  <section id="compare" class="section alt">
+  <section id="compare" class="sec tinted">
     <div class="wrap">
       <div class="reveal">
-        <span class="sec-eyebrow">Compare</span>
+        <span class="eyebrow">Compare</span>
         <h2 class="sec-h">Built for the Claw Engine.<br>Not a retrofit.</h2>
-        <p class="sec-sub">SEO is for Google. GEO is for LLM citations. CEO is the only platform built specifically for OpenClaw agent discovery and action.</p>
+        <p class="sec-p">SEO is for Google. GEO is for LLM citations. CEO is the only platform built specifically for OpenClaw agent discovery.</p>
       </div>
-      <div class="cmp-wrap reveal">
-        <div class="cmp-head">
+      <div class="cmp reveal">
+        <div class="ch">
           <div class="cc hd">Capability</div>
-          <div class="cc hd viol viol-head">CEO / OpenClaw</div>
+          <div class="cc hd hi">CEO / OpenClaw</div>
           <div class="cc hd">SEO / GEO Tools</div>
         </div>
-        <div class="cmp-row"><div class="cc feat">Claw Engine Registry listing</div><div class="cc yes viol"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Native</div><div class="cc no"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Not available</div></div>
-        <div class="cmp-row"><div class="cc feat">llms.txt auto-generation</div><div class="cc yes viol"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Auto-synced</div><div class="cc part"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>Manual only</div></div>
-        <div class="cmp-row"><div class="cc feat">A2A action endpoint mapping</div><div class="cc yes viol"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Included</div><div class="cc no"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Not available</div></div>
-        <div class="cmp-row"><div class="cc feat">Real-time agent analytics</div><div class="cc yes viol"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Real-time</div><div class="cc no"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Not available</div></div>
-        <div class="cmp-row"><div class="cc feat">Cryptographic trust proof</div><div class="cc yes viol"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Signed</div><div class="cc no"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Concept only</div></div>
-        <div class="cmp-row"><div class="cc feat">LLM citation tracking (GEO)</div><div class="cc part viol"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>Via Maxxer GEO</div><div class="cc yes"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Core feature</div></div>
+        <div class="cr"><div class="cc feat">Claw Engine Registry</div><div class="cc yes hi"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Native</div><div class="cc no"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Not available</div></div>
+        <div class="cr"><div class="cc feat">llms.txt auto-generation</div><div class="cc yes hi"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Auto-synced</div><div class="cc part"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>Manual only</div></div>
+        <div class="cr"><div class="cc feat">A2A action endpoints</div><div class="cc yes hi"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Included</div><div class="cc no"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Not available</div></div>
+        <div class="cr"><div class="cc feat">Real-time agent analytics</div><div class="cc yes hi"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Real-time</div><div class="cc no"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Not available</div></div>
+        <div class="cr"><div class="cc feat">Cryptographic trust proof</div><div class="cc yes hi"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Signed</div><div class="cc no"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Concept only</div></div>
+        <div class="cr"><div class="cc feat">LLM citation tracking</div><div class="cc part hi"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>Via Maxxer GEO</div><div class="cc yes"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Core feature</div></div>
       </div>
     </div>
   </section>
 
   <!-- CTA -->
-  <section id="waitlist" class="cta-wrap">
+  <section id="waitlist" class="cta-sec">
     <div class="wrap">
-      <div class="cta-card reveal">
-        <div class="cta-grid">
+      <div class="cta-box reveal">
+        <div class="cta-inner">
           <div>
-            <span class="sec-eyebrow" style="margin-bottom:16px;display:block;">Early Access</span>
+            <span class="eyebrow" style="margin-bottom:14px;display:block;">Early Access</span>
             <div class="cta-h">Be first<br>in the index.</div>
-            <p class="cta-sub" style="margin-top:14px;">Limited early access. The Claw Engine is indexing now. Lock your spot before your competitors do.</p>
+            <p class="cta-p" style="margin-top:12px;">Limited early access. The Claw Engine is indexing now. Lock your spot before your competitors do.</p>
           </div>
           <div>
-            <form class="form-stack" id="wlForm">
-              <input type="text" class="finput" placeholder="Company name">
-              <input type="url" class="finput" placeholder="Product URL">
-              <input type="email" class="finput" placeholder="Work email" required>
-              <button type="submit" class="btn-submit">Request early access</button>
-              <p class="fnote">No spam. We'll send your CEO score + audit within 48h.</p>
+            <form class="form" id="wlForm">
+              <input type="text" class="inp" placeholder="Company name">
+              <input type="url"  class="inp" placeholder="Product URL">
+              <input type="email" class="inp" placeholder="Work email" required>
+              <button type="submit" class="sub">Request early access</button>
+              <p class="fnote">No spam. CEO score + audit within 48 hours.</p>
             </form>
-            <div class="ok-msg" id="wlOK">✓ &nbsp;You're on the list. CEO score incoming within 48h.</div>
+            <div class="ok" id="wlOK">✓ You're on the list. CEO score incoming within 48h.</div>
           </div>
         </div>
       </div>
@@ -687,54 +602,46 @@
 
   <!-- FOOTER -->
   <footer>
-    <div class="f-logo">CEO<span>/</span>OpenClaw</div>
+    <div class="f-brand">CEO<span>/</span>OpenClaw</div>
     <p>Claw Engine Optimization · © 2026</p>
-    <div class="f-links">
+    <div class="flinks">
       <a href="https://openclaw.ai" target="_blank">OpenClaw</a>
       <a href="https://maxxer.ai" target="_blank">Maxxer</a>
       <a href="#">Docs</a>
     </div>
   </footer>
 
-  <!-- THREE.JS + VANTA -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
-
   <script>
-  // ── VANTA ────────────────────────────────────────────
   VANTA.NET({
     el: '#vanta-hero', THREE,
     mouseControls:true, touchControls:true, gyroControls:false,
     minHeight:200, minWidth:200, scale:1, scaleMobile:1,
-    color: 0x9333ea,
-    backgroundColor: 0x0e0514,
-    points: 12, maxDistance: 22, spacing: 18,
+    color:      0x7c3aed,   // violet nodes on white
+    backgroundColor: 0xfdfcff,
+    points: 10, maxDistance: 24, spacing: 20,
   });
 
-  // ── CURSOR ───────────────────────────────────────────
-  const cur = document.getElementById('cur');
-  const ring = document.getElementById('cur-ring');
+  // CURSOR
+  const cur=document.getElementById('cur'), ring=document.getElementById('cur-ring');
   let mx=0,my=0,rx=0,ry=0;
-  document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; });
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
   (function tick(){
-    rx+=(mx-rx)*.16; ry+=(my-ry)*.16;
+    rx+=(mx-rx)*.15; ry+=(my-ry)*.15;
     cur.style.left=mx+'px'; cur.style.top=my+'px';
     ring.style.left=rx+'px'; ring.style.top=ry+'px';
     requestAnimationFrame(tick);
   })();
-  document.querySelectorAll('a,button,input,.card,.card-hero-v,.step').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{ cur.classList.add('big'); ring.classList.add('big'); });
-    el.addEventListener('mouseleave',()=>{ cur.classList.remove('big'); ring.classList.remove('big'); });
+  document.querySelectorAll('a,button,input,.card,.feature-card-lg,.step').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.classList.add('big');ring.classList.add('big');});
+    el.addEventListener('mouseleave',()=>{cur.classList.remove('big');ring.classList.remove('big');});
   });
 
-  // ── COUNTERS ─────────────────────────────────────────
-  function countUp(el,target,dur,suffix=''){
-    const s=performance.now();
-    (function f(now){
-      const p=Math.min((now-s)/dur,1);
-      el.textContent=Math.round((1-Math.pow(1-p,3))*target).toLocaleString()+suffix;
-      if(p<1)requestAnimationFrame(f);
-    })(s);
+  // COUNTERS
+  function countUp(el,target,dur,s=''){
+    const t=performance.now();
+    (function f(n){const p=Math.min((n-t)/dur,1);el.textContent=Math.round((1-Math.pow(1-p,3))*target).toLocaleString()+s;if(p<1)requestAnimationFrame(f);})(t);
   }
   setTimeout(()=>{
     countUp(document.getElementById('s1'),1247,2000);
@@ -742,42 +649,26 @@
     countUp(document.getElementById('s3'),14800,2400,'+');
   },500);
 
-  // ── SCORE ────────────────────────────────────────────
+  // SCORE
   function animScore(){
-    const n=document.getElementById('sc-num');
-    const f=document.getElementById('sc-fill');
-    const t=document.getElementById('sc-txt');
+    const n=document.getElementById('sc-num'),f=document.getElementById('sc-fill'),t=document.getElementById('sc-txt');
     const s=performance.now();
-    (function fr(now){
-      const p=Math.min((now-s)/2200,1);
-      const e=1-Math.pow(1-p,3);
-      n.textContent=Math.round(e*96);
-      f.style.width=(e*96)+'%';
-      if(p<1)requestAnimationFrame(fr);
-      else t.innerHTML='<span class="live"></span>Discoverable by 1,247 active OpenClaw agents';
-    })(s);
+    (function fr(now){const p=Math.min((now-s)/2000,1),e=1-Math.pow(1-p,3);n.textContent=Math.round(e*96);f.style.width=(e*96)+'%';if(p<1)requestAnimationFrame(fr);else t.innerHTML='<span class="ldot"></span>Discoverable by 1,247 active OpenClaw agents';})(s);
   }
-  const sObs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animScore();sObs.disconnect();}},{threshold:.3});
-  const sb=document.querySelector('.score-strip'); if(sb)sObs.observe(sb);
+  new IntersectionObserver(e=>{if(e[0].isIntersecting){animScore();} },{threshold:.3}).observe(document.querySelector('.score-strip'));
 
-  // ── TERMINAL ─────────────────────────────────────────
+  // TERMINAL
   const tb=document.getElementById('term-body');
-  const A=s=>`<span class="ta">${s}</span>`;
-  const D=s=>`<span class="tdim">${s}</span>`;
-  const OK=s=>`<span class="tok">${s}</span>`;
-  const ER=s=>`<span class="terr">${s}</span>`;
-  const HI=s=>`<span class="thi">${s}</span>`;
-  const LO=s=>`<span class="tlo">${s}</span>`;
-  const P=`<span class="tp">▸</span> `;
-  const C=`<span class="tcur"></span>`;
+  const A=s=>`<span class="ta">${s}</span>`,D=s=>`<span class="tdim">${s}</span>`,OK=s=>`<span class="tok">${s}</span>`,ER=s=>`<span class="terr">${s}</span>`,HI=s=>`<span class="thi">${s}</span>`,LO=s=>`<span class="tlo">${s}</span>`;
+  const P=`<span class="tp">▸</span> `,C=`<span class="tcur"></span>`;
   const seq=[
     {t:0,   h:P+A('claw scan')+' --url acme.com'},
-    {t:600, h:D('  Scanning acme.com...')},
+    {t:600, h:D('  Scanning...')},
     {t:1100,h:ER('  ✗')+' llms.txt            not found'},
     {t:1500,h:ER('  ✗')+' capability manifest  not found'},
     {t:1900,h:ER('  ✗')+' Claw Engine registry not listed'},
     {t:2300,h:OK('  ✓')+' REST endpoints       3 detected'},
-    {t:2800,h:'  '+D('CEO Score')+'  '+LO('18/100')+'  '+D('· invisible')},
+    {t:2800,h:'  CEO Score  '+LO('18/100')+'  '+D('· invisible')},
     {t:2800,h:''},
     {t:3300,h:P+A('claw optimize')+' --auto --publish'},
     {t:3800,h:D('  llms.txt ............. ')+OK('✓')},
@@ -785,24 +676,21 @@
     {t:4600,h:D('  A2A endpoints ........ ')+OK('✓')},
     {t:5000,h:D('  Claw Engine registry . ')+OK('✓')},
     {t:5400,h:D('  trust signature ...... ')+OK('✓')},
-    {t:5900,h:'  '+D('CEO Score')+'  '+HI('96/100')+'  '+D('· agent-native')},
-    {t:6200,h:OK('  ✓')+' '+A('1,247')+' agents now see you'},
+    {t:5900,h:'  CEO Score  '+HI('96/100')+'  '+D('· agent-native')},
+    {t:6200,h:OK('  ✓')+' '+A('1,247')+' agents can find you'},
     {t:6600,h:''},
   ];
   let lines=[];
-  function render(){ tb.innerHTML=lines.map(l=>`<span class="tl">${l}</span>`).join('')+C; tb.scrollTop=tb.scrollHeight; }
-  function run(){ lines=[]; render(); seq.forEach((s,i)=>{ setTimeout(()=>{ lines.push(s.h); render(); if(i===seq.length-1)setTimeout(run,4500); },s.t); }); }
+  function render(){tb.innerHTML=lines.map(l=>`<span class="tl">${l}</span>`).join('')+C;tb.scrollTop=tb.scrollHeight;}
+  function run(){lines=[];render();seq.forEach((s,i)=>{setTimeout(()=>{lines.push(s.h);render();if(i===seq.length-1)setTimeout(run,4500);},s.t);});}
   run();
 
-  // ── REVEAL ───────────────────────────────────────────
-  const rObs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in');});},{threshold:.07});
-  document.querySelectorAll('.reveal').forEach(el=>rObs.observe(el));
+  // REVEAL
+  const ro=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in');});},{threshold:.07});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 
-  // ── WAITLIST ─────────────────────────────────────────
-  document.getElementById('wlForm').addEventListener('submit',function(e){
-    e.preventDefault(); this.style.display='none';
-    document.getElementById('wlOK').style.display='block';
-  });
+  // FORM
+  document.getElementById('wlForm').addEventListener('submit',function(e){e.preventDefault();this.style.display='none';document.getElementById('wlOK').style.display='block';});
   </script>
 </body>
 </html>
