@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:    #fdfcff;
+      --bg:    #ffffff;
       --bg2:   #f7f5fd;
       --ink:   #0d0a14;
       --ink2:  #5a4e72;
@@ -54,9 +54,9 @@
       position:absolute; border-radius:50%; filter:blur(100px);
       animation:drift 22s ease-in-out infinite alternate;
     }
-    .ab:nth-child(1){ width:800px; height:800px; background:#c084fc; opacity:.06; top:-300px; left:-200px; animation-delay:0s; }
-    .ab:nth-child(2){ width:600px; height:600px; background:#f0abfc; opacity:.05; top:40%; right:-200px; animation-delay:-8s; }
-    .ab:nth-child(3){ width:500px; height:500px; background:#a5f3fc; opacity:.04; bottom:-100px; left:40%; animation-delay:-16s; }
+    .ab:nth-child(1){ width:900px; height:900px; background:#ddd6fe; opacity:.25; top:-350px; left:-250px; animation-delay:0s; }
+    .ab:nth-child(2){ width:700px; height:700px; background:#f5d0fe; opacity:.18; top:35%; right:-250px; animation-delay:-8s; }
+    .ab:nth-child(3){ width:600px; height:600px; background:#bae6fd; opacity:.14; bottom:-150px; left:35%; animation-delay:-16s; }
     @keyframes drift {
       0%  { transform:translate(0,0) scale(1); }
       50% { transform:translate(40px,-30px) scale(1.06); }
@@ -68,7 +68,7 @@
       position:fixed; top:0; left:0; right:0; z-index:500;
       display:flex; align-items:center; justify-content:space-between;
       padding:0 48px; height:60px;
-      background:rgba(253,252,255,.85); backdrop-filter:blur(24px);
+      background:rgba(255,255,255,.88); backdrop-filter:blur(24px);
       border-bottom:1px solid var(--line);
     }
     .nav-brand {
@@ -145,7 +145,7 @@
       border-radius:18px; overflow:hidden;
       background:#ffffff;
       border:1px solid var(--line);
-      box-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 32px rgba(0,0,0,.07), 0 32px 64px rgba(124,58,237,.06);
+      box-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 32px rgba(0,0,0,.06), 0 32px 64px rgba(124,58,237,.05);
     }
     .tbar { display:flex; align-items:center; gap:6px; padding:12px 16px; border-bottom:1px solid var(--line); background:#faf9fd; }
     .td  { width:10px; height:10px; border-radius:50%; }
@@ -154,22 +154,22 @@
     .tbody  {
       padding:20px 22px; font-family:var(--mono); font-size:12px;
       line-height:1.9; min-height:220px;
-      background:#0d0a14; color:#c4b5d8;
+      background:#faf9fd; color:var(--ink2);
     }
     .tl  { display:block; }
-    .tp  { color:#a78bfa; }
-    .ta  { color:#c084fc; font-weight:500; }
-    .tok { color:#6ee7b7; }
-    .terr{ color:#fca5a5; }
-    .tdim{ color:#3d2e52; }
-    .thi { color:#6ee7b7; font-weight:600; }
-    .tlo { color:#fca5a5; font-weight:600; }
-    .tcur{ display:inline-block; width:7px; height:12px; background:#a78bfa; vertical-align:middle; animation:blink .9s step-end infinite; }
+    .tp  { color:var(--v); }
+    .ta  { color:#6d28d9; font-weight:500; }
+    .tok { color:#059669; }
+    .terr{ color:#dc2626; }
+    .tdim{ color:var(--ink3); }
+    .thi { color:#059669; font-weight:600; }
+    .tlo { color:#dc2626; font-weight:600; }
+    .tcur{ display:inline-block; width:7px; height:12px; background:var(--v); vertical-align:middle; animation:blink .9s step-end infinite; }
     @keyframes blink{ 0%,100%{opacity:1}50%{opacity:0} }
 
     .score-strip {
       padding:14px 18px; border-top:1px solid var(--line);
-      background:#faf9fd;
+      background:#f3f0fc;
     }
     .ss-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
     .ss-lbl { font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); }
@@ -618,8 +618,8 @@
     el: '#vanta-hero', THREE,
     mouseControls:true, touchControls:true, gyroControls:false,
     minHeight:200, minWidth:200, scale:1, scaleMobile:1,
-    color:      0x7c3aed,   // violet nodes on white
-    backgroundColor: 0xfdfcff,
+    color:      0x8b5cf6,   // soft violet nodes
+    backgroundColor: 0xffffff,
     points: 10, maxDistance: 24, spacing: 20,
   });
 
