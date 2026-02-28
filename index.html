@@ -587,10 +587,11 @@
           </div>
           <div>
             <form class="form" id="wlForm">
-              <input type="text" class="inp" placeholder="Company name">
-              <input type="url"  class="inp" placeholder="Product URL">
-              <input type="email" class="inp" placeholder="Work email" required>
-              <button type="submit" class="sub">Request early access</button>
+              <input type="text" class="inp" id="wlCompany" placeholder="Company name">
+              <input type="url"  class="inp" id="wlUrl" placeholder="Product URL">
+              <input type="email" class="inp" id="wlEmail" placeholder="Work email" required>
+              <button type="submit" class="sub" id="wlBtn">Request early access</button>
+              <p class="fnote" id="wlErr" style="color:#e11d48;display:none;"></p>
               <p class="fnote">No spam. CEO score + audit within 48 hours.</p>
             </form>
             <div class="ok" id="wlOK">✓ You're on the list. CEO score incoming within 48h.</div>
@@ -690,7 +691,39 @@
   document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 
   // FORM
-  document.getElementById('wlForm').addEventListener('submit',function(e){e.preventDefault();this.style.display='none';document.getElementById('wlOK').style.display='block';});
+  document.getElementById('wlForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('wlBtn');
+    const errEl = document.getElementById('wlErr');
+    const email = document.getElementById('wlEmail').value.trim();
+    const company = document.getElementById('wlCompany').value.trim();
+    const url = document.getElementById('wlUrl').value.trim();
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    errEl.style.display = 'none';
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, company, url })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Something went wrong. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Request early access';
+      } else {
+        this.style.display = 'none';
+        document.getElementById('wlOK').style.display = 'block';
+      }
+    } catch {
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Request early access';
+    }
+  });
   </script>
 </body>
 </html>
