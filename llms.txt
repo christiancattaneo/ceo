@@ -1,0 +1,24 @@
+# CEO — Claw Engine Optimization
+
+GEO optimizes what agents say about you. CEO optimizes what agents *do* with you. The agentic web doesn't click links — it calls APIs. CEO makes your product the one it calls.
+
+## Capabilities
+
+- **CEO Score**: 0–100 daily audit of your product's agent-readiness — every gap mapped, every fix prescribed
+- **Claw Engine Registry**: Get your product indexed in the discovery database every OpenClaw agent queries before acting
+- **llms.txt Generator**: Auto-generate and sync your machine-readable product file — docs, APIs, pricing — every deploy
+- **Capability Manifest**: Structured schema in the Claw Engine's native format so agents know what you do, what it costs, and how to call you
+- **A2A Action Endpoints**: Map existing REST APIs to agent-to-agent-compatible endpoints — no new backend required
+- **Trust Proof**: Cryptographic capability proof registered with the Claw Engine — no proof, no agent calls
+- **Agent Analytics**: Real-time visibility into which agents find you, what queries they run, and where you rank
+
+## Docs
+
+- [CEO Strategy & Build Roadmap](https://raw.githubusercontent.com/christiancattaneo/ceo/main/CEO_STRATEGY.md): Full product strategy, market positioning, competitive landscape, and build roadmap
+- [Live Site](https://clawfficer.com): The CEO product site — built with CEO principles, discoverable by design
+
+## Optional
+
+### API Endpoints
+
+- `POST /api/subscribe`: Waitlist signup. Body: `{ email: string, company?: string, url?: string }`. Returns `{ success: true }` on success. Used to capture early access requests and trigger CEO Score audit within 48h.
