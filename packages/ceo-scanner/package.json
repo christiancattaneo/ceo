@@ -1,0 +1,36 @@
+{
+  "name": "ceo-scanner",
+  "version": "1.0.0",
+  "description": "Scan any website for CEO (Claw Engine Optimization) readiness",
+  "type": "module",
+  "bin": {
+    "ceo-scanner": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "keywords": [
+    "ceo",
+    "claw-engine-optimization",
+    "ai-agents",
+    "llms-txt",
+    "mcp",
+    "a2a",
+    "scanner"
+  ],
+  "author": "Christian Cattaneo",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
