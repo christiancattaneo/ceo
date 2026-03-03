@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="CEO by OpenClaw social card">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d0a14"/>
+      <stop offset="100%" stop-color="#2a1247"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1030" cy="120" r="170" fill="#7c3aed" opacity="0.15"/>
+  <circle cx="970" cy="530" r="210" fill="#db2777" opacity="0.12"/>
+  <text x="88" y="210" fill="#b9a3ff" font-size="36" font-family="Inter, Arial, sans-serif">CEO / OpenClaw</text>
+  <text x="88" y="300" fill="#ffffff" font-size="74" font-weight="700" font-family="Inter, Arial, sans-serif">OpenClaw agent SEO + GEO</text>
+  <text x="88" y="370" fill="#ffffff" font-size="74" font-weight="700" font-family="Inter, Arial, sans-serif">that gets products called</text>
+  <rect x="88" y="444" width="560" height="62" rx="31" fill="url(#accent)"/>
+  <text x="124" y="486" fill="#ffffff" font-size="30" font-family="Inter, Arial, sans-serif">llms.txt " capability schema " action endpoints</text>
+</svg>

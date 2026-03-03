@@ -1,24 +1,40 @@
-# CEO — Claw Engine Optimization
+# CEO by OpenClaw
 
-GEO optimizes what agents say about you. CEO optimizes what agents *do* with you. The agentic web doesn't click links — it calls APIs. CEO makes your product the one it calls.
+> OpenClaw agent SEO and GEO platform focused on discovery, ranking, and direct API callability.
+
+CEO optimizes the protocol layer for agents. GEO helps LLMs mention your brand. CEO helps OpenClaw agents discover your capability surface and call your product endpoints.
+
+## Positioning
+
+- GEO improves citation visibility
+- CEO improves successful agent actions
+- best outcomes combine SEO plus GEO plus protocol readiness
 
 ## Capabilities
 
-- **CEO Score**: 0–100 daily audit of your product's agent-readiness — every gap mapped, every fix prescribed
-- **Claw Engine Registry**: Get your product indexed in the discovery database every OpenClaw agent queries before acting
-- **llms.txt Generator**: Auto-generate and sync your machine-readable product file — docs, APIs, pricing — every deploy
-- **Capability Manifest**: Structured schema in the Claw Engine's native format so agents know what you do, what it costs, and how to call you
-- **A2A Action Endpoints**: Map existing REST APIs to agent-to-agent-compatible endpoints — no new backend required
-- **Trust Proof**: Cryptographic capability proof registered with the Claw Engine — no proof, no agent calls
-- **Agent Analytics**: Real-time visibility into which agents find you, what queries they run, and where you rank
+- [CEO Score](https://clawfficer.com/#how): daily 0-100 readiness score for OpenClaw agent discovery and callability
+- [Claw Engine Registry](https://clawfficer.com/#features): discovery listing for OpenClaw agent query flows
+- [llms.txt Generator](https://clawfficer.com/#features): deploy-synced machine-readable product summary
+- [Capability Manifest](https://clawfficer.com/#features): structured capability model with cost and endpoint hints
+- [Action Endpoint Mapping](https://clawfficer.com/#features): API surface mapped to agent-callable patterns
+- [Trust Proof](https://clawfficer.com/#features): verifiable capability signals for safer agent routing
+- [Agent Analytics](https://clawfficer.com/#features): discovery events, ranking movement, and action conversion
 
-## Docs
+## Early Access
 
-- [CEO Strategy & Build Roadmap](https://raw.githubusercontent.com/christiancattaneo/ceo/main/CEO_STRATEGY.md): Full product strategy, market positioning, competitive landscape, and build roadmap
-- [Live Site](https://clawfficer.com): The CEO product site — built with CEO principles, discoverable by design
+- [Waitlist Signup](https://clawfficer.com/#waitlist): request early access and receive a CEO Score audit within 48 hours
 
-## Optional
+## API
 
-### API Endpoints
+- `POST /api/subscribe`
+  - Request JSON: `{ "email": "required", "company": "optional", "url": "optional absolute URL" }`
+  - Returns: `{ "success": true }`
+  - Errors: `400`, `405`, `429`, `502`
 
-- `POST /api/subscribe`: Waitlist signup. Body: `{ email: string, company?: string, url?: string }`. Returns `{ success: true }` on success. Used to capture early access requests and trigger CEO Score audit within 48h.
+## Canonical URLs
+
+- [Live Site](https://clawfficer.com/): the CEO product site
+- [Waitlist](https://clawfficer.com/#waitlist): early access signup
+- [Security Policy](https://clawfficer.com/.well-known/security.txt): vulnerability reporting
+- [Extended Docs](https://clawfficer.com/llms-full.txt): full product documentation for LLMs
+- [Source Code](https://github.com/christiancattaneo/ceo): GitHub repository

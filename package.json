@@ -1,0 +1,9 @@
+{
+  "name": "ceo-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CEO — Claw Engine Optimization. Agent discovery platform for OpenClaw.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

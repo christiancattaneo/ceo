@@ -1,0 +1,99 @@
+# CEO — Claw Engine Optimization
+
+> CEO makes products native to the agentic web. It optimizes the protocol layer where autonomous agents discover, evaluate, and call products — not the content layer where AI merely mentions them.
+
+This file extends llms.txt with full product documentation, technical details, and API reference for LLM consumption.
+
+## Product Overview
+
+CEO is the first platform built specifically for agent discovery on the protocol layer. Every existing optimization approach (SEO, GEO, AEO, AAO) operates on the content layer, making sure an AI system mentions your brand when a human asks. CEO operates on the protocol layer, making sure an autonomous agent discovers, integrates, and calls your product when it needs to act.
+
+The distinction matters because the agentic web is shifting from passive citation to active integration. An agent booking a flight doesn't need to cite your airline in a chat response. It needs to find your API, verify your capabilities, check your pricing, and execute a booking. CEO handles that entire chain.
+
+### The Evolution Chain
+
+SEO optimizes for search engine rankings and clicks. GEO optimizes for LLM citations in ChatGPT, Perplexity, and Gemini. AEO optimizes for being the answer in AI search results. AAO optimizes for being chosen when no human is in the loop. CEO optimizes for being called when the agent acts. Each layer builds on the previous one, but CEO addresses a gap none of the others touch: the protocol and integration layer where agents actually execute.
+
+### Content Layer vs Protocol Layer
+
+Content layer optimization is passive citation. An AI mentions your brand in a response to a human question. Protocol layer optimization is active integration. An autonomous agent discovers your product through a registry, verifies your capabilities through a manifest, and calls your API through an A2A endpoint. CEO handles the protocol layer.
+
+## Capabilities
+
+### CEO Score
+
+A 0 to 100 daily audit measuring how agent-ready your product is. The score checks for llms.txt presence and compliance, capability schema completeness, Claw Engine registry listing status, API documentation quality and accessibility, MCP server availability, A2A endpoint compatibility, trust proof registration, and structured data markup. Every deduction is explained with a specific fix. Scores are benchmarked against your product category so you can see where you stand relative to competitors.
+
+### Claw Engine Registry
+
+The central discovery database that OpenClaw agents query before acting. Products are ranked by capability match, relevance to the query, and trust score. The registry is updated daily. Without a listing, your product is invisible to the entire OpenClaw agent ecosystem. Listing includes your capability manifest, pricing signals, API surface area, and trust proof.
+
+### llms.txt Generator
+
+Automatically generates a compliant llms.txt file by crawling your product URL. Extracts product description, capabilities, API documentation, pricing information, and support channels. Output follows the llms.txt specification created by Jeremy Howard with proper H1 title, blockquote description, H2 sections, and annotated links. Syncs on every deploy to keep the file current.
+
+### Capability Manifest
+
+A structured schema in the Claw Engine's native format. Tells agents exactly what your product does, what each capability costs, what inputs it expects, what outputs it returns, and how to authenticate. Think of it as a machine-readable product spec sheet that agents parse before deciding whether to call you. Updated automatically when your API surface changes.
+
+### A2A Action Endpoints
+
+Maps your existing REST API endpoints to agent-to-agent compatible endpoints following Google's A2A protocol specification. No new backend code required. Your existing API surface becomes agent-callable through a compatibility layer that handles A2A message format, task lifecycle, and streaming responses. Supports the full A2A task state machine including submitted, working, input-required, completed, and failed states.
+
+### Trust Proof
+
+A cryptographic capability proof registered with the Claw Engine. Agents verify this proof before calling your product. Without it, agents treat your product as unverified and deprioritize or skip it entirely. The trust proof attests that your stated capabilities are real, your pricing is accurate, and your endpoints actually respond. Renewed automatically on each audit cycle.
+
+### Agent Analytics
+
+Real-time visibility into agent interactions with your product listing. Shows which agents discovered you, what queries led to discovery, your rank in each query category, conversion from discovery to API call, error rates and latency from agent-initiated requests, and competitive position changes over time. Includes automated gap reports identifying queries where competitors outrank you.
+
+## Process
+
+Step 1 is Audit. Run the CEO scanner against your product URL. It checks every dimension of agent-readiness and returns a CEO Score with detailed breakdown. The command is claw scan --url yoursite.com.
+
+Step 2 is Optimize. CEO auto-generates your llms.txt, builds your capability manifest, maps your APIs to A2A endpoints, and prepares your trust proof. One command, zero dev work. The command is claw optimize --auto.
+
+Step 3 is Publish. Everything is published to the Claw Engine registry. Agents start finding you immediately. Analytics begin tracking from the first discovery event. The command is claw publish --registry.
+
+## API Reference
+
+### POST /api/subscribe
+
+Waitlist signup endpoint for early access requests.
+
+Request body is JSON with three fields. The email field is required and must be a valid email address. The company field is optional and accepts the company name as a string. The url field is optional and accepts the product URL as a string.
+
+Success response returns HTTP 200 with JSON body containing success set to true.
+
+Error responses include HTTP 400 with error "Valid work email required" for missing or invalid email, and HTTP 405 with error "Method not allowed" for non-POST requests.
+
+On successful signup, CEO sends a welcome email to the applicant confirming their position on the early access list, and a notification email to the CEO team with the signup details. A CEO Score audit is delivered to the applicant within 48 hours.
+
+## Pricing
+
+The Free tier includes CEO Score scanning and basic llms.txt generation. No account required.
+
+The Pro tier is $49 per month per workspace.
+Maximum annual spend per workspace is capped at 12 x 49 = $588.
+
+The Enterprise tier is $299 per month per workspace.
+Maximum annual spend per workspace is capped at 12 x 299 = $3,588.
+
+Paid operations should always have explicit limits. Set max workspaces, max scans per workspace, max concurrent optimization jobs, and max registry publish events to prevent accidental billing loops.
+
+## Technical Context
+
+CEO is built on three protocol standards. The Model Context Protocol (MCP) created by Anthropic provides the universal connectivity layer for agents to discover and access tools. The Agent-to-Agent protocol (A2A) created by Google provides the communication standard for agents to collaborate and delegate tasks. The llms.txt standard created by Jeremy Howard provides the machine-readable product description format.
+
+The Claw Engine registry functions as a curated A2A agent registry combined with an MCP skill marketplace specifically for commercial products and APIs, as opposed to open-source tools.
+
+## Related Products
+
+Maxxer at maxxer.ai is the companion GEO platform handling LLM citation optimization. CEO handles the protocol layer. Maxxer handles the content layer. They are complementary.
+
+OpenClaw at openclaw.ai is the open-source agent framework with over 200,000 GitHub stars. CEO is built to work natively with OpenClaw agents and the ClawHub skill marketplace.
+
+## Contact
+
+Website is https://clawfficer.com. Early access signup is at https://clawfficer.com/#waitlist. Strategy and roadmap documentation is at https://raw.githubusercontent.com/christiancattaneo/ceo/main/CEO_STRATEGY.md. Source code is at https://github.com/christiancattaneo/ceo. SEO and GEO playbook is at https://raw.githubusercontent.com/christiancattaneo/ceo/main/docs/openclaw-seo-geo-playbook.md. X and ClawHub distribution guide is at https://raw.githubusercontent.com/christiancattaneo/ceo/main/docs/x-clawhub-distribution.md.

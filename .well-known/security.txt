@@ -1,0 +1,6 @@
+Contact: mailto:security@clawfficer.com
+Contact: https://clawfficer.com/#waitlist
+Expires: 2027-03-02T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://clawfficer.com/.well-known/security.txt
+Policy: https://clawfficer.com/#faq

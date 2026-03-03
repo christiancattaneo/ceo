@@ -1,0 +1,72 @@
+{
+  "name": "CEO — Claw Engine Optimization",
+  "description": "Makes products native to the agentic web. Audits agent-readiness, generates llms.txt and capability manifests, maps REST APIs to A2A endpoints, and indexes products in the Claw Engine registry for OpenClaw agent discovery.",
+  "version": "1.0.0",
+  "url": "https://clawfficer.com",
+  "provider": {
+    "organization": "CEO / OpenClaw",
+    "url": "https://clawfficer.com"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false
+  },
+  "authentication": {
+    "schemes": []
+  },
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
+  "skills": [
+    {
+      "id": "ceo-score-audit",
+      "name": "CEO Score Audit",
+      "description": "Scans a product URL and returns a CEO Score from 0 to 100 measuring agent-readiness. Checks for llms.txt presence, capability schema, Claw Engine registry listing, API documentation, and MCP server availability.",
+      "tags": ["audit", "agent-readiness", "scoring", "discovery"],
+      "examples": [
+        "Scan acme.com for agent-readiness",
+        "What is the CEO Score for this product?",
+        "Audit my product's visibility to OpenClaw agents"
+      ]
+    },
+    {
+      "id": "llms-txt-generator",
+      "name": "llms.txt Generator",
+      "description": "Crawls a product URL, extracts capabilities, pricing, and API documentation, then generates a compliant llms.txt file for agent discovery.",
+      "tags": ["llms-txt", "generation", "optimization", "content"],
+      "examples": [
+        "Generate an llms.txt file for my product",
+        "Create a machine-readable product description"
+      ]
+    },
+    {
+      "id": "capability-manifest",
+      "name": "Capability Manifest Builder",
+      "description": "Builds a structured capability schema in the Claw Engine's native format describing what a product does, what it costs, and how to call it.",
+      "tags": ["schema", "manifest", "capability", "structured-data"],
+      "examples": [
+        "Build a capability manifest for my API",
+        "Create a structured schema for agent discovery"
+      ]
+    },
+    {
+      "id": "a2a-endpoint-mapper",
+      "name": "A2A Endpoint Mapper",
+      "description": "Maps existing REST API endpoints to agent-to-agent compatible action endpoints following the A2A protocol specification.",
+      "tags": ["a2a", "api", "endpoints", "protocol", "mapping"],
+      "examples": [
+        "Map my REST API to A2A endpoints",
+        "Make my API callable by autonomous agents"
+      ]
+    },
+    {
+      "id": "waitlist-signup",
+      "name": "Early Access Signup",
+      "description": "Registers an email for CEO early access. Triggers a CEO Score audit delivered within 48 hours.",
+      "tags": ["signup", "waitlist", "early-access"],
+      "examples": [
+        "Sign up for CEO early access",
+        "Join the CEO waitlist"
+      ]
+    }
+  ]
+}
