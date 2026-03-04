@@ -1,15 +1,25 @@
 {
   "name": "ceo-scanner",
-  "version": "1.0.0",
-  "description": "Scan any website for CEO (Claw Engine Optimization) readiness",
+  "version": "2.0.0",
+  "description": "Scan any URL for CEO (Claw Engine Optimization) readiness — how discoverable, integrable, and transactable your product is for AI agents",
   "type": "module",
   "bin": {
     "ceo-scanner": "./dist/index.js"
   },
+  "main": "./dist/scanner.js",
+  "types": "./dist/scanner.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/scanner.js",
+      "types": "./dist/scanner.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc",
+    "test": "node --test dist/__tests__/*.test.js",
     "start": "node dist/index.js",
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "ceo",
@@ -18,7 +28,9 @@
     "llms-txt",
     "mcp",
     "a2a",
-    "scanner"
+    "openapi",
+    "scanner",
+    "seo-for-ai"
   ],
   "author": "Christian Cattaneo",
   "license": "MIT",
@@ -32,5 +44,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
 }
