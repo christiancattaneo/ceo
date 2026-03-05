@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CEO Blog — Optimization Insights for the Agent Era</title>
+  <meta name="description" content="Guides, insights, and playbooks on Claw Engine Optimization — making products discoverable, verifiable, and callable by autonomous AI agents.">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/">
+  <meta property="og:title" content="CEO Blog — Optimization Insights for the Agent Era">
+  <meta property="og:description" content="Guides, insights, and playbooks on Claw Engine Optimization — making products discoverable, verifiable, and callable by autonomous AI agents.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CEO Blog — Optimization Insights for the Agent Era">
+  <meta name="twitter:description" content="Guides, insights, and playbooks on Claw Engine Optimization.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:    #ffffff;
+      --bg2:   #f7f5fd;
+      --ink:   #0d0a14;
+      --ink2:  #5a4e72;
+      --ink3:  #b0a8c4;
+      --v:     #7c3aed;
+      --v2:    #9333ea;
+      --m:     #db2777;
+      --g:     #059669;
+      --line:  #ede9f5;
+      --vs:    rgba(124,58,237,0.07);
+      --vm:    rgba(124,58,237,0.14);
+      --mono:  'JetBrains Mono', monospace;
+      --sans:  'Space Grotesk', sans-serif;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { font-family:var(--sans); background:var(--bg); color:var(--ink); overflow-x:hidden; }
+
+    /* AURORA */
+    .aurora {
+      position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+    }
+    .ab {
+      position:absolute; border-radius:50%; filter:blur(75px);
+      animation:drift 22s ease-in-out infinite alternate;
+    }
+    .ab:nth-child(1){ width:900px; height:900px; background:#6d28d9; opacity:.10; top:-350px; left:-250px; animation-delay:0s; }
+    .ab:nth-child(2){ width:700px; height:700px; background:#9d174d; opacity:.07; top:30%; right:-250px; animation-delay:-8s; }
+    .ab:nth-child(3){ width:650px; height:650px; background:#0e7490; opacity:.06; bottom:-150px; left:30%; animation-delay:-16s; }
+    @keyframes drift {
+      0%  { transform:translate(0,0) scale(1); }
+      50% { transform:translate(40px,-30px) scale(1.06); }
+      100%{ transform:translate(-20px,30px) scale(.96); }
+    }
+
+    /* NAV */
+    nav {
+      position:sticky; top:0; left:0; right:0; z-index:500;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 48px; height:60px;
+      background:rgba(255,255,255,.88); backdrop-filter:blur(24px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav-brand {
+      display:flex; align-items:center; gap:9px; text-decoration:none;
+      font-size:15px; font-weight:600; color:var(--ink); letter-spacing:-.2px;
+    }
+    .nav-slash { color:var(--v); font-family:var(--mono); font-weight:400; font-size:14px; }
+    .nav-links { display:flex; gap:28px; align-items:center; }
+    .nav-links a { font-size:13px; font-weight:400; color:var(--ink2); text-decoration:none; transition:color .2s; }
+    .nav-links a:hover { color:var(--ink); }
+    .nav-links a.active { color:var(--v); font-weight:500; }
+    @media(max-width:640px){ .nav-links{display:none;} }
+    .nav-btn {
+      font-size:13px; font-weight:600; padding:8px 20px; border-radius:100px;
+      background:var(--v); color:#fff; text-decoration:none;
+      box-shadow:0 2px 14px rgba(124,58,237,.3); transition:all .22s;
+    }
+    .nav-btn:hover { background:#6d28d9; box-shadow:0 4px 22px rgba(124,58,237,.45); transform:translateY(-1px); }
+
+    /* HERO */
+    .blog-hero {
+      position:relative; z-index:2;
+      padding:80px 48px 60px;
+      max-width:1140px; margin:0 auto;
+      border-bottom:1px solid var(--line);
+    }
+    @media(max-width:640px){ .blog-hero{padding:56px 24px 40px;} }
+    .eyebrow {
+      font-family:var(--mono); font-size:10px; font-weight:500;
+      letter-spacing:.1em; text-transform:uppercase; color:var(--v);
+      margin-bottom:14px; display:block;
+    }
+    .blog-hero h1 {
+      font-size:clamp(36px,5vw,64px); font-weight:700;
+      line-height:1.02; letter-spacing:-2px; color:var(--ink);
+      margin-bottom:18px;
+    }
+    .blog-hero h1 .grad {
+      background:linear-gradient(135deg,#7c3aed,#c026d3,#db2777);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      background-size:200% 200%; animation:shimmer 6s ease infinite;
+    }
+    @keyframes shimmer{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    .blog-hero p {
+      font-size:16px; color:var(--ink2); line-height:1.7; max-width:560px;
+    }
+
+    /* MAIN LAYOUT */
+    .blog-main {
+      position:relative; z-index:2;
+      max-width:1140px; margin:0 auto;
+      padding:60px 48px 96px;
+    }
+    @media(max-width:640px){ .blog-main{padding:40px 24px 72px;} }
+
+    .section-label {
+      font-family:var(--mono); font-size:10px; font-weight:500;
+      letter-spacing:.1em; text-transform:uppercase; color:var(--ink3);
+      margin-bottom:32px; display:block;
+      padding-bottom:12px; border-bottom:1px solid var(--line);
+    }
+
+    /* ARTICLE CARD */
+    .article-card {
+      display:grid; grid-template-columns:1fr; gap:0;
+      background:#fff; border:1px solid var(--line); border-radius:20px;
+      overflow:hidden; max-width:700px;
+      box-shadow:0 1px 3px rgba(0,0,0,.04), 0 12px 40px rgba(124,58,237,.06);
+      transition:border-color .22s, box-shadow .22s, transform .22s;
+      text-decoration:none; color:inherit;
+    }
+    .article-card:hover {
+      border-color:rgba(124,58,237,.25);
+      box-shadow:0 4px 20px rgba(124,58,237,.1), 0 24px 56px rgba(0,0,0,.06);
+      transform:translateY(-3px);
+    }
+    .card-banner {
+      height:6px;
+      background:linear-gradient(90deg,var(--v),var(--m));
+    }
+    .card-body { padding:32px 36px; }
+    @media(max-width:640px){ .card-body{padding:24px 22px;} }
+    .card-meta {
+      display:flex; align-items:center; gap:16px; margin-bottom:18px;
+      font-family:var(--mono); font-size:10.5px; color:var(--ink3);
+    }
+    .card-tag {
+      background:var(--vs); color:var(--v); border-radius:100px;
+      padding:3px 10px; font-family:var(--mono); font-size:10px; font-weight:500;
+      letter-spacing:.04em;
+    }
+    .card-title {
+      font-size:22px; font-weight:700; letter-spacing:-.5px; line-height:1.2;
+      color:var(--ink); margin-bottom:14px;
+    }
+    .card-excerpt {
+      font-size:14px; color:var(--ink2); line-height:1.75; margin-bottom:24px;
+    }
+    .card-cta {
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:13px; font-weight:600; color:var(--v);
+      text-decoration:none; transition:gap .2s;
+    }
+    .article-card:hover .card-cta { gap:10px; }
+    .card-cta svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; }
+
+    /* FOOTER */
+    footer {
+      position:relative; z-index:2;
+      text-align:center; padding:40px 24px;
+      border-top:1px solid var(--line);
+      font-size:12px; color:var(--ink3);
+    }
+    .f-brand {
+      font-family:var(--mono); font-size:13px; font-weight:600; color:var(--ink2); margin-bottom:8px;
+    }
+    .f-brand span { color:var(--v); }
+    .flinks { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; margin-top:14px; }
+    .flinks a { font-size:12px; color:var(--ink3); text-decoration:none; transition:color .2s; }
+    .flinks a:hover { color:var(--v); }
+  </style>
+</head>
+<body>
+
+  <div class="aurora">
+    <div class="ab"></div>
+    <div class="ab"></div>
+    <div class="ab"></div>
+  </div>
+
+  <nav>
+    <a href="/" class="nav-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+      CEO<span class="nav-slash">/</span>OpenClaw
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/#how">How it works</a>
+      <a href="/#features">Features</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/clawhub/">ClawHub</a>
+    </div>
+    <a href="/#waitlist" class="nav-btn">Get access</a>
+  </nav>
+
+  <div class="blog-hero">
+    <span class="eyebrow">Blog</span>
+    <h1>CEO Blog —<br><span class="grad">Optimization Insights</span><br>for the Agent Era</h1>
+    <p>Guides, playbooks, and perspectives on Claw Engine Optimization — making products discoverable, verifiable, and callable by autonomous AI agents.</p>
+  </div>
+
+  <main class="blog-main">
+    <span class="section-label">Latest articles</span>
+
+    <a href="/blog/what-is-claw-engine-optimization.html" class="article-card">
+      <div class="card-banner"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-tag">CEO Fundamentals</span>
+          <span>Mar 5, 2026</span>
+          <span>8 min read</span>
+        </div>
+        <div class="card-title">What Is Claw Engine Optimization? The New SEO for AI Agents</div>
+        <div class="card-excerpt">Google rankings matter less when ChatGPT answers first — but autonomous agents don't even use search. They query capability registries, verify protocols, and call APIs directly. CEO is the new optimization layer for a world where AI agents transact on your behalf.</div>
+        <span class="card-cta">
+          Read
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </div>
+    </a>
+  </main>
+
+  <footer>
+    <div class="f-brand">CEO<span>/</span>OpenClaw</div>
+    <p>Claw Engine Optimization · © 2026</p>
+    <div class="flinks">
+      <a href="https://openclaw.ai" target="_blank">OpenClaw</a>
+      <a href="https://maxxer.ai" target="_blank">Maxxer</a>
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://ceo-plum-ten.vercel.app" target="_blank">CEO Scanner</a>
+    </div>
+  </footer>
+
+</body>
+</html>
