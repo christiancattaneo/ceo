@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>llms.txt: The Robots.txt for AI — Complete Setup Guide — CEO Blog</title>
+  <meta name="description" content="llms.txt is the emerging standard that tells AI agents what your product does, how to call it, and what tools it exposes. Learn how to write one that actually works.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="llms.txt, llms.txt optimization, AI agent discovery, robots.txt for AI, MCP tools, agent-readable, llms.txt setup guide, llms.txt example">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/llms-txt-complete-setup-guide.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/llms-txt-complete-setup-guide.html">
+  <meta property="og:title" content="llms.txt: The Robots.txt for AI — Complete Setup Guide">
+  <meta property="og:description" content="llms.txt is the emerging standard that tells AI agents what your product does, how to call it, and what tools it exposes. Learn how to write one that actually works.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-03-07T00:00:00Z">
+  <meta property="article:author" content="CEO Team">
+  <meta property="article:section" content="CEO Fundamentals">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="llms.txt: The Robots.txt for AI — Complete Setup Guide">
+  <meta name="twitter:description" content="robots.txt told Google what not to crawl. llms.txt tells AI agents what your product IS and how to use it. Here's the complete setup guide.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: rgba(124,58,237,0.15);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --cyan: #06b6d4;
+      --text: #e8e8f0;
+      --text-secondary: #8888aa;
+      --code-bg: #1a1a28;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 760px; margin: 0 auto;
+      display: flex; align-items: center; gap: 24px;
+      height: 56px;
+    }
+    .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-logo svg { color: var(--accent-light); }
+    .nav-links { display: flex; gap: 20px; margin-left: auto; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Article layout */
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    /* Header */
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .article-tag {
+      background: rgba(124,58,237,0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(124,58,237,0.3);
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .article-date { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read::before { content: "·"; margin-right: 12px; }
+
+    h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .article-lead { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 48px; }
+
+    /* Body */
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 52px 0 16px; letter-spacing: -0.01em; color: var(--text); }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; color: var(--accent-light); }
+    p { margin-bottom: 20px; color: var(--text); }
+    a { color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--cyan); }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--text-secondary); font-style: italic; }
+
+    /* Code */
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--code-bg);
+      padding: 2px 7px; border-radius: 5px;
+      color: var(--cyan);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-size: 0.875rem;
+      line-height: 1.65;
+    }
+    pre code { background: none; padding: 0; color: var(--text); }
+    .code-comment { color: var(--text-secondary); }
+    .code-key { color: var(--accent-light); }
+    .code-val { color: #86efac; }
+    .code-punct { color: var(--text-secondary); }
+
+    /* Callout boxes */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(124,58,237,0.07);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 28px 0;
+    }
+    .callout.cyan { border-color: var(--cyan); background: rgba(6,182,212,0.07); }
+    .callout.green { border-color: #22c55e; background: rgba(34,197,94,0.07); }
+    .callout p { margin-bottom: 0; color: var(--text); }
+    .callout strong { color: inherit; }
+
+    /* Comparison table */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 0.9rem; }
+    .compare-table th {
+      text-align: left; padding: 12px 16px;
+      background: var(--surface); color: var(--text-secondary);
+      font-weight: 600; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .dim { color: var(--text-secondary); }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+    .checklist li::before { content: "✓"; color: #22c55e; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+    /* Section divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* Back link */
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 36px; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+
+    /* CTA box */
+    .cta-box {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08));
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .cta-box h3 { color: var(--text); font-size: 1.3rem; margin-bottom: 10px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">CEO Fundamentals</span>
+    <span class="article-date">March 7, 2026</span>
+    <span class="article-read">7 min read</span>
+  </div>
+
+  <h1>llms.txt: The Robots.txt for AI — Complete Setup Guide</h1>
+
+  <p class="article-lead">
+    In 1994, <code>robots.txt</code> told web crawlers which pages to index. In 2026, <code>llms.txt</code> tells AI agents what your product <em>is</em>, what it <em>does</em>, and how to <em>call it</em>. Here's everything you need to know — and a template you can deploy today.
+  </p>
+
+  <h2>What Is llms.txt?</h2>
+
+  <p>
+    <code>llms.txt</code> is a plain-text (or Markdown) file served at the root of your domain — <code>yourdomain.com/llms.txt</code> — designed to give large language models and autonomous AI agents a structured overview of your product.
+  </p>
+  <p>
+    Think of it as a self-describing API manifest for the agentic web. When an AI agent (running in Claude, Cursor, OpenClaw, or any MCP-capable runtime) encounters your domain, it can fetch <code>/llms.txt</code> to instantly understand:
+  </p>
+  <ul>
+    <li>What your product/service does in plain English</li>
+    <li>What tools or capabilities it exposes</li>
+    <li>What endpoints or protocols it supports (MCP, A2A, REST)</li>
+    <li>What context the agent needs to use it effectively</li>
+    <li>What it should <em>not</em> try to do</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Key distinction:</strong> <code>robots.txt</code> is about <em>crawl access</em>. <code>llms.txt</code> is about <em>capability discovery</em>. A human reads your landing page to understand what you do. An AI agent reads your <code>llms.txt</code>.</p>
+  </div>
+
+  <h2>robots.txt vs. llms.txt — Side by Side</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>robots.txt</th>
+        <th>llms.txt</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Purpose</strong></td>
+        <td class="dim">Tell crawlers what to index</td>
+        <td>Tell agents what you can do</td>
+      </tr>
+      <tr>
+        <td><strong>Consumer</strong></td>
+        <td class="dim">Google, Bing, web spiders</td>
+        <td>LLMs, AI agents, MCP runtimes</td>
+      </tr>
+      <tr>
+        <td><strong>Format</strong></td>
+        <td class="dim">Key-value directives</td>
+        <td>Markdown (structured prose)</td>
+      </tr>
+      <tr>
+        <td><strong>Content</strong></td>
+        <td class="dim">Allow/disallow URL paths</td>
+        <td>Product description, tools, endpoints, usage rules</td>
+      </tr>
+      <tr>
+        <td><strong>Standard</strong></td>
+        <td class="dim">RFC 9309 (formal)</td>
+        <td>Emerging (de facto, not yet RFC)</td>
+      </tr>
+      <tr>
+        <td><strong>Required?</strong></td>
+        <td class="dim">Strongly recommended</td>
+        <td>Not yet — but adoption is accelerating</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Why It Matters Right Now</h2>
+
+  <p>
+    The agentic web is still young, but the pattern is clear: AI agents will increasingly be the <em>first consumer</em> of your product's capabilities. Not a human clicking around your marketing site — an agent calling your MCP server, reading your schema, deciding whether to route a task to you.
+  </p>
+  <p>
+    If you don't have an <code>llms.txt</code>, agents have to infer your capabilities from scraped HTML. That's slow, unreliable, and often wrong. A well-written <code>llms.txt</code> is the difference between an agent confidently calling your API and an agent ignoring you entirely.
+  </p>
+  <p>
+    Early movers are already seeing results. OpenClaw's Claw Engine Registry (part of the <a href="/blog/what-is-claw-engine-optimization.html">CEO framework</a>) prioritizes products with valid <code>llms.txt</code> files in its agent routing decisions. As more runtimes adopt similar patterns, the file becomes table stakes.
+  </p>
+
+  <h2>The llms.txt Format</h2>
+
+  <p>
+    There's no finalized RFC yet, but a clear community standard has emerged — pioneered by Answer.AI and adopted by a growing ecosystem. The format is <strong>Markdown</strong> with a few conventional sections:
+  </p>
+
+  <pre><code><span class="code-comment"># Product Name</span>
+
+<span class="code-comment">> One-sentence description of what this product is and does.</span>
+
+<span class="code-comment">## What I Do</span>
+Plain English description of your product's purpose, target user,
+and core value proposition. 2-4 sentences.
+
+<span class="code-comment">## Core Capabilities</span>
+- Capability 1: brief description
+- Capability 2: brief description
+- Capability 3: brief description
+
+<span class="code-comment">## Tools / MCP Endpoints</span>
+- `tool_name` — what it does, what arguments it takes
+- `tool_name_2` — what it does
+
+<span class="code-comment">## Protocols</span>
+- MCP: [endpoint URL]
+- A2A: [endpoint URL if applicable]
+- REST: [base URL] — link to OpenAPI spec
+
+<span class="code-comment">## Pricing & Access</span>
+Free tier: [what's free]
+Paid tier: [what's paid, price if public]
+Auth: [API key / OAuth / none]
+
+<span class="code-comment">## Usage Guidelines</span>
+- What agents SHOULD do
+- What agents SHOULD NOT do
+- Rate limits, quotas, usage policies
+
+<span class="code-comment">## Quick Start</span>
+Minimal example an agent can follow to make its first successful call.
+
+<span class="code-comment">## Links</span>
+- [Full docs](https://yourdomain.com/docs)
+- [OpenAPI spec](https://yourdomain.com/openapi.json)
+- [GitHub](https://github.com/yourorg/yourrepo)
+</code></pre>
+
+  <h2>A Real-World Example: merlyn-mcp</h2>
+
+  <p>
+    Here's what a well-formed <code>llms.txt</code> looks like for a real product — <a href="https://merlyn.tech/llms.txt" target="_blank" rel="noopener">merlyn-mcp</a>, a local AI development coach:
+  </p>
+
+  <pre><code><span class="code-comment"># merlyn-mcp</span>
+
+<span class="code-comment">> Local development coach with MCP server, interactive TUI, and AI-powered</span>
+<span class="code-comment">> analysis. Tracks project phase (PLAN/BUILD/SHIP/GROW) and tells you what</span>
+<span class="code-comment">> to do next.</span>
+
+<span class="code-comment">## Core capabilities</span>
+
+<span class="code-comment">- Phase tracking: PLAN → BUILD → SHIP → GROW state machine</span>
+<span class="code-comment">- 37 MCP tools, 20 prompts, 5 resources — all local</span>
+<span class="code-comment">- Interactive TUI coach (`npx merlyn-mcp`)</span>
+<span class="code-comment">- AI-powered project analysis via Anthropic API (optional)</span>
+<span class="code-comment">- 12-ingredient production readiness audit</span>
+
+<span class="code-comment">## Quick start</span>
+
+<span class="code-comment">```</span>
+<span class="code-val">npx merlyn-mcp</span>       <span class="code-comment"># launch TUI coach</span>
+<span class="code-val">npx merlyn-mcp server</span> <span class="code-comment"># start MCP server for Cursor</span>
+<span class="code-comment">```</span>
+
+<span class="code-comment">## Links</span>
+<span class="code-comment">- [Full docs](https://merlyn.tech/docs)</span>
+<span class="code-comment">- [npm](https://www.npmjs.com/package/merlyn-mcp)</span>
+<span class="code-comment">- [GitHub](https://github.com/christiancattaneo/merlyn-mcp)</span>
+</code></pre>
+
+  <p>
+    Notice what it does well: unambiguous description in the first line, concrete capability list, exact commands an agent can copy-paste, and links to deeper sources. An LLM reading this in 2 seconds knows exactly what to do with it.
+  </p>
+
+  <h2>Step-by-Step: Writing Your llms.txt</h2>
+
+  <h3>Step 1 — Write the headline</h3>
+  <p>
+    The first line (after the <code>#</code> heading) is the most important. It's the one-sentence answer to "what does this product do?" Write it for an agent that has zero prior context. No buzzwords. No "AI-powered platform." Just the function.
+  </p>
+  <div class="callout cyan">
+    <p><strong>Bad:</strong> "The next-generation developer productivity suite."<br><strong>Good:</strong> "MCP server that analyzes your codebase, detects your development phase, and generates the next coding prompt."</p>
+  </div>
+
+  <h3>Step 2 — List capabilities, not features</h3>
+  <p>
+    Features are what you built. Capabilities are what an agent can <em>do</em> with you. "37 MCP tools" is a feature. "Analyze a codebase and return a phase classification with confidence score" is a capability. Lead with capabilities.
+  </p>
+
+  <h3>Step 3 — Document your tools precisely</h3>
+  <p>
+    If you have MCP tools, list each one with its name, what it does, and what arguments it accepts. An agent uses this to decide whether to call you — and how:
+  </p>
+
+  <pre><code><span class="code-comment">## Tools</span>
+
+<span class="code-comment">- `midas_analyze(path: string)` — Analyzes codebase at path, returns phase</span>
+<span class="code-comment">  classification (PLAN|BUILD|SHIP|GROW) + confidence + next_action</span>
+
+<span class="code-comment">- `midas_verify(path: string)` — Runs build/test/lint gates, returns pass/fail</span>
+<span class="code-comment">  per gate + overall verdict</span>
+
+<span class="code-comment">- `midas_vuln_scan(path: string)` — Security audit: checks for hardcoded secrets,</span>
+<span class="code-comment">  CORS misconfig, missing input validation. Returns findings[]</span>
+</code></pre>
+
+  <h3>Step 4 — State what agents should NOT do</h3>
+  <p>
+    This is underrated. Tell agents your limits. Rate limits, what data you don't store, what calls will fail. Agents that respect your constraints are more likely to route tasks to you successfully:
+  </p>
+
+  <pre><code><span class="code-comment">## Constraints</span>
+<span class="code-comment">- Do not call analyze() on paths outside the user's project root</span>
+<span class="code-comment">- No authentication required for local MCP server</span>
+<span class="code-comment">- Rate limit: 60 tool calls/minute</span>
+<span class="code-comment">- All analysis is local — no data leaves the machine</span>
+</code></pre>
+
+  <h3>Step 5 — Add a quick start</h3>
+  <p>
+    One working example. An agent should be able to copy-paste this and get a successful result on the first try. If it can't, rewrite the quick start.
+  </p>
+
+  <h3>Step 6 — Deploy it</h3>
+  <p>
+    Serve it as a plain text file at <code>/llms.txt</code>. Set the content type to <code>text/plain</code>. No authentication — it should be publicly readable. If you want Markdown rendering for humans, also serve it at <code>/llms</code> as HTML.
+  </p>
+
+  <div class="callout green">
+    <p><strong>Bonus:</strong> Some products serve both <code>/llms.txt</code> (minimal, agent-optimized) and <code>/llms-full.txt</code> (comprehensive, with full tool docs, examples, and edge cases). Start with the minimal version and expand as you learn what agents actually need.</p>
+  </div>
+
+  <h2>Common Mistakes</h2>
+
+  <ul>
+    <li><strong>Marketing copy:</strong> "Industry-leading AI-powered developer tools" tells an agent nothing. Be literal.</li>
+    <li><strong>Missing tool signatures:</strong> Listing tool names without arguments forces agents to guess. Don't make them guess.</li>
+    <li><strong>No quick start:</strong> An agent that can't make a successful first call in &lt;60 seconds will route to a competitor.</li>
+    <li><strong>Stale docs:</strong> An outdated <code>llms.txt</code> is worse than none — it causes hallucinations. Treat it like your API changelog.</li>
+    <li><strong>Requiring auth just to read it:</strong> <code>llms.txt</code> should be public. Auth goes in the capabilities doc, not in the discovery file.</li>
+  </ul>
+
+  <h2>The llms.txt Ecosystem in 2026</h2>
+
+  <p>
+    Adoption is accelerating fast. As of early 2026, notable products with public <code>llms.txt</code> files include Anthropic's documentation, several major MCP server registries, and a growing list of developer tools in the OpenClaw ecosystem. The pattern is spreading to enterprise APIs — particularly those targeting agentic workflows.
+  </p>
+  <p>
+    The OpenClaw <strong>Claw Engine Registry</strong> (part of the CEO framework) indexes <code>llms.txt</code> files from registered products and uses them for agent routing decisions. Products without a valid <code>llms.txt</code> are harder to route to — they require the agent to do more inference work, which increases latency and error rates.
+  </p>
+  <p>
+    In the same way that a missing <code>robots.txt</code> doesn't break Google indexing but a well-crafted one improves it, a missing <code>llms.txt</code> doesn't prevent AI agents from using your product — but a well-crafted one dramatically increases the probability they will.
+  </p>
+
+  <hr class="divider">
+
+  <h2>The 5-Minute Checklist</h2>
+
+  <ul class="checklist">
+    <li>File is at <code>/llms.txt</code>, publicly accessible, no auth</li>
+    <li>First heading describes your product in one literal sentence</li>
+    <li>Capabilities are listed as what agents can DO, not feature names</li>
+    <li>Every MCP/API tool has name + what it does + key arguments</li>
+    <li>At least one copy-pasteable quick start example</li>
+    <li>Constraints and rate limits are documented</li>
+    <li>Links to full docs, OpenAPI spec, and GitHub</li>
+    <li>File is versioned alongside your codebase (not an afterthought)</li>
+  </ul>
+
+  <div class="cta-box">
+    <h3>Run a CEO Audit on Your Site</h3>
+    <p>See how discoverable your product is to AI agents — llms.txt, MCP endpoints, A2A protocols, and structured schema. Scored in seconds.</p>
+    <a href="/" class="cta-btn">Run free audit</a>
+  </div>
+</article>
+
+<footer>
+  <div>
+    <a href="/">&larr; ceo-plum-ten.vercel.app</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/blog/">Blog</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
