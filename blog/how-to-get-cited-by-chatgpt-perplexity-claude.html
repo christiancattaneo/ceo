@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Get Cited by ChatGPT, Perplexity, and Claude — CEO Blog</title>
+  <meta name="description" content="AI models don't rank results — they synthesize answers. Getting cited means being credible, structured, and findable in the right way. Here's the exact playbook: llms.txt, structured schema, authority signals, and clean crawlable content.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="get cited by ChatGPT, get cited by Claude, get cited by Perplexity, AI citation, GEO, generative engine optimization, llms.txt, structured data, schema markup, AI discoverability, CEO, Claw Engine Optimization">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/how-to-get-cited-by-chatgpt-perplexity-claude.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/how-to-get-cited-by-chatgpt-perplexity-claude.html">
+  <meta property="og:title" content="How to Get Cited by ChatGPT, Perplexity, and Claude">
+  <meta property="og:description" content="AI models don't rank results — they synthesize answers. Getting cited means being credible, structured, and findable in the right way. Here's the playbook.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-03-08T00:00:00Z">
+  <meta property="article:author" content="CEO Team">
+  <meta property="article:section" content="CEO Fundamentals">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="How to Get Cited by ChatGPT, Perplexity, and Claude">
+  <meta name="twitter:description" content="AI models don't rank results — they synthesize answers. Here's how to be the source they actually cite.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How to Get Cited by ChatGPT, Perplexity, and Claude",
+    "description": "AI models don't rank results — they synthesize answers. Getting cited means being credible, structured, and findable in the right way. Here's the exact playbook: llms.txt, structured schema, authority signals, and clean crawlable content.",
+    "image": "https://ceo-plum-ten.vercel.app/og-image.png",
+    "author": {
+      "@type": "Organization",
+      "name": "CEO / OpenClaw",
+      "url": "https://ceo-plum-ten.vercel.app"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "CEO / OpenClaw",
+      "url": "https://ceo-plum-ten.vercel.app",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://ceo-plum-ten.vercel.app/favicon.png"
+      }
+    },
+    "datePublished": "2026-03-08",
+    "dateModified": "2026-03-08",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://ceo-plum-ten.vercel.app/blog/how-to-get-cited-by-chatgpt-perplexity-claude.html"
+    },
+    "keywords": ["ChatGPT citation", "Claude citation", "Perplexity citation", "GEO", "AI discoverability", "llms.txt", "structured data", "CEO", "Claw Engine Optimization"],
+    "articleSection": "CEO Fundamentals",
+    "wordCount": 1450
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: rgba(124,58,237,0.15);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --cyan: #06b6d4;
+      --green: #22c55e;
+      --text: #e8e8f0;
+      --text-secondary: #8888aa;
+      --code-bg: #1a1a28;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 760px; margin: 0 auto;
+      display: flex; align-items: center; gap: 24px;
+      height: 56px;
+    }
+    .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-logo svg { color: var(--accent-light); }
+    .nav-links { display: flex; gap: 20px; margin-left: auto; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Article layout */
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    /* Header */
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .article-tag {
+      background: rgba(124,58,237,0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(124,58,237,0.3);
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .article-date { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read::before { content: "·"; margin-right: 12px; }
+
+    h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .article-lead { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 48px; }
+
+    /* Body */
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 52px 0 16px; letter-spacing: -0.01em; color: var(--text); }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; color: var(--accent-light); }
+    p { margin-bottom: 20px; color: var(--text); }
+    a { color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--cyan); }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--text-secondary); font-style: italic; }
+
+    /* Code */
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--code-bg);
+      padding: 2px 7px; border-radius: 5px;
+      color: var(--cyan);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-size: 0.875rem;
+      line-height: 1.65;
+    }
+    pre code { background: none; padding: 0; color: var(--text); }
+    .code-comment { color: var(--text-secondary); }
+    .code-key { color: var(--accent-light); }
+    .code-val { color: #86efac; }
+    .code-url { color: var(--cyan); }
+
+    /* Callout boxes */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(124,58,237,0.07);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 28px 0;
+    }
+    .callout.cyan { border-color: var(--cyan); background: rgba(6,182,212,0.07); }
+    .callout.green { border-color: var(--green); background: rgba(34,197,94,0.07); }
+    .callout.warn { border-color: #f59e0b; background: rgba(245,158,11,0.07); }
+    .callout p { margin-bottom: 0; color: var(--text); }
+    .callout strong { color: inherit; }
+
+    /* Comparison table */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 0.9rem; }
+    .compare-table th {
+      text-align: left; padding: 12px 16px;
+      background: var(--surface); color: var(--text-secondary);
+      font-weight: 600; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .dim { color: var(--text-secondary); }
+    .compare-table .hi { color: var(--accent-light); font-weight: 600; }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+    .checklist li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+    /* Step list */
+    .step-list { list-style: none; padding: 0; counter-reset: steps; }
+    .step-list li {
+      counter-increment: steps;
+      display: flex; gap: 16px; align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    .step-list li::before {
+      content: counter(steps);
+      min-width: 28px; height: 28px;
+      background: rgba(124,58,237,0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* Section divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* Back link */
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 36px; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+
+    /* CTA box */
+    .cta-box {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08));
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .cta-box h3 { color: var(--text); font-size: 1.3rem; margin-bottom: 10px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap" itemscope itemtype="https://schema.org/Article">
+  <meta itemprop="datePublished" content="2026-03-08">
+  <meta itemprop="author" content="CEO / OpenClaw">
+
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">CEO Fundamentals</span>
+    <span class="article-date">March 8, 2026</span>
+    <span class="article-read">7 min read</span>
+  </div>
+
+  <h1 itemprop="headline">How to Get Cited by ChatGPT, Perplexity, and Claude</h1>
+
+  <p class="article-lead" itemprop="description">
+    AI models don't rank 10 blue links and let you choose. They synthesize a single answer — and either your product is in it, or you don't exist. Getting cited isn't luck. It's structure, authority, and making yourself legible to machines that read differently than humans do.
+  </p>
+
+  <div itemprop="articleBody">
+
+  <h2>The Citation Problem Is Real</h2>
+
+  <p>
+    Here's what's happening right now: millions of people ask ChatGPT, Perplexity, and Claude about tools, services, and products every day. Those models generate an answer. They might cite three sources. They almost certainly don't cite you.
+  </p>
+  <p>
+    That's not random. It's a system. And systems can be understood and optimized for.
+  </p>
+  <p>
+    The mistake most founders make is treating AI citation like organic search: write more content, get more backlinks, wait. That playbook is partially right but misses the specific mechanics of how language models select sources. The mental model that gets you cited is different from the one that gets you ranked.
+  </p>
+  <p>
+    This article covers exactly what moves the needle: structural signals AI models weight heavily, concrete things you can ship in a day, and where GEO (getting mentioned) intersects with <a href="/blog/what-is-claw-engine-optimization.html">CEO (getting called)</a>.
+  </p>
+
+  <h2>How AI Models Actually Choose What to Cite</h2>
+
+  <p>
+    Before tactics, you need the right mental model. ChatGPT, Perplexity, and Claude source information differently:
+  </p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Primary source</th>
+        <th>What it weights</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Perplexity</strong></td>
+        <td>Live web search (RAG)</td>
+        <td class="hi">Crawlability, structured content, freshness, relevance to exact query</td>
+      </tr>
+      <tr>
+        <td><strong>ChatGPT</strong></td>
+        <td>Training data + Browse (paid)</td>
+        <td class="hi">Training corpus density, cited authority, Browse: same as Perplexity</td>
+      </tr>
+      <tr>
+        <td><strong>Claude</strong></td>
+        <td>Training data + tool use</td>
+        <td class="hi">Training corpus authority, structured formats, explicit tool/API descriptions</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Perplexity is the most directly optimizable — it uses retrieval-augmented generation, meaning it searches the web in real-time and synthesizes from what it finds. If your page is crawlable, relevant, and structured, Perplexity <em>can</em> cite you immediately after you publish.
+  </p>
+  <p>
+    ChatGPT and Claude are heavier lifts for direct influence — their base knowledge is baked into training weights, which update slowly. But the Browse and tool-use features respond to the same signals as Perplexity. And both models are increasingly being used by agents that fetch live context — which means your real-time signals matter more than they used to.
+  </p>
+  <p>
+    The practical implication: optimize for Perplexity first (fastest feedback loop), and what works there will largely transfer to the others.
+  </p>
+
+  <h2>Signal 1: A Clean, Crawlable Content Layer</h2>
+
+  <p>
+    AI models doing live retrieval can't read your React SPA that hydrates on the client. They can't parse a content wall behind a cookie consent modal. They definitely can't extract anything useful from a page that 404s or returns a redirect chain.
+  </p>
+  <p>
+    Before any other optimization, your pages need to be literally readable by a machine fetching raw HTML. This is the boring prerequisite that many devs skip because "it works in the browser." It frequently doesn't work for crawlers.
+  </p>
+
+  <h3>The crawlability checklist</h3>
+  <ul class="checklist">
+    <li>Key content is in the raw HTML response, not injected by JavaScript after load</li>
+    <li><code>robots.txt</code> doesn't accidentally block the pages you want cited</li>
+    <li>No auth wall or cookie consent required to read the page</li>
+    <li>Pages load in &lt;2s and return 200 (not redirect loops)</li>
+    <li><code>sitemap.xml</code> exists and includes your key content pages</li>
+    <li>Canonical URLs are set correctly — no duplicate content confusion</li>
+  </ul>
+
+  <div class="callout warn">
+    <p><strong>SPA founders take note:</strong> If your entire site is a JavaScript bundle with no SSR or SSG, AI crawlers see a blank page. Use Next.js, Astro, or any static site generator to ensure your key pages have real HTML. This alone has unlocked citations for products that had zero AI presence.</p>
+  </div>
+
+  <h2>Signal 2: Structured Data (Schema Markup)</h2>
+
+  <p>
+    Structured data is JSON-LD embedded in your page that tells machines — search engines, AI models, agents — exactly what type of entity your page represents and what properties it has. It's the difference between a model inferring "this seems to be a SaaS product" and <em>knowing</em> "this is a SoftwareApplication called X that does Y."
+  </p>
+  <p>
+    For AI citation purposes, the most valuable schemas are:
+  </p>
+  <ul>
+    <li><strong>Article / BlogPosting</strong> — For content you want cited as authoritative writing</li>
+    <li><strong>SoftwareApplication</strong> — For your actual product</li>
+    <li><strong>FAQPage</strong> — For Q&amp;A content that directly matches how people prompt AI models</li>
+    <li><strong>HowTo</strong> — For step-by-step guides (Perplexity surfaces these heavily)</li>
+    <li><strong>Organization</strong> — For establishing your brand identity</li>
+  </ul>
+
+  <h3>A minimal but complete Article schema</h3>
+
+  <pre><code><span class="code-comment">// Drop this in a &lt;script type="application/ld+json"&gt; tag</span>
+{
+  <span class="code-key">"@context"</span>: <span class="code-val">"https://schema.org"</span>,
+  <span class="code-key">"@type"</span>: <span class="code-val">"Article"</span>,
+  <span class="code-key">"headline"</span>: <span class="code-val">"Your article title — exact, not truncated"</span>,
+  <span class="code-key">"description"</span>: <span class="code-val">"2-3 sentence summary of what this page contains"</span>,
+  <span class="code-key">"author"</span>: {
+    <span class="code-key">"@type"</span>: <span class="code-val">"Organization"</span>,
+    <span class="code-key">"name"</span>: <span class="code-val">"Your Company"</span>,
+    <span class="code-key">"url"</span>: <span class="code-val">"https://yourdomain.com"</span>
+  },
+  <span class="code-key">"publisher"</span>: {
+    <span class="code-key">"@type"</span>: <span class="code-val">"Organization"</span>,
+    <span class="code-key">"name"</span>: <span class="code-val">"Your Company"</span>,
+    <span class="code-key">"url"</span>: <span class="code-val">"https://yourdomain.com"</span>
+  },
+  <span class="code-key">"datePublished"</span>: <span class="code-val">"2026-03-08"</span>,
+  <span class="code-key">"dateModified"</span>: <span class="code-val">"2026-03-08"</span>,
+  <span class="code-key">"keywords"</span>: [<span class="code-val">"keyword one"</span>, <span class="code-val">"keyword two"</span>, <span class="code-val">"keyword three"</span>],
+  <span class="code-key">"mainEntityOfPage"</span>: {
+    <span class="code-key">"@type"</span>: <span class="code-val">"WebPage"</span>,
+    <span class="code-key">"@id"</span>: <span class="code-val">"https://yourdomain.com/this-page"</span>
+  }
+}</code></pre>
+
+  <p>
+    Don't overthink this. A complete, valid Article schema on every piece of content you publish takes 20 minutes to set up and pays dividends indefinitely. Perplexity's crawler reads JSON-LD natively. Claude uses it to identify page types when doing web lookups. It's one of the highest-leverage things you can add without touching your actual content.
+  </p>
+
+  <h2>Signal 3: llms.txt — The Machine-Readable Product Brief</h2>
+
+  <p>
+    If structured data tells machines what type of content you're publishing, <code>llms.txt</code> tells AI agents what your <em>product</em> is, what it does, and how to use it. We covered the full format in the <a href="/blog/llms-txt-complete-setup-guide.html">complete setup guide</a>, but here's why it matters specifically for citation:
+  </p>
+  <p>
+    When an AI agent or LLM-powered tool fetches context about your domain, <code>llms.txt</code> is the authoritative, machine-first document that describes you. Without it, the model infers your product from scraped marketing copy — which is slow, lossy, and often wrong. With it, you're giving the model exactly the context it needs to accurately describe and recommend you.
+  </p>
+  <p>
+    Here's a minimal <code>llms.txt</code> that gets the job done:
+  </p>
+
+  <pre><code><span class="code-comment"># YourProduct</span>
+
+<span class="code-comment">> One sentence: what this product does for whom.</span>
+<span class="code-comment">> Example: "REST API that converts invoices to structured JSON, with</span>
+<span class="code-comment">> currency normalization and tax calculations for US/EU."</span>
+
+<span class="code-comment">## What I Do</span>
+<span class="code-comment">Plain English description of your product's core value.</span>
+<span class="code-comment">Target user, primary use case, what problem it solves.</span>
+
+<span class="code-comment">## Core Capabilities</span>
+<span class="code-comment">- Parse and extract structured data from uploaded invoice files (PDF, PNG, JPEG)</span>
+<span class="code-comment">- Normalize currency values across 45 supported currencies</span>
+<span class="code-comment">- Calculate applicable tax for US states and EU VAT regimes</span>
+<span class="code-comment">- Return results as typed JSON with confidence scores per field</span>
+
+<span class="code-comment">## API Endpoints</span>
+<span class="code-comment">- POST /parse — upload invoice file, returns structured JSON</span>
+<span class="code-comment">- POST /normalize — currency conversion with live rates</span>
+<span class="code-comment">- GET /status — health check and rate limit status</span>
+<span class="code-comment">Base URL: https://api.yourproduct.com/v1</span>
+<span class="code-comment">Docs: https://yourproduct.com/docs</span>
+<span class="code-comment">OpenAPI: https://yourproduct.com/openapi.json</span>
+
+<span class="code-comment">## Pricing</span>
+<span class="code-comment">Free: 100 parses/month, no credit card</span>
+<span class="code-comment">Pro: $29/mo — 5,000 parses, priority processing</span>
+<span class="code-comment">Auth: API key in Authorization header</span>
+
+<span class="code-comment">## Quick Start</span>
+<span class="code-comment">curl -X POST https://api.yourproduct.com/v1/parse \</span>
+<span class="code-comment">  -H "Authorization: Bearer YOUR_API_KEY" \</span>
+<span class="code-comment">  -F "file=@invoice.pdf"</span>
+
+<span class="code-comment">## Links</span>
+<span class="code-comment">- [Docs](https://yourproduct.com/docs)</span>
+<span class="code-comment">- [OpenAPI spec](https://yourproduct.com/openapi.json)</span>
+<span class="code-comment">- [GitHub](https://github.com/yourorg/yourproduct)</span></code></pre>
+
+  <p>
+    This file goes at <code>yourdomain.com/llms.txt</code>, served as plain text with no authentication. Deploy it today. It takes 30 minutes and it's the single most direct signal you can give AI systems about what your product does.
+  </p>
+
+  <h2>Signal 4: Authority — Being Cited Before You're Cited</h2>
+
+  <p>
+    This is the part founders like least to hear: AI models weight sources that are already cited by other trusted sources. It's a reputation flywheel. You need to be on it to benefit from it.
+  </p>
+  <p>
+    The good news: the bar for technical credibility with AI models is lower than it is for Google domain authority. You don't need 10,000 backlinks. You need to be cited in the right places:
+  </p>
+
+  <h3>Where AI model authority actually comes from</h3>
+  <ul>
+    <li><strong>GitHub:</strong> A public repo with real usage (stars, forks, issues being filed) is a strong technical authority signal. Models trained on GitHub data heavily weight repos that developers actually use.</li>
+    <li><strong>npm / PyPI / crates.io:</strong> If you have a library or CLI, publish it. Package registry presence is a concrete authority signal that's hard to fake.</li>
+    <li><strong>Hacker News:</strong> Submissions that generate discussion (not just upvotes) create content threads that get scraped into training data. A good "Show HN" post that generates technical discussion is worth dozens of blog posts.</li>
+    <li><strong>Developer docs and READMEs:</strong> Detailed, accurate documentation with examples gets cited heavily. Anthropic, OpenAI, and Vercel are cited constantly — not because of SEO, but because their docs are comprehensive and technically accurate.</li>
+    <li><strong>X / Twitter threads:</strong> Perplexity indexes X. A detailed technical thread about your product, especially if it gets engagement, feeds directly into retrieval results.</li>
+  </ul>
+
+  <div class="callout cyan">
+    <p><strong>The compound effect:</strong> Authority in AI citation works like compound interest. A GitHub repo that gets cited in a Hacker News thread gets indexed by Perplexity, which surfaces it when ChatGPT users browse for answers, which brings developers who star the repo, which increases the authority signal. The flywheel is real — you just need to start it.</p>
+  </div>
+
+  <h2>Signal 5: Write to Answer Questions, Not to Rank Keywords</h2>
+
+  <p>
+    Language models retrieve content when it directly answers the query being asked. Not when it ranks for a broad keyword — when it contains the specific answer.
+  </p>
+  <p>
+    This is the biggest tonal shift from traditional SEO content. Instead of "10 best invoice parsing APIs" (a listicle written to rank for a keyword), write "How to parse PDF invoices into structured JSON with Python" (a guide that answers an actual question developers ask).
+  </p>
+  <p>
+    The format that gets cited most heavily in AI responses is the one that looks like what the model wants to output: clear question, direct answer, supporting evidence. That maps almost exactly to the HowTo and FAQPage schemas — which is not a coincidence.
+  </p>
+
+  <h3>Content structure that gets retrieved</h3>
+  <ul>
+    <li>Start with the direct answer, then elaborate — don't bury the lede</li>
+    <li>Use descriptive H2/H3 headings that could stand alone as questions</li>
+    <li>Include working code examples (models love to cite actual code)</li>
+    <li>Add specific numbers and comparisons — vague claims don't get cited, specific facts do</li>
+    <li>End with the key takeaway restated — models often lift summary sentences verbatim</li>
+  </ul>
+
+  <h2>The GEO to CEO Pipeline</h2>
+
+  <p>
+    Getting cited by ChatGPT is GEO: the model mentions you in a conversational answer. A user sees your name, maybe clicks through, maybe signs up.
+  </p>
+  <p>
+    Getting <em>called</em> by an AI agent is CEO: an autonomous agent, running a task on behalf of a user, identifies your product through a capability registry and calls your API directly — potentially completing a transaction without a human clicking anything.
+  </p>
+  <p>
+    These aren't competing strategies. They're sequential. GEO gets you visibility with human users. CEO gets you called by agents. Both matter, and the technical groundwork overlaps significantly:
+  </p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Optimization Layer</th>
+        <th>What it gets you</th>
+        <th>Key signals</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>GEO</strong></td>
+        <td>Citations in AI chatbot answers</td>
+        <td class="dim">Crawlable content, schema markup, authority signals, answer-format writing</td>
+      </tr>
+      <tr>
+        <td><strong>CEO</strong></td>
+        <td>Agent calls your API directly</td>
+        <td class="hi">llms.txt, MCP endpoints, A2A protocols, capability manifest, registry listing</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    The <code>llms.txt</code> you deploy for CEO also helps GEO — it gives models better context when they encounter your domain in retrieval. The structured schemas you add for GEO also help CEO — they make your content machine-parseable. You're not doing double work; you're building a single layer of machine legibility that serves both use cases.
+  </p>
+
+  <hr class="divider">
+
+  <h2>The 30-Day Citation Plan</h2>
+
+  <ol class="step-list">
+    <li>
+      <div>
+        <strong>Week 1: Technical foundation.</strong> Audit crawlability (use curl to verify raw HTML), add JSON-LD Article schema to every content page, add Organization schema to your homepage, fix any robots.txt issues, verify sitemap.xml is current.
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Week 1: Deploy llms.txt.</strong> Write your product brief using the template above. Deploy to <code>/llms.txt</code>. If you have an API, add your endpoints. If you have MCP tools, list them. Done in an afternoon.
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Week 2: Publish one authoritative piece.</strong> Pick one question your users ask frequently. Write a direct, accurate answer with working code or concrete examples. Use HowTo or FAQPage schema. This is the content that gets retrieved.
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Week 2–3: Authority seeding.</strong> Post to GitHub (if not already), publish a "Show HN" if the product warrants it, write one X thread with actual technical depth. These create indexed authority signals.
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Week 3–4: Test and iterate.</strong> Ask Perplexity questions your target users would ask. Is your product in the answer? What is cited instead? Read those pages. Match what they do well. Repeat.
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Ongoing: Run a CEO audit.</strong> Check your full agent-readiness score — GEO signals, llms.txt, MCP endpoint status, registry listing. Know your gaps before they cost you discoverability.
+      </div>
+    </li>
+  </ol>
+
+  <div class="callout green">
+    <p><strong>Fastest win:</strong> Deploy <code>llms.txt</code> and add Article schema to your existing content. These two changes take a few hours and immediately improve how AI systems interpret your domain. Everything else compounds on top of this foundation.</p>
+  </div>
+
+  <h2>The Honest Assessment</h2>
+
+  <p>
+    You won't get cited by Claude's base model overnight — that requires training data updates on a timeline you don't control. But Perplexity's live retrieval responds within days of good content going live. ChatGPT Browse responds similarly. And as agents increasingly operate with live context instead of static weights, the real-time optimization layer matters more every month.
+  </p>
+  <p>
+    The structural work — crawlability, schema markup, <code>llms.txt</code>, authoritative content — is also the foundation for everything that comes next. The products that build this layer now are the ones that will be automatically callable by autonomous agents when that wave lands at scale.
+  </p>
+  <p>
+    GEO gets you mentioned. CEO gets you called. Both start with the same unglamorous work: making yourself legible to machines that read differently than humans do.
+  </p>
+  <p>
+    Start there.
+  </p>
+
+  <div class="cta-box">
+    <h3>Run a CEO Audit on Your Site</h3>
+    <p>See exactly where you stand on AI discoverability — crawlability, schema markup, llms.txt, MCP endpoints, A2A protocols, and registry status. Scored in seconds, prioritized fix list included.</p>
+    <a href="/" class="cta-btn">Run free audit</a>
+  </div>
+
+  </div><!-- /articleBody -->
+</article>
+
+<footer>
+  <div>
+    <a href="/">&larr; ceo-plum-ten.vercel.app</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/blog/">Blog</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
