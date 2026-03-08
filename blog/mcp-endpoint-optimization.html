@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Endpoint Optimization: Make Your API Agent-Discoverable — CEO Blog</title>
+  <meta name="description" content="MCP (Model Context Protocol) is how AI agents call your API. If your endpoint isn't MCP-optimized, agents skip it. Here's how to write tool definitions agents actually use, fix the mistakes that make tools invisible, and raise your CEO score.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="MCP endpoint optimization, Model Context Protocol, MCP tool definition, agent discoverability, MCP server, llms.txt, CEO score, Claw Engine Optimization, AI agent API, MCP schema">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/mcp-endpoint-optimization.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/mcp-endpoint-optimization.html">
+  <meta property="og:title" content="MCP Endpoint Optimization: Make Your API Agent-Discoverable">
+  <meta property="og:description" content="MCP is how AI agents call your API. If your endpoint isn't MCP-optimized, agents skip it. Here's the complete playbook.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-03-08T00:00:00Z">
+  <meta property="article:author" content="CEO Team">
+  <meta property="article:section" content="CEO Fundamentals">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="MCP Endpoint Optimization: Make Your API Agent-Discoverable">
+  <meta name="twitter:description" content="MCP is how AI agents call your API. If your endpoint isn't MCP-optimized, agents skip it. Here's the complete playbook.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "MCP Endpoint Optimization: Make Your API Agent-Discoverable",
+    "description": "MCP (Model Context Protocol) is how AI agents call your API. If your endpoint isn't MCP-optimized, agents skip it. Here's how to write tool definitions agents actually use, fix the mistakes that make tools invisible, and raise your CEO score.",
+    "image": "https://ceo-plum-ten.vercel.app/og-image.png",
+    "author": {
+      "@type": "Organization",
+      "name": "CEO / OpenClaw",
+      "url": "https://ceo-plum-ten.vercel.app"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "CEO / OpenClaw",
+      "url": "https://ceo-plum-ten.vercel.app",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://ceo-plum-ten.vercel.app/favicon.png"
+      }
+    },
+    "datePublished": "2026-03-08",
+    "dateModified": "2026-03-08",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://ceo-plum-ten.vercel.app/blog/mcp-endpoint-optimization.html"
+    },
+    "keywords": ["MCP endpoint optimization", "Model Context Protocol", "MCP tool definition", "agent discoverability", "CEO", "Claw Engine Optimization", "AI agent API"],
+    "articleSection": "CEO Fundamentals",
+    "wordCount": 1400
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: rgba(124,58,237,0.15);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --cyan: #06b6d4;
+      --green: #22c55e;
+      --text: #e8e8f0;
+      --text-secondary: #8888aa;
+      --code-bg: #1a1a28;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 760px; margin: 0 auto;
+      display: flex; align-items: center; gap: 24px;
+      height: 56px;
+    }
+    .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-logo svg { color: var(--accent-light); }
+    .nav-links { display: flex; gap: 20px; margin-left: auto; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Article layout */
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    /* Header */
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .article-tag {
+      background: rgba(124,58,237,0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(124,58,237,0.3);
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .article-date { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read::before { content: "·"; margin-right: 12px; }
+
+    h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .article-lead { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 48px; }
+
+    /* Body */
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 52px 0 16px; letter-spacing: -0.01em; color: var(--text); }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; color: var(--accent-light); }
+    p { margin-bottom: 20px; color: var(--text); }
+    a { color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--cyan); }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--text-secondary); font-style: italic; }
+
+    /* Code */
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--code-bg);
+      padding: 2px 7px; border-radius: 5px;
+      color: var(--cyan);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-size: 0.875rem;
+      line-height: 1.65;
+    }
+    pre code { background: none; padding: 0; color: var(--text); }
+    .code-comment { color: var(--text-secondary); }
+    .code-key { color: var(--accent-light); }
+    .code-val { color: #86efac; }
+    .code-url { color: var(--cyan); }
+    .code-bad { color: #f87171; }
+    .code-good { color: #86efac; }
+
+    /* Callout boxes */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(124,58,237,0.07);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 28px 0;
+    }
+    .callout.cyan { border-color: var(--cyan); background: rgba(6,182,212,0.07); }
+    .callout.green { border-color: var(--green); background: rgba(34,197,94,0.07); }
+    .callout.warn { border-color: #f59e0b; background: rgba(245,158,11,0.07); }
+    .callout.red { border-color: #f87171; background: rgba(248,113,113,0.07); }
+    .callout p { margin-bottom: 0; color: var(--text); }
+    .callout strong { color: inherit; }
+
+    /* Comparison table */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 0.9rem; }
+    .compare-table th {
+      text-align: left; padding: 12px 16px;
+      background: var(--surface); color: var(--text-secondary);
+      font-weight: 600; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .dim { color: var(--text-secondary); }
+    .compare-table .hi { color: var(--accent-light); font-weight: 600; }
+    .compare-table .bad { color: #f87171; }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+    .checklist li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+    /* Section divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* Back link */
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 36px; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+
+    /* Score bar */
+    .score-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; font-size: 0.9rem; }
+    .score-label { width: 180px; flex-shrink: 0; color: var(--text-secondary); }
+    .score-bar-track { flex: 1; height: 8px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent), var(--cyan)); }
+    .score-num { width: 36px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-light); }
+
+    /* CTA box */
+    .cta-box {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08));
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .cta-box h3 { color: var(--text); font-size: 1.3rem; margin-bottom: 10px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap" itemscope itemtype="https://schema.org/Article">
+  <meta itemprop="datePublished" content="2026-03-08">
+  <meta itemprop="author" content="CEO / OpenClaw">
+
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">MCP Optimization</span>
+    <span class="article-date">March 8, 2026</span>
+    <span class="article-read">7 min read</span>
+  </div>
+
+  <h1 itemprop="headline">MCP Endpoint Optimization: Make Your API Agent-Discoverable</h1>
+
+  <p class="article-lead" itemprop="description">
+    MCP is how AI agents call your API. Not REST. Not webhooks. Not scraping your docs. If your endpoint isn't wrapped in a well-structured MCP tool definition, autonomous agents skip you — not because they can't reach you, but because they can't understand you.
+  </p>
+
+  <div itemprop="articleBody">
+
+  <h2>Why MCP Is the New HTTP for Agents</h2>
+
+  <p>
+    In 1991, if your content wasn't on the web, it didn't exist for web browsers. In 2026, if your API doesn't speak MCP, it doesn't exist for AI agents.
+  </p>
+  <p>
+    The <strong>Model Context Protocol (MCP)</strong>, created by Anthropic and adopted across Claude, Cursor, OpenClaw, and a growing list of runtimes, is the universal connectivity layer between AI models and external tools. An MCP server exposes your product's capabilities as structured, typed, discoverable tool definitions. An agent reads those definitions, decides whether you match its task, and calls you — all without a human in the loop.
+  </p>
+  <p>
+    This is categorically different from having a REST API. REST requires a developer to read your docs, understand your schema, write integration code, and handle errors. MCP makes that entire chain automatic. The agent reads your tool definition and calls your endpoint in the same motion.
+  </p>
+  <p>
+    But here's the catch: <strong>a bad MCP tool definition is invisible to agents</strong>. Not broken — invisible. Agents don't error out on vague descriptions. They just route to a competitor whose definition is clearer. MCP endpoint optimization is the practice of making your tool definitions so precise that agents choose you without hesitation.
+  </p>
+
+  <h2>The Anatomy of a Well-Optimized MCP Tool Definition</h2>
+
+  <p>
+    Every MCP tool definition has four components. Each one is a discoverability lever. Get all four right and agents will prefer you. Get any one wrong and you're leaving calls on the table.
+  </p>
+
+  <h3>1. The name</h3>
+  <p>
+    Tool names are how agents match capabilities to tasks. They're searched semantically — an agent looking for "convert currency" will find <code>convert_currency</code> but miss <code>fx_util</code> even if both do the exact same thing.
+  </p>
+  <p>
+    Name rules: use <code>snake_case</code>, be verb-first, be specific. <code>parse_invoice</code> is better than <code>invoice</code>. <code>send_slack_message</code> is better than <code>message</code>. The name is the first signal the agent uses to decide whether to read further — make it do its job.
+  </p>
+
+  <h3>2. The description</h3>
+  <p>
+    If the name is the subject line, the description is the email body that actually gets you the click. This is where most MCP implementations fail catastrophically. A description that says "Handles invoice processing" tells an agent almost nothing. A description that says "Parses a PDF or image invoice and extracts structured line items, totals, vendor name, date, and currency — supports USD, EUR, GBP, and 42 other currencies, returns typed JSON with per-field confidence scores" tells an agent exactly what it's getting.
+  </p>
+  <p>
+    Write descriptions like you're writing for a very literal, very capable engineer who has never heard of your product. No marketing language. No vague verbs. Specific inputs, specific outputs, specific constraints.
+  </p>
+
+  <h3>3. The parameters</h3>
+  <p>
+    MCP parameters are defined as JSON Schema. Every parameter needs: a <code>type</code>, a <code>description</code>, and — for optional parameters — a sensible <code>default</code>. Enums should be explicit. Formats should be documented. The agent uses this schema to construct its call without asking a human for help.
+  </p>
+  <p>
+    If your schema is ambiguous — if the agent has to guess what format a date should be in, or whether a string is a URL or a file path — it will either fail silently or make the wrong call. Either outcome is a lost interaction.
+  </p>
+
+  <h3>4. Examples</h3>
+  <p>
+    Examples are the part nearly everyone skips. They're also the part that most dramatically improves agent success rate. An example call — a realistic set of input values with the expected output — gives the agent a template to pattern-match against. It converts "I think I understand this" into "I know exactly how to call this."
+  </p>
+  <p>
+    MCP supports an <code>examples</code> field in tool definitions. Use it. One well-chosen example does more for agent discoverability than three paragraphs of description prose.
+  </p>
+
+  <h2>Optimized vs. Unoptimized: A Real Comparison</h2>
+
+  <p>Here's the same tool defined two ways. One gets called. One gets skipped.</p>
+
+  <h3>Unoptimized (agents skip this)</h3>
+
+  <pre><code>{
+  <span class="code-key">"name"</span>: <span class="code-bad">"process"</span>,
+  <span class="code-key">"description"</span>: <span class="code-bad">"Process the document."</span>,
+  <span class="code-key">"inputSchema"</span>: {
+    <span class="code-key">"type"</span>: <span class="code-val">"object"</span>,
+    <span class="code-key">"properties"</span>: {
+      <span class="code-key">"file"</span>: { <span class="code-key">"type"</span>: <span class="code-bad">"string"</span> },
+      <span class="code-key">"options"</span>: { <span class="code-key">"type"</span>: <span class="code-bad">"object"</span> }
+    }
+  }
+}</code></pre>
+
+  <p>An agent reads this and thinks: "Process what? A document of what type? What does 'process' mean — parse, convert, summarize, delete? What are options? I have no idea how to call this." It moves on.</p>
+
+  <h3>Optimized (agents call this)</h3>
+
+  <pre><code>{
+  <span class="code-key">"name"</span>: <span class="code-good">"parse_invoice"</span>,
+  <span class="code-key">"description"</span>: <span class="code-good">"Extracts structured data from a PDF or image invoice. Returns line items, vendor, date, subtotal, tax, and total as typed JSON. Supports PDF, PNG, JPEG. Currency auto-detected; 45 currencies supported."</span>,
+  <span class="code-key">"inputSchema"</span>: {
+    <span class="code-key">"type"</span>: <span class="code-val">"object"</span>,
+    <span class="code-key">"required"</span>: [<span class="code-val">"file_url"</span>],
+    <span class="code-key">"properties"</span>: {
+      <span class="code-key">"file_url"</span>: {
+        <span class="code-key">"type"</span>: <span class="code-val">"string"</span>,
+        <span class="code-key">"format"</span>: <span class="code-val">"uri"</span>,
+        <span class="code-key">"description"</span>: <span class="code-good">"HTTPS URL to the invoice file. Supported: PDF, PNG, JPEG. Max 10MB."</span>
+      },
+      <span class="code-key">"output_currency"</span>: {
+        <span class="code-key">"type"</span>: <span class="code-val">"string"</span>,
+        <span class="code-key">"default"</span>: <span class="code-val">"USD"</span>,
+        <span class="code-key">"description"</span>: <span class="code-good">"ISO 4217 currency code to normalize totals into. Defaults to USD."</span>,
+        <span class="code-key">"examples"</span>: [<span class="code-val">"USD"</span>, <span class="code-val">"EUR"</span>, <span class="code-val">"GBP"</span>]
+      }
+    }
+  },
+  <span class="code-key">"examples"</span>: [{
+    <span class="code-key">"input"</span>: { <span class="code-key">"file_url"</span>: <span class="code-val">"https://example.com/invoice-2026-03.pdf"</span>, <span class="code-key">"output_currency"</span>: <span class="code-val">"EUR"</span> },
+    <span class="code-key">"description"</span>: <span class="code-val">"Parse a PDF invoice and normalize amounts to EUR"</span>
+  }]
+}</code></pre>
+
+  <p>An agent reads this and thinks: "I need to parse an invoice — this tool does exactly that. I have a file URL. I know exactly what to send. I know what I'll get back." It calls you.</p>
+
+  <h2>The 5 Mistakes That Make MCP Tools Invisible</h2>
+
+  <p>These aren't hypothetical — they're the most common patterns in real MCP servers that underperform on agent discovery.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Mistake</th>
+        <th>What happens</th>
+        <th>Fix</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="bad"><strong>Generic names</strong> (<code>process</code>, <code>handle</code>, <code>run</code>)</td>
+        <td class="dim">Agent can't match to task semantically</td>
+        <td class="good">Verb + noun: <code>parse_invoice</code>, <code>send_email</code></td>
+      </tr>
+      <tr>
+        <td class="bad"><strong>Empty or vague descriptions</strong></td>
+        <td class="dim">Agent skips — insufficient signal to route</td>
+        <td class="good">Inputs → outputs → constraints in plain prose</td>
+      </tr>
+      <tr>
+        <td class="bad"><strong>Untyped parameters</strong> (<code>"type": "object"</code> with no properties)</td>
+        <td class="dim">Agent can't construct a valid call</td>
+        <td class="good">Every property typed, described, and constrained</td>
+      </tr>
+      <tr>
+        <td class="bad"><strong>No required fields marked</strong></td>
+        <td class="dim">Agent omits fields and calls fail silently</td>
+        <td class="good">Explicit <code>required</code> array in JSON Schema</td>
+      </tr>
+      <tr>
+        <td class="bad"><strong>No examples</strong></td>
+        <td class="dim">Agent succeeds less often; routes away after first failure</td>
+        <td class="good">One realistic input/output pair per tool</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>JSON Schema Best Practices for MCP Parameters</h2>
+
+  <p>
+    MCP uses JSON Schema draft 7 for parameter definitions. Most developers know just enough JSON Schema to get things working — which is not enough to get things <em>discovered</em>. Here's what moves the needle:
+  </p>
+
+  <h3>Use <code>enum</code> for constrained values</h3>
+  <p>
+    If a parameter only accepts specific values, enumerate them. An agent that sees <code>"type": "string"</code> has to guess what to put there. An agent that sees <code>"enum": ["pdf", "png", "jpeg"]</code> knows exactly what's valid and will construct the call correctly on the first attempt.
+  </p>
+
+  <h3>Use <code>format</code> for typed strings</h3>
+  <p>
+    JSON Schema's <code>format</code> keyword is underused. <code>"format": "uri"</code>, <code>"format": "date"</code>, <code>"format": "email"</code>, <code>"format": "uuid"</code> — these hints let agents construct structurally correct values without seeing an example. A date field marked <code>"format": "date"</code> will never get a timestamp or a freeform string from a well-tuned agent.
+  </p>
+
+  <h3>Set explicit <code>minimum</code> / <code>maximum</code> on numbers</h3>
+  <p>
+    Numeric constraints prevent agents from passing nonsensical values. If your API accepts a page size between 1 and 100, say so: <code>"minimum": 1, "maximum": 100</code>. An agent that generates a page size of 0 or 10000 will get an error. An agent that sees the constraint will always stay in bounds.
+  </p>
+
+  <h3>Use <code>additionalProperties: false</code> on strict objects</h3>
+  <p>
+    If your endpoint rejects unknown fields, mark it. This signals to the agent that it should only send what's documented — preventing it from hallucinating extra parameters that cause 400 errors.
+  </p>
+
+  <pre><code>{
+  <span class="code-key">"type"</span>: <span class="code-val">"object"</span>,
+  <span class="code-key">"required"</span>: [<span class="code-val">"vendor_id"</span>, <span class="code-val">"amount"</span>],
+  <span class="code-key">"additionalProperties"</span>: <span class="code-val">false</span>,
+  <span class="code-key">"properties"</span>: {
+    <span class="code-key">"vendor_id"</span>: {
+      <span class="code-key">"type"</span>: <span class="code-val">"string"</span>, <span class="code-key">"format"</span>: <span class="code-val">"uuid"</span>,
+      <span class="code-key">"description"</span>: <span class="code-val">"UUID of the vendor to pay. Must exist in your vendor list."</span>
+    },
+    <span class="code-key">"amount"</span>: {
+      <span class="code-key">"type"</span>: <span class="code-val">"number"</span>, <span class="code-key">"minimum"</span>: <span class="code-val">0.01</span>, <span class="code-key">"maximum"</span>: <span class="code-val">100000</span>,
+      <span class="code-key">"description"</span>: <span class="code-val">"Payment amount in USD. Must be positive. Max $100,000 per transaction."</span>
+    },
+    <span class="code-key">"memo"</span>: {
+      <span class="code-key">"type"</span>: <span class="code-val">"string"</span>, <span class="code-key">"maxLength"</span>: <span class="code-val">256</span>,
+      <span class="code-key">"description"</span>: <span class="code-val">"Optional memo attached to the payment. Plain text, max 256 chars."</span>
+    }
+  }
+}</code></pre>
+
+  <h2>Surfacing Your MCP Server: llms.txt and Agent Registries</h2>
+
+  <p>
+    A perfectly optimized MCP server that no agent knows about is still invisible. Discovery requires two things: a machine-readable pointer to your server, and presence in the registries agents actually query.
+  </p>
+
+  <h3>llms.txt: your MCP discovery manifest</h3>
+  <p>
+    Your <a href="/blog/llms-txt-complete-setup-guide.html"><code>llms.txt</code></a> file should include a dedicated MCP section that lists your server endpoint, the protocol version, and a brief description of what tools are exposed. When an agent fetches your <code>llms.txt</code>, it gets an immediate pointer to your MCP server without having to probe your domain for it.
+  </p>
+
+  <pre><code><span class="code-comment">## MCP Server</span>
+<span class="code-comment">Endpoint: https://api.yourproduct.com/mcp</span>
+<span class="code-comment">Protocol: MCP 1.0</span>
+<span class="code-comment">Tools: parse_invoice, normalize_currency, verify_vendor, create_payment</span>
+<span class="code-comment">Auth: Bearer token in Authorization header</span>
+<span class="code-comment">Discovery: GET /mcp → returns full tool manifest</span></code></pre>
+
+  <h3>The Claw Engine Registry</h3>
+  <p>
+    The <a href="/">Claw Engine Registry</a> is the routing layer that OpenClaw agents query when looking for products to call. Registering your MCP server here puts you in the pool of candidates for agent task routing — and the quality of your tool definitions directly affects your ranking within that pool.
+  </p>
+  <p>
+    Registry listing is part of the CEO Pro tier. Free-tier products can still be discovered via <code>llms.txt</code>, but registry listing adds structured metadata, trust proof registration, and priority routing for agents that have multiple matching options.
+  </p>
+
+  <div class="callout cyan">
+    <p><strong>Also worth doing:</strong> Submit your MCP server to <a href="https://mcp.so" target="_blank" rel="noopener">mcp.so</a>, the community MCP server directory. It's indexed by multiple agent runtimes and generates real discovery traffic. A well-written listing with accurate tool descriptions — consistent with your actual tool definitions — creates a trust signal that reinforces your Claw Engine Registry ranking.</p>
+  </div>
+
+  <h2>How MCP Optimization Raises Your CEO Score</h2>
+
+  <p>
+    The <a href="/blog/what-is-claw-engine-optimization.html">CEO score</a> measures how discoverable, verifiable, and callable your product is to AI agents. MCP endpoint optimization is one of the highest-leverage inputs to that score.
+  </p>
+
+  <p>Here's how MCP quality maps to CEO score components:</p>
+
+  <div style="margin: 28px 0;">
+    <div class="score-row">
+      <span class="score-label">MCP server present</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:100%"></div></div>
+      <span class="score-num">+25</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Tool names (specific)</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:60%"></div></div>
+      <span class="score-num">+15</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Descriptions (complete)</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:64%"></div></div>
+      <span class="score-num">+16</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Schema typed + constrained</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:56%"></div></div>
+      <span class="score-num">+14</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Examples present</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:40%"></div></div>
+      <span class="score-num">+10</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Registry listing</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:80%"></div></div>
+      <span class="score-num">+20</span>
+    </div>
+  </div>
+
+  <p>
+    A product with no MCP server scores zero on this entire dimension — which is up to 100 points on the CEO scale. A product with a poorly optimized server (present but vague) scores around 25–35. A fully optimized MCP implementation with registry listing can score 85–100 on the MCP dimension alone, and that flows into the overall agent-discoverability score that determines your ranking in routing decisions.
+  </p>
+
+  <div class="callout green">
+    <p><strong>The compounding effect:</strong> MCP optimization interacts with your <code>llms.txt</code> score. A well-documented MCP server listed in your <code>llms.txt</code> creates a consistent signal across two discovery channels — agents that find you via registry get the same description they'd get from reading your <code>llms.txt</code>, which builds trust and increases call confidence. Consistency across signals amplifies each signal's individual value.</p>
+  </div>
+
+  <h2>The MCP Optimization Checklist</h2>
+
+  <ul class="checklist">
+    <li>Every tool name is verb-first, specific, and matches the task it performs semantically</li>
+    <li>Every tool description states: what it does, what it takes, what it returns, what it won't do</li>
+    <li>Every parameter has <code>type</code>, <code>description</code>, and where applicable: <code>format</code>, <code>enum</code>, <code>minimum</code>/<code>maximum</code>, <code>default</code></li>
+    <li>The <code>required</code> array is explicitly defined for every tool</li>
+    <li>At least one <code>examples</code> entry per tool showing a realistic input/output pair</li>
+    <li>Error responses are documented in the tool description (what happens if a required field is wrong)</li>
+    <li>Your MCP server endpoint is listed in <code>llms.txt</code> under a <code>## MCP Server</code> section</li>
+    <li>Your server is submitted to mcp.so and/or the Claw Engine Registry</li>
+    <li>Tool definitions are versioned alongside your API — when the API changes, the MCP spec updates too</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2>Start With One Tool. Optimize It Completely.</h2>
+
+  <p>
+    The most common MCP anti-pattern is shipping twenty half-optimized tools instead of five fully optimized ones. Agents don't reward breadth — they reward clarity. A single tool with a perfect name, a precise description, a typed schema, and a working example will get called more often than ten tools with vague specs.
+  </p>
+  <p>
+    Pick your highest-value endpoint. The one that, if an agent called it successfully, would create the most user value. Apply the checklist to it fully. Ship that. Measure agent call rate against it using your server logs. Then iterate.
+  </p>
+  <p>
+    The window for early positioning in agent registries is still open. The developers who optimize their MCP endpoints now — when the registry is sparse and high-quality listings stand out — will have ranking history, trust scores, and call volume data that late movers can't catch up on quickly.
+  </p>
+  <p>
+    MCP endpoint optimization isn't a nice-to-have for the agentic web. It's the admission ticket.
+  </p>
+
+  <div class="cta-box">
+    <h3>Check Your MCP Score</h3>
+    <p>Run a CEO audit to see how your MCP endpoint stacks up — tool definition quality, schema completeness, registry presence, and overall agent-discoverability score.</p>
+    <a href="/" class="cta-btn">Run free audit</a>
+  </div>
+
+  </div><!-- /articleBody -->
+</article>
+
+<footer>
+  <div>
+    <a href="/">&larr; ceo-plum-ten.vercel.app</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/blog/">Blog</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
