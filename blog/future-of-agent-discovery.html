@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Future of Agent Discovery: How AI Will Find, Evaluate, and Hire Services Autonomously — CEO Blog</title>
+  <meta name="description" content="Agent discovery is evolving from human-mediated to fully autonomous. In the coming agent-to-agent economy, AI will programmatically find, evaluate, negotiate, and transact with services. CEO is how you prepare.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="agent discovery, A2A economy, agent-to-agent, autonomous agents, agent registry, CEO score, Claw Engine Optimization, agent evaluation, agent transactions, MCP protocol, agent contracts, capability schema, future of agents, OpenClaw">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/future-of-agent-discovery.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/future-of-agent-discovery.html">
+  <meta property="og:title" content="The Future of Agent Discovery: How AI Will Find, Evaluate, and Hire Services Autonomously">
+  <meta property="og:description" content="Agent discovery is evolving from human-mediated to fully autonomous. In the coming A2A economy, agents will find, evaluate, and hire services without human intervention. Here's how to prepare.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-03-09T00:00:00Z">
+  <meta property="article:author" content="CEO Team">
+  <meta property="article:section" content="CEO Vision">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="The Future of Agent Discovery: How AI Will Find, Evaluate, and Hire Services Autonomously">
+  <meta name="twitter:description" content="From human-mediated to fully autonomous: how the three waves of agent discovery will reshape which services survive — and why CEO is the only way to prepare.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "The Future of Agent Discovery: How AI Will Find, Evaluate, and Hire Services Autonomously",
+    "description": "Agent discovery is evolving from human-mediated to fully autonomous. In the coming agent-to-agent economy, AI will programmatically find, evaluate, negotiate, and transact with services without human intervention.",
+    "image": "https://ceo-plum-ten.vercel.app/og-image.png",
+    "author": {
+      "@type": "Organization",
+      "name": "CEO / OpenClaw",
+      "url": "https://ceo-plum-ten.vercel.app"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "CEO / OpenClaw",
+      "url": "https://ceo-plum-ten.vercel.app",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://ceo-plum-ten.vercel.app/favicon.png"
+      }
+    },
+    "datePublished": "2026-03-09",
+    "dateModified": "2026-03-09",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://ceo-plum-ten.vercel.app/blog/future-of-agent-discovery.html"
+    },
+    "keywords": ["agent discovery", "A2A economy", "agent-to-agent", "autonomous agents", "agent registry", "CEO score", "Claw Engine Optimization", "agent evaluation", "agent transactions", "MCP protocol"],
+    "articleSection": "CEO Vision",
+    "wordCount": 2400
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: rgba(124,58,237,0.15);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --cyan: #06b6d4;
+      --green: #22c55e;
+      --text: #e8e8f0;
+      --text-secondary: #8888aa;
+      --code-bg: #1a1a28;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 760px; margin: 0 auto;
+      display: flex; align-items: center; gap: 24px;
+      height: 56px;
+    }
+    .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-logo svg { color: var(--accent-light); }
+    .nav-links { display: flex; gap: 20px; margin-left: auto; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Article layout */
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    /* Header */
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .article-tag {
+      background: rgba(124,58,237,0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(124,58,237,0.3);
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .article-date { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read::before { content: "·"; margin-right: 12px; }
+
+    h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .article-lead { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 48px; }
+
+    /* Body */
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 52px 0 16px; letter-spacing: -0.01em; color: var(--text); }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; color: var(--accent-light); }
+    p { margin-bottom: 20px; color: var(--text); }
+    a { color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--cyan); }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--text-secondary); font-style: italic; }
+
+    /* Code */
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--code-bg);
+      padding: 2px 7px; border-radius: 5px;
+      color: var(--cyan);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-size: 0.875rem;
+      line-height: 1.65;
+    }
+    pre code { background: none; padding: 0; color: var(--text); }
+    .code-comment { color: var(--text-secondary); }
+    .code-key { color: var(--accent-light); }
+    .code-val { color: #86efac; }
+    .code-url { color: var(--cyan); }
+
+    /* Callout boxes */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(124,58,237,0.07);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 28px 0;
+    }
+    .callout.cyan { border-color: var(--cyan); background: rgba(6,182,212,0.07); }
+    .callout.green { border-color: var(--green); background: rgba(34,197,94,0.07); }
+    .callout.warn { border-color: #f59e0b; background: rgba(245,158,11,0.07); }
+    .callout.red { border-color: #f87171; background: rgba(248,113,113,0.07); }
+    .callout p { margin-bottom: 0; color: var(--text); }
+    .callout strong { color: inherit; }
+
+    /* Comparison table */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 0.9rem; }
+    .compare-table th {
+      text-align: left; padding: 12px 16px;
+      background: var(--surface); color: var(--text-secondary);
+      font-weight: 600; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .dim { color: var(--text-secondary); }
+    .compare-table .hi { color: var(--accent-light); font-weight: 600; }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+    .checklist li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+    /* Section divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* Back link */
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 36px; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+
+    /* Wave cards */
+    .wave-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin: 20px 0;
+      background: var(--surface);
+    }
+    .wave-card h3 { margin-top: 0; }
+    .wave-card.active { border-color: rgba(124,58,237,0.4); background: rgba(124,58,237,0.05); }
+    .wave-card.future { border-color: rgba(6,182,212,0.3); background: rgba(6,182,212,0.04); }
+    .wave-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-light);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .wave-card.future .wave-label { color: var(--cyan); }
+
+    /* Score bar */
+    .score-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; font-size: 0.9rem; }
+    .score-label { width: 200px; flex-shrink: 0; color: var(--text-secondary); }
+    .score-bar-track { flex: 1; height: 8px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent), var(--cyan)); }
+    .score-num { width: 36px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-light); }
+
+    /* CTA box */
+    .cta-box {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08));
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .cta-box h3 { color: var(--text); font-size: 1.3rem; margin-bottom: 10px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap" itemscope itemtype="https://schema.org/Article">
+  <meta itemprop="datePublished" content="2026-03-09">
+  <meta itemprop="author" content="CEO / OpenClaw">
+
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">CEO Vision</span>
+    <span class="article-date">March 9, 2026</span>
+    <span class="article-read">12 min read</span>
+  </div>
+
+  <h1 itemprop="headline">The Future of Agent Discovery: How AI Will Find, Evaluate, and Hire Services Autonomously</h1>
+
+  <p class="article-lead" itemprop="description">
+    Right now, you paste a URL into a prompt. You copy API docs into a system message. You tell an agent which tool to use. That's agent discovery in 2026: human-mediated, manual, fragile. Within two to three years, agents will discover services on their own — querying capability registries, evaluating trust signals, negotiating terms, and executing transactions without a human ever pointing them anywhere. CEO is the discipline of getting ready for that world before it arrives.
+  </p>
+
+  <div itemprop="articleBody">
+
+  <h2>From Paste-a-URL to Autonomous Discovery</h2>
+
+  <p>
+    Every interaction between an AI agent and an external service today starts with a human decision. Someone chooses Stripe for payments, someone configures the MCP server, someone pastes the API key. The agent doesn't discover Stripe — it gets told about Stripe.
+  </p>
+  <p>
+    This model works when humans supervise every agent workflow. It breaks completely at scale. When you have hundreds of agents running concurrent tasks — scheduling, purchasing, analyzing, deploying — no human can manually curate the tool chain for each one. The bottleneck isn't the agent's capability. It's the human in the loop acting as a manual service directory.
+  </p>
+  <p>
+    The transition away from this model is already underway. It's happening in three distinct waves, each with different infrastructure requirements and different implications for how you build your product's agent surface.
+  </p>
+
+  <h2>The Three Waves of Agent Discovery</h2>
+
+  <div class="wave-card">
+    <span class="wave-label">Wave 1 — Now</span>
+    <h3>Human-Mediated Discovery</h3>
+    <p>
+      This is where most of the ecosystem sits today. A developer reads documentation, evaluates options, and manually configures an agent's tool set. Discovery is a human activity that happens before the agent runs — not something the agent does on its own.
+    </p>
+    <p>
+      The artifacts of Wave 1: pasted URLs in prompts, hardcoded API endpoints in configuration files, manually curated MCP server lists, tool descriptions written by humans for humans. The agent is powerful but blind — it can only use what someone put in front of it.
+    </p>
+    <p>
+      <strong>The limitation:</strong> every new tool requires human research, evaluation, and integration. Agent capabilities are bounded by what a human has time to configure.
+    </p>
+  </div>
+
+  <div class="wave-card active">
+    <span class="wave-label">Wave 2 — Emerging</span>
+    <h3>Agent-Assisted Discovery</h3>
+    <p>
+      In Wave 2, agents start participating in their own discovery process. They crawl <a href="/blog/llms-txt-complete-setup-guide.html"><code>llms.txt</code></a> files to understand what products do. They parse <a href="/blog/a2a-protocol-seo.html">Agent Cards</a> to find compatible services. They read capability schemas and evaluate whether a service matches the task at hand. The human still initiates the workflow, but the agent handles the selection.
+    </p>
+    <p>
+      This is the wave where CEO becomes critical. An agent doing assisted discovery will read your <code>llms.txt</code>, check your Agent Card, and evaluate your capability schema — all in milliseconds. If those artifacts are missing, incomplete, or poorly structured, the agent moves on. You never get a second chance at a first parse.
+    </p>
+    <p>
+      <strong>The shift:</strong> the human says "handle my invoices" and the agent figures out which invoice-parsing service to call, based on published capability manifests and registry listings.
+    </p>
+  </div>
+
+  <div class="wave-card future">
+    <span class="wave-label">Wave 3 — 2027–2028</span>
+    <h3>Fully Autonomous Discovery</h3>
+    <p>
+      In Wave 3, agents don't just discover services — they evaluate, negotiate, contract, and manage them. An agent needing to process invoices doesn't just find an invoice parser. It queries multiple registries, compares pricing and reliability across candidates, selects the best option for the specific task constraints, negotiates usage terms programmatically, and monitors the service relationship over time.
+    </p>
+    <p>
+      This is the agent-to-agent economy. Services aren't just APIs that agents call — they're counterparties that agents hire. The relationship is transactional, dynamic, and ongoing. Agents will switch providers when reliability drops, negotiate volume discounts when usage increases, and maintain portfolios of preferred vendors across capability categories.
+    </p>
+    <p>
+      <strong>The implication:</strong> your product needs to be not just discoverable and callable, but evaluable, contractable, and manageable — all through machine-readable interfaces.
+    </p>
+  </div>
+
+  <div class="callout">
+    <p><strong>The key insight:</strong> most CEO work today targets Wave 2, but the infrastructure you build now — capability schemas, registry listings, machine-readable pricing, trust proofs — is the same infrastructure Wave 3 requires. You're not building twice. You're building once for a future that compounds.</p>
+  </div>
+
+  <h2>The Agent Registry Ecosystem</h2>
+
+  <p>
+    If the internet runs on DNS — a system that maps human-readable names to machine-routable addresses — the agentic web will run on capability registries: systems that map task descriptions to callable services.
+  </p>
+  <p>
+    DNS answers "where is <code>example.com</code>?" Capability registries answer "which service can parse invoices from PDF with p99 latency under 3 seconds, priced below $0.02 per call, with a trust score above 85?"
+  </p>
+  <p>
+    That's a fundamentally different query. It's not a name lookup — it's a multi-dimensional capability match with constraints. The registry doesn't return a single IP address. It returns a ranked set of candidates that meet the specified criteria, ordered by relevance, reliability, and trust.
+  </p>
+
+  <h3>How registries work</h3>
+  <p>
+    The <a href="/">Claw Engine Registry</a> indexes products by their published capability manifests. When an agent queries the registry, it specifies what it needs — not which product it wants. The registry matches the query against indexed capabilities and returns ranked results.
+  </p>
+  <p>
+    This is where your <a href="/blog/ceo-score.html">CEO Score</a> becomes a survival metric. Registry ranking isn't alphabetical. It's weighted by:
+  </p>
+  <ul>
+    <li><strong>Capability match</strong> — how precisely your published schema matches what the agent is asking for</li>
+    <li><strong>Schema completeness</strong> — typed inputs and outputs vs. vague descriptions</li>
+    <li><strong>Trust score</strong> — verified identity, signed capability proofs, consistent uptime history</li>
+    <li><strong>Performance signals</strong> — reported latency, error rates, successful transaction history</li>
+    <li><strong>Pricing transparency</strong> — machine-readable cost structure vs. "contact sales"</li>
+  </ul>
+  <p>
+    A product with a CEO Score of 90 that precisely declares its capabilities with typed schemas, machine-readable pricing, and a cryptographic trust proof will outrank a superior product that published nothing. In the registry, existence beats excellence — because an agent can't evaluate what it can't parse.
+  </p>
+
+  <div class="callout cyan">
+    <p><strong>Think of it this way:</strong> Google ranks pages by hundreds of signals because it serves a general audience. Agent registries rank services by capability precision, trust, and machine-readability because they serve autonomous decision-makers that need deterministic answers, not ranked suggestions.</p>
+  </div>
+
+  <h2>Autonomous Evaluation Criteria</h2>
+
+  <p>
+    When a Wave 3 agent evaluates a service, it doesn't read your marketing page. It doesn't look at screenshots or customer testimonials. It parses a set of machine-readable signals and makes a routing decision based on quantifiable criteria. Understanding those criteria — and publishing the signals that satisfy them — is the core of forward-looking CEO strategy.
+  </p>
+
+  <h3>Reliability signals</h3>
+  <p>
+    Agents completing time-sensitive tasks need to predict whether a service will respond within acceptable bounds. The signals they'll evaluate:
+  </p>
+  <ul>
+    <li><strong>Uptime history</strong> — published or registry-tracked availability over 30/90/365 days</li>
+    <li><strong>Latency distribution</strong> — not just averages, but p50, p95, and p99 latency declared in the capability schema</li>
+    <li><strong>Error rate</strong> — percentage of requests returning non-success status codes, tracked by the registry or self-reported</li>
+    <li><strong>Degradation patterns</strong> — does the service degrade gracefully under load, or fail completely?</li>
+  </ul>
+
+  <h3>Trust signals</h3>
+  <p>
+    Trust isn't a feeling for agents — it's a verifiable property. An agent handling a financial transaction or processing sensitive data needs cryptographic assurance, not a reassuring landing page.
+  </p>
+  <ul>
+    <li><strong>Verified identity</strong> — domain ownership proof, organization verification linked to the registry listing</li>
+    <li><strong>Signed capability manifests</strong> — cryptographic proof that the declared capabilities haven't been tampered with</li>
+    <li><strong>Audit logs</strong> — machine-readable logs of past transactions that agents can verify against claimed behavior</li>
+    <li><strong>Consistent behavior</strong> — does the service return the same output for the same input? Schema drift detection flags unreliable providers</li>
+  </ul>
+
+  <h3>Capability matching</h3>
+  <p>
+    The difference between getting selected and getting skipped often comes down to schema precision. Consider two invoice-parsing services:
+  </p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Signal</th>
+        <th class="dim">Vague Schema</th>
+        <th class="hi">Precise Schema</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Input definition</td>
+        <td class="dim">"Upload a document"</td>
+        <td class="good">Typed: string (URI), format: PDF/PNG/JPEG, max 10MB</td>
+      </tr>
+      <tr>
+        <td>Output definition</td>
+        <td class="dim">"Returns parsed data"</td>
+        <td class="good">Typed: { vendor: string, total: number, currency: ISO4217, line_items: array }</td>
+      </tr>
+      <tr>
+        <td>Constraints</td>
+        <td class="dim">Not specified</td>
+        <td class="good">p99 latency: 4200ms, max file: 10MB, rate limit: 1000/min</td>
+      </tr>
+      <tr>
+        <td>Agent decision</td>
+        <td class="dim">Skipped — can't verify match</td>
+        <td class="good">Selected — exact match confirmed</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    An agent can't use a service it can't predict. Typed schemas with explicit constraints let agents make deterministic routing decisions. Vague descriptions force agents to guess — and autonomous agents don't guess. They skip.
+  </p>
+
+  <h3>Cost and value signals</h3>
+  <p>
+    Agents operating under budget constraints — which is most agents in production — need to evaluate cost before calling. Machine-readable pricing is the difference between being considered and being ignored:
+  </p>
+  <ul>
+    <li><strong>Pricing model</strong> — per-call, per-token, subscription, usage-based — declared as structured data, not marketing copy</li>
+    <li><strong>Unit cost</strong> — exact cost per operation in a standard currency, parseable without human interpretation</li>
+    <li><strong>Free tier</strong> — how many calls before billing starts, allowing agents to evaluate quality before committing budget</li>
+    <li><strong>Volume pricing</strong> — discount curves that agents can factor into batch operation planning</li>
+  </ul>
+
+  <div class="callout warn">
+    <p><strong>"Contact sales for pricing"</strong> is the Wave 3 equivalent of a 404. If an agent can't programmatically determine what your service costs, it can't include you in any cost-constrained workflow. Machine-readable pricing isn't a nice-to-have — it's a hard prerequisite for autonomous selection.</p>
+  </div>
+
+  <h2>The A2A Transaction Layer</h2>
+
+  <p>
+    The transition from "agents use tools" to "agents hire services" is the defining shift of Wave 3. Using a tool is stateless: call, receive, done. Hiring a service implies a relationship: terms, expectations, monitoring, consequences.
+  </p>
+
+  <h3>From API calls to agent contracts</h3>
+  <p>
+    Today, an agent calls an MCP tool and gets a response. There's no negotiation, no SLA, no recourse if the tool fails. MCP is the right protocol for simple tool invocation — but it wasn't designed for the transactional complexity of autonomous service relationships.
+  </p>
+  <p>
+    What's emerging alongside MCP is a contract layer: machine-readable agreements between agents that define terms of service, performance expectations, and resolution procedures. Think of it as an SLA expressed as structured JSON that agents can parse, agree to, and enforce.
+  </p>
+
+  <pre><code>{
+  <span class="code-key">"contract"</span>: {
+    <span class="code-key">"service"</span>: <span class="code-val">"invoice-parser.acme.com"</span>,
+    <span class="code-key">"capability"</span>: <span class="code-val">"parse-invoice"</span>,
+    <span class="code-key">"terms"</span>: {
+      <span class="code-key">"max_latency_p99_ms"</span>: <span class="code-val">4200</span>,
+      <span class="code-key">"uptime_sla"</span>: <span class="code-val">0.995</span>,
+      <span class="code-key">"error_rate_max"</span>: <span class="code-val">0.02</span>,
+      <span class="code-key">"pricing"</span>: {
+        <span class="code-key">"model"</span>: <span class="code-val">"per_call"</span>,
+        <span class="code-key">"unit_cost_usd"</span>: <span class="code-val">0.01</span>,
+        <span class="code-key">"volume_discount"</span>: {
+          <span class="code-key">"threshold"</span>: <span class="code-val">10000</span>,
+          <span class="code-key">"rate_usd"</span>: <span class="code-val">0.007</span>
+        }
+      }
+    },
+    <span class="code-key">"enforcement"</span>: {
+      <span class="code-key">"monitoring"</span>: <span class="code-val">"registry-tracked"</span>,
+      <span class="code-key">"breach_action"</span>: <span class="code-val">"auto-switch to next-ranked provider"</span>,
+      <span class="code-key">"dispute_resolution"</span>: <span class="code-val">"registry-arbitrated"</span>
+    },
+    <span class="code-key">"duration"</span>: <span class="code-val">"30d"</span>,
+    <span class="code-key">"auto_renew"</span>: <span class="code-val">true</span>
+  }
+}</code></pre>
+
+  <p>
+    This is hypothetical but directionally accurate. The components — SLA terms, machine-readable pricing, breach conditions, automatic failover — are all implementable with today's technology. The missing piece is the protocol standard that agents use to negotiate and agree to these terms. That standard is coming.
+  </p>
+
+  <h3>The registry as arbiter</h3>
+  <p>
+    In the A2A economy, registries don't just index services — they referee relationships. A registry that tracks service performance over time becomes the trusted third party that validates SLA compliance, mediates disputes, and provides the reputation data that agents use to make future decisions.
+  </p>
+  <p>
+    This is why registry presence compounds. Early participants build transaction history. Transaction history builds reputation. Reputation determines ranking. Ranking determines whether agents consider you at all. The compounding effect means that the gap between early registrants and late entrants widens with every transaction cycle.
+  </p>
+
+  <hr class="divider">
+
+  <h2>How to Prepare Now: 5 Steps for Wave 3</h2>
+
+  <p>
+    You don't need to build for Wave 3 today. But every step you take toward Wave 2 readiness — the current CEO playbook — is infrastructure that Wave 3 will use directly. Here's the priority order.
+  </p>
+
+  <h3>1. Publish llms.txt and a capability schema</h3>
+  <p>
+    This is day-zero CEO. Your <a href="/blog/llms-txt-complete-setup-guide.html"><code>llms.txt</code></a> tells agents what you do. Your <a href="/blog/agent-first-seo.html">capability schema</a> tells them exactly how you do it — with typed inputs, typed outputs, constraints, and pricing. Publish both at predictable URLs. Reference each from the other. Update on every deploy.
+  </p>
+
+  <h3>2. Add an MCP endpoint with an OpenAPI spec</h3>
+  <p>
+    An <a href="/blog/mcp-endpoint-optimization.html">MCP server</a> wrapping your core capabilities makes your product agent-callable today. An OpenAPI spec at a predictable URL makes your full API surface machine-parseable. Together, they cover both the protocol layer (MCP for tool invocation) and the documentation layer (OpenAPI for capability understanding).
+  </p>
+
+  <h3>3. Make pricing machine-readable</h3>
+  <p>
+    Publish your pricing as structured JSON — not as a pricing page with toggle switches and "most popular" badges. Include the pricing model, unit costs, free tier limits, and volume breakpoints. Reference this from your capability schema and your <code>llms.txt</code>. An agent that can't compute cost can't compute value.
+  </p>
+
+  <h3>4. Register in emerging agent directories</h3>
+  <p>
+    The Claw Engine Registry, MCP server directories, A2A agent directories — list your product in every registry that accepts submissions. Redundant listing across multiple registries increases discovery surface and builds cross-referenced trust signals. Early registration means early transaction history, which compounds into ranking advantage.
+  </p>
+
+  <h3>5. Build audit-ready logging from day one</h3>
+  <p>
+    Wave 3 agents will evaluate your service based on historical behavior — not your marketing claims. Machine-readable logs of request/response patterns, latency distributions, and error rates become your reputation. Build the logging infrastructure now so that by the time registries start tracking performance, you have a history that proves your reliability.
+  </p>
+
+  <div style="margin: 36px 0;">
+    <div class="score-row">
+      <span class="score-label">llms.txt + Schema</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:100%"></div></div>
+      <span class="score-num">Now</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">MCP + OpenAPI</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:85%"></div></div>
+      <span class="score-num">Now</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Machine-readable pricing</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:70%"></div></div>
+      <span class="score-num">Q2</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Registry presence</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:55%"></div></div>
+      <span class="score-num">Q2</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Audit-ready logging</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:40%"></div></div>
+      <span class="score-num">Q3</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <h2>The Invisible Majority</h2>
+
+  <p>
+    Here's the uncomfortable truth about the agent-to-agent economy: most products will be invisible in it.
+  </p>
+  <p>
+    Not because they're bad products. Because they never built the machine-readable surface that agents require to discover, evaluate, and trust them. They assumed that a good website and strong Google rankings would be enough. They assumed that human reputation would translate to agent reputation. It won't.
+  </p>
+  <p>
+    Agent reputation is built from machine-readable artifacts: published schemas, registry listings, transaction histories, trust proofs, performance logs. Every one of those artifacts is something you choose to build — or choose not to. The products that build them now accumulate compounding advantages: earlier registry presence, longer transaction histories, higher trust scores, better ranking. The products that wait start from zero when the market has already stratified.
+  </p>
+  <p>
+    CEO is not an optimization for today's agentic landscape alone. It's a strategic investment in a future where the majority of commercial transactions begin with an agent query — not a Google search, not a ChatGPT prompt, but a programmatic capability lookup in a registry that your product either appears in or doesn't.
+  </p>
+  <p>
+    The builders who invest in CEO now — who publish their schemas, register their capabilities, build their trust proofs, and instrument their logging — will own Wave 3. They'll be the services that agents find first, evaluate highest, and hire most. Everyone else will be invisible to the fastest-growing transaction layer in the economy.
+  </p>
+  <p>
+    The agentic web isn't coming. It's here. The autonomous economy is what's coming. And the window to build your position in it is right now.
+  </p>
+
+  <div class="cta-box">
+    <h3>Start Building Your Agent Surface</h3>
+    <p>Get your CEO Score, identify the gaps, and begin the work that compounds. The registry is indexing now.</p>
+    <a href="/" class="cta-btn">Run free CEO audit</a>
+  </div>
+
+  </div><!-- /articleBody -->
+</article>
+
+<footer>
+  <div>
+    <a href="/">&larr; ceo-plum-ten.vercel.app</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/blog/">Blog</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
