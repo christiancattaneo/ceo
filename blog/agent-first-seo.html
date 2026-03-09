@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent-First SEO: Why Your Website Needs to Speak to AI Agents, Not Just Search Engines — CEO Blog</title>
+  <meta name="description" content="The web was built for browsers. Search engines built indexes for humans. Now AI agents need to read, parse, and act on your site — and they don't browse. Here's how to architect your website for agent-first consumption.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="agent-first SEO, AI agent website, machine-readable sitemap, capability schema, agent discovery protocol, structured endpoints, CEO, Claw Engine Optimization, agentic web, agent content architecture">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/agent-first-seo.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/agent-first-seo.html">
+  <meta property="og:title" content="Agent-First SEO: Why Your Website Needs to Speak to AI Agents, Not Just Search Engines">
+  <meta property="og:description" content="The web was built for browsers. AI agents need structured endpoints, machine-readable sitemaps, and capability schemas — not crawlable HTML. Here's the complete architect's guide.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-03-09T00:00:00Z">
+  <meta property="article:author" content="CEO Team">
+  <meta property="article:section" content="CEO Fundamentals">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="Agent-First SEO: Why Your Website Needs to Speak to AI Agents, Not Just Search Engines">
+  <meta name="twitter:description" content="Structured endpoints vs crawlable HTML, machine-readable sitemaps, capability schemas, and a practical 20-point audit checklist for the agentic web.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Agent-First SEO: Why Your Website Needs to Speak to AI Agents, Not Just Search Engines",
+    "description": "The web was built for browsers. Search engines built indexes for humans. Now AI agents need to read, parse, and act on your site — and they don't browse. Here's how to architect your website for agent-first consumption.",
+    "image": "https://ceo-plum-ten.vercel.app/og-image.png",
+    "author": {
+      "@type": "Organization",
+      "name": "CEO / OpenClaw",
+      "url": "https://ceo-plum-ten.vercel.app"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "CEO / OpenClaw",
+      "url": "https://ceo-plum-ten.vercel.app",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://ceo-plum-ten.vercel.app/favicon.png"
+      }
+    },
+    "datePublished": "2026-03-09",
+    "dateModified": "2026-03-09",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://ceo-plum-ten.vercel.app/blog/agent-first-seo.html"
+    },
+    "keywords": ["agent-first SEO", "AI agent website", "machine-readable sitemap", "capability schema", "agent discovery protocol", "structured endpoints", "CEO", "Claw Engine Optimization"],
+    "articleSection": "CEO Fundamentals",
+    "wordCount": 1800
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: rgba(124,58,237,0.15);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --cyan: #06b6d4;
+      --green: #22c55e;
+      --text: #e8e8f0;
+      --text-secondary: #8888aa;
+      --code-bg: #1a1a28;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 760px; margin: 0 auto;
+      display: flex; align-items: center; gap: 24px;
+      height: 56px;
+    }
+    .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-logo svg { color: var(--accent-light); }
+    .nav-links { display: flex; gap: 20px; margin-left: auto; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Article layout */
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    /* Header */
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .article-tag {
+      background: rgba(124,58,237,0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(124,58,237,0.3);
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .article-date { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read::before { content: "·"; margin-right: 12px; }
+
+    h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .article-lead { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 48px; }
+
+    /* Body */
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 52px 0 16px; letter-spacing: -0.01em; color: var(--text); }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; color: var(--accent-light); }
+    p { margin-bottom: 20px; color: var(--text); }
+    a { color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--cyan); }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--text-secondary); font-style: italic; }
+
+    /* Code */
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--code-bg);
+      padding: 2px 7px; border-radius: 5px;
+      color: var(--cyan);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-size: 0.875rem;
+      line-height: 1.65;
+    }
+    pre code { background: none; padding: 0; color: var(--text); }
+    .code-comment { color: var(--text-secondary); }
+    .code-key { color: var(--accent-light); }
+    .code-val { color: #86efac; }
+    .code-url { color: var(--cyan); }
+    .code-bad { color: #f87171; }
+    .code-good { color: #86efac; }
+
+    /* Callout boxes */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(124,58,237,0.07);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 28px 0;
+    }
+    .callout.cyan { border-color: var(--cyan); background: rgba(6,182,212,0.07); }
+    .callout.green { border-color: var(--green); background: rgba(34,197,94,0.07); }
+    .callout.warn { border-color: #f59e0b; background: rgba(245,158,11,0.07); }
+    .callout.red { border-color: #f87171; background: rgba(248,113,113,0.07); }
+    .callout p { margin-bottom: 0; color: var(--text); }
+    .callout strong { color: inherit; }
+
+    /* Comparison table */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 0.9rem; }
+    .compare-table th {
+      text-align: left; padding: 12px 16px;
+      background: var(--surface); color: var(--text-secondary);
+      font-weight: 600; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .dim { color: var(--text-secondary); }
+    .compare-table .hi { color: var(--accent-light); font-weight: 600; }
+    .compare-table .bad { color: #f87171; }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+    .checklist li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+    /* Section divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* Back link */
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 36px; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+
+    /* Score bar */
+    .score-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; font-size: 0.9rem; }
+    .score-label { width: 200px; flex-shrink: 0; color: var(--text-secondary); }
+    .score-bar-track { flex: 1; height: 8px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent), var(--cyan)); }
+    .score-num { width: 36px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-light); }
+
+    /* CTA box */
+    .cta-box {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08));
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .cta-box h3 { color: var(--text); font-size: 1.3rem; margin-bottom: 10px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap" itemscope itemtype="https://schema.org/Article">
+  <meta itemprop="datePublished" content="2026-03-09">
+  <meta itemprop="author" content="CEO / OpenClaw">
+
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">CEO Fundamentals</span>
+    <span class="article-date">March 9, 2026</span>
+    <span class="article-read">9 min read</span>
+  </div>
+
+  <h1 itemprop="headline">Agent-First SEO: Why Your Website Needs to Speak to AI Agents, Not Just Search Engines</h1>
+
+  <p class="article-lead" itemprop="description">
+    The web was built for browsers. Search engines built crawlers that imitated browsers. AI language models consumed text. But autonomous agents don't browse — they parse, query, and call. Your website's architecture was never designed for that. Here's what needs to change.
+  </p>
+
+  <div itemprop="articleBody">
+
+  <h2>The Architecture Mismatch</h2>
+
+  <p>
+    When you built your website, you made decisions optimized for two audiences: humans using browsers, and Googlebot indexing content for humans. Those decisions — React SPAs, dynamic HTML, JavaScript-rendered content, infinite scroll — made perfect sense for both.
+  </p>
+  <p>
+    Then came the GEO wave: AI language models citing web content in their answers. The response was content optimization: longer articles, authoritative tone, structured headers, schema markup. Still fundamentally HTML-first thinking, just better-organized HTML.
+  </p>
+  <p>
+    Autonomous agents break this entirely. An agent completing a task doesn't load your homepage in a browser, wait for JavaScript to render, scroll through your nav, and read your About page. It hits your domain looking for machine-readable artifacts — capability manifests, structured endpoints, discovery protocols. If those don't exist, the agent moves on in milliseconds. Your design system is irrelevant. Your copy is irrelevant. Your SEO is irrelevant.
+  </p>
+  <p>
+    This is the architecture mismatch at the heart of the agentic web transition: <strong>most websites are optimized for human consumption, but the traffic that transacts is increasingly non-human.</strong>
+  </p>
+
+  <div class="callout">
+    <p><strong>The key shift:</strong> Search engines rank pages for humans to click. AI agents skip pages entirely and look for callable interfaces. Agent-first SEO is about being discoverable and usable by the agents, not the humans they work for.</p>
+  </div>
+
+  <h2>Structured Endpoints vs. Crawlable HTML</h2>
+
+  <p>
+    The first architectural decision in agent-first design is the one most teams get wrong: treating their website and their agent surface as the same thing. They're not. They serve different audiences with different needs.
+  </p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>Crawlable HTML (Web/SEO)</th>
+        <th class="hi">Structured Endpoints (Agent-First)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Consumer</td>
+        <td class="dim">Googlebot, humans</td>
+        <td class="hi">AI agents, MCP clients</td>
+      </tr>
+      <tr>
+        <td>Format</td>
+        <td class="dim">HTML, CSS, JS</td>
+        <td class="hi">JSON, OpenAPI, MCP, A2A</td>
+      </tr>
+      <tr>
+        <td>Discovery</td>
+        <td class="dim">robots.txt, sitemap.xml</td>
+        <td class="hi">llms.txt, agent.json, capability schema</td>
+      </tr>
+      <tr>
+        <td>Interaction</td>
+        <td class="dim">Click, scroll, form submit</td>
+        <td class="hi">API call, tool invocation, task delegation</td>
+      </tr>
+      <tr>
+        <td>Auth model</td>
+        <td class="dim">Session cookies, OAuth redirects</td>
+        <td class="hi">Bearer tokens, API keys, agent identity</td>
+      </tr>
+      <tr>
+        <td>Error handling</td>
+        <td class="dim">404 pages, error modals</td>
+        <td class="hi">Typed error schemas, retry hints</td>
+      </tr>
+      <tr>
+        <td>Performance target</td>
+        <td class="dim">Core Web Vitals, LCP &lt;2.5s</td>
+        <td class="hi">API latency p99, streaming support</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    The practical implication: you need both. Your crawlable website continues to serve humans and feed language models. Your structured endpoints — the agent surface — run parallel to it. They share your domain, but they're architecturally separate. The agent surface is an API layer, not a presentation layer.
+  </p>
+  <p>
+    Concretely, this means your domain should expose:
+  </p>
+  <ul>
+    <li>A JSON API (or existing REST API) at predictable paths agents can call</li>
+    <li>An MCP server that wraps your capabilities as typed tools</li>
+    <li>An <code>/.well-known/agent.json</code> Agent Card describing your A2A capabilities</li>
+    <li>An <code>/llms.txt</code> at the root describing everything for AI consumption</li>
+    <li>A capability schema documenting inputs, outputs, and constraints</li>
+  </ul>
+  <p>
+    None of this replaces your website. It runs alongside it, at the same domain, serving a different audience. Agents look for the structured surface first. Humans load the beautiful one.
+  </p>
+
+  <h2>Machine-Readable Sitemaps for Agents</h2>
+
+  <p>
+    Your <code>sitemap.xml</code> was designed for Googlebot. It lists URLs, last-modified dates, and change frequencies. That's useful for crawlers indexing content — completely useless for agents looking for callable capabilities.
+  </p>
+  <p>
+    Agent-first architecture needs an equivalent: a machine-readable map of your product's capabilities, not your content pages. There are two complementary approaches.
+  </p>
+
+  <h3>llms.txt as a capability sitemap</h3>
+  <p>
+    The <a href="/blog/llms-txt-complete-setup-guide.html"><code>llms.txt</code></a> file is the closest analog to a sitemap for the agent layer. Where <code>sitemap.xml</code> lists pages, <code>llms.txt</code> describes capabilities, endpoints, and intent. A well-structured <code>llms.txt</code> gives an AI agent immediate orientation:
+  </p>
+
+  <pre><code><span class="code-comment"># YourProduct llms.txt</span>
+<span class="code-comment"># Machine-readable product summary for AI agents</span>
+
+<span class="code-comment">## Product</span>
+<span class="code-val">Name: YourProduct</span>
+<span class="code-val">Description: Invoice parsing and financial data extraction SaaS.</span>
+<span class="code-val">  Accepts PDFs and images, returns structured JSON.</span>
+<span class="code-val">Pricing: Free tier (50 invoices/mo), Pro ($49/mo, unlimited)</span>
+<span class="code-val">Docs: https://yourproduct.com/docs</span>
+
+<span class="code-comment">## Capabilities</span>
+<span class="code-val">- parse-invoice: Extract line items, vendor, date, currency from PDF/image</span>
+<span class="code-val">- batch-parse: Process up to 100 invoices in a single request</span>
+<span class="code-val">- export-csv: Convert parsed invoice data to CSV format</span>
+<span class="code-val">- validate-totals: Cross-check line items against stated totals</span>
+
+<span class="code-comment">## API</span>
+<span class="code-val">Base URL: https://api.yourproduct.com/v1</span>
+<span class="code-val">Auth: Bearer token (header: Authorization: Bearer &lt;token&gt;)</span>
+<span class="code-val">Spec: https://yourproduct.com/openapi.json</span>
+<span class="code-val">Rate limit: 100 req/min on Free, 1000 req/min on Pro</span>
+
+<span class="code-comment">## Agent Protocols</span>
+<span class="code-val">MCP: https://yourproduct.com/mcp</span>
+<span class="code-val">A2A: https://yourproduct.com/.well-known/agent.json</span></code></pre>
+
+  <p>
+    This is a sitemap agents can actually use: they know what you do, how to call you, what it costs, and where the protocols live — all in one 200ms fetch.
+  </p>
+
+  <h3>OpenAPI spec as a structured capability index</h3>
+  <p>
+    For products with REST APIs, an <code>openapi.json</code> hosted at a predictable URL is the structured endpoint equivalent of <code>sitemap.xml</code>. Agents that support OpenAPI parsing can read your spec and understand your full API surface without a developer writing a single line of integration code.
+  </p>
+  <p>
+    The key is making the OpenAPI spec agent-readable, not just developer-readable. That means:
+  </p>
+  <ul>
+    <li>Every endpoint has a <code>summary</code> that states what it does in natural language</li>
+    <li>Every parameter has a <code>description</code> that explains what it expects — not just the type</li>
+    <li>Response schemas are fully typed, not just <code>"object"</code></li>
+    <li>Error responses include <code>description</code> fields explaining when they occur</li>
+    <li>The top-level <code>info.description</code> explains the API's purpose to an agent reading cold</li>
+  </ul>
+
+  <div class="callout cyan">
+    <p><strong>Tip:</strong> Reference your OpenAPI spec in <code>llms.txt</code> and in your <code>/.well-known/agent.json</code>. Cross-referencing these artifacts means agents that enter through any discovery path — domain probing, llms.txt, registry lookup — all reach the same structured endpoint index. Redundant discovery = higher reliability.</p>
+  </div>
+
+  <h2>Capability Schemas: What You Can Do, Not What You Say</h2>
+
+  <p>
+    Traditional SEO content describes your product in human language — features, benefits, use cases, testimonials. That language is for humans making decisions. Agents don't make decisions that way; they parse schemas to determine capability match.
+  </p>
+  <p>
+    A capability schema is a machine-readable document that answers exactly one question: <em>given a specific task, can your product handle it?</em> It's not marketing copy about your product. It's a typed specification of your product's verbs.
+  </p>
+  <p>
+    The anatomy of a capability schema:
+  </p>
+
+  <pre><code>{
+  <span class="code-key">"capabilities"</span>: [
+    {
+      <span class="code-key">"id"</span>: <span class="code-val">"parse-invoice"</span>,
+      <span class="code-key">"name"</span>: <span class="code-good">"Parse Invoice Document"</span>,
+      <span class="code-key">"description"</span>: <span class="code-good">"Extracts structured data from invoice PDFs and images. Returns line items, vendor details, totals, currency, and tax breakdown as typed JSON."</span>,
+      <span class="code-key">"input"</span>: {
+        <span class="code-key">"type"</span>: <span class="code-val">"object"</span>,
+        <span class="code-key">"required"</span>: [<span class="code-val">"document_url"</span>],
+        <span class="code-key">"properties"</span>: {
+          <span class="code-key">"document_url"</span>: {
+            <span class="code-key">"type"</span>: <span class="code-val">"string"</span>,
+            <span class="code-key">"format"</span>: <span class="code-val">"uri"</span>,
+            <span class="code-key">"description"</span>: <span class="code-good">"URL to the invoice file. Supported formats: PDF, PNG, JPEG, WebP. Max size: 10MB."</span>
+          },
+          <span class="code-key">"currency_hint"</span>: {
+            <span class="code-key">"type"</span>: <span class="code-val">"string"</span>,
+            <span class="code-key">"description"</span>: <span class="code-good">"Optional ISO 4217 currency code hint if auto-detection is insufficient."</span>
+          }
+        }
+      },
+      <span class="code-key">"output"</span>: {
+        <span class="code-key">"type"</span>: <span class="code-val">"object"</span>,
+        <span class="code-key">"properties"</span>: {
+          <span class="code-key">"vendor"</span>: { <span class="code-key">"type"</span>: <span class="code-val">"string"</span> },
+          <span class="code-key">"date"</span>: { <span class="code-key">"type"</span>: <span class="code-val">"string"</span>, <span class="code-key">"format"</span>: <span class="code-val">"date"</span> },
+          <span class="code-key">"line_items"</span>: { <span class="code-key">"type"</span>: <span class="code-val">"array"</span> },
+          <span class="code-key">"total"</span>: { <span class="code-key">"type"</span>: <span class="code-val">"number"</span> },
+          <span class="code-key">"currency"</span>: { <span class="code-key">"type"</span>: <span class="code-val">"string"</span> },
+          <span class="code-key">"confidence"</span>: { <span class="code-key">"type"</span>: <span class="code-val">"number"</span>, <span class="code-key">"minimum"</span>: 0, <span class="code-key">"maximum"</span>: 1 }
+        }
+      },
+      <span class="code-key">"constraints"</span>: {
+        <span class="code-key">"max_file_size_mb"</span>: 10,
+        <span class="code-key">"supported_formats"</span>: [<span class="code-val">"pdf"</span>, <span class="code-val">"png"</span>, <span class="code-val">"jpeg"</span>, <span class="code-val">"webp"</span>],
+        <span class="code-key">"avg_latency_ms"</span>: 1800,
+        <span class="code-key">"p99_latency_ms"</span>: 4200
+      },
+      <span class="code-key">"pricing"</span>: {
+        <span class="code-key">"model"</span>: <span class="code-val">"per_call"</span>,
+        <span class="code-key">"free_tier"</span>: 50,
+        <span class="code-key">"paid_unit_cost_usd"</span>: 0.01
+      }
+    }
+  ]
+}</code></pre>
+
+  <p>
+    Notice what this schema does that marketing copy can't: it tells an agent exactly what inputs are valid, what the output looks like, how fast it runs, and what it costs — with no human interpretation required. An agent reading this can make a routing decision in a single parse.
+  </p>
+  <p>
+    Publish your capability schema at a predictable URL (e.g., <code>/capabilities.json</code>) and reference it from <code>llms.txt</code>, your Agent Card, and your OpenAPI spec. Make it the single source of truth for what your product can do.
+  </p>
+
+  <h2>Agent Discovery Protocols</h2>
+
+  <p>
+    Discovery is the moment an agent learns you exist. For traditional SEO, discovery happens when Googlebot crawls your site and adds it to the index. For agents, discovery happens through a different set of protocols — most of which your current site almost certainly doesn't support.
+  </p>
+
+  <h3>The discovery stack</h3>
+  <p>
+    Agent discovery in 2026 happens across four layers. Each layer is a separate entry point; covering all four maximizes the probability that an agent routing for your capability space finds you.
+  </p>
+
+  <ol>
+    <li>
+      <strong>Well-known endpoints:</strong> Agents probing a domain they've heard of check standard paths first: <code>/.well-known/agent.json</code> for A2A, <code>/llms.txt</code> for general AI context, <code>/openapi.json</code> or <code>/.well-known/openapi.yaml</code> for API specs. These are the protocol-level equivalents of <code>robots.txt</code> — standardized locations that agents check before doing anything else.
+    </li>
+    <li>
+      <strong>Capability registries:</strong> The <a href="/">Claw Engine Registry</a>, emerging MCP server directories, and A2A agent directories index products by capability. An agent that doesn't know your domain can still find you through a registry lookup: "which registered products support invoice parsing?" If you're not listed, you're invisible to agents that discover services this way — which is increasingly how agents in orchestrated workflows find their tools.
+    </li>
+    <li>
+      <strong>Cross-referencing:</strong> Agents follow references. An <code>llms.txt</code> that points to your MCP server, which points to your Agent Card, which points back to your OpenAPI spec — this creates a discovery graph. An agent that enters at any node can traverse the full graph. Cross-referencing amplifies every individual discovery surface.
+    </li>
+    <li>
+      <strong>Trust proofs:</strong> Before calling an unknown endpoint, modern agents verify trust. This can be cryptographic domain ownership proofs, registry-verified identity, or signed capability manifests. Without a trust proof, cautious agents (especially those executing financial transactions or handling sensitive data) will skip you for a verified alternative. Trust verification is fast becoming a hard requirement, not an optional nice-to-have.
+    </li>
+  </ol>
+
+  <div class="callout warn">
+    <p><strong>Don't rely on a single discovery path.</strong> An agent that finds you through a registry might call your MCP server directly and never touch your website. An agent that enters through your domain might parse <code>llms.txt</code> and then your Agent Card without touching your OpenAPI spec. Design for redundancy: every artifact should reference the others, and every protocol should be independently useful.</p>
+  </div>
+
+  <h3>Schema.org markup for agent context</h3>
+  <p>
+    Your existing HTML pages aren't useless for agents — but they need better structured data. Schema.org JSON-LD that was previously a GEO optimization also feeds agent parsers that do consume your web pages. The key additions for agent-first thinking:
+  </p>
+  <ul>
+    <li><code>SoftwareApplication</code> schema on your product page with <code>applicationCategory</code>, <code>featureList</code>, and <code>offers</code></li>
+    <li><code>APIReference</code> schema on your docs pages linking to your OpenAPI spec</li>
+    <li><code>WebAPI</code> schema at your API documentation root describing the API's capabilities</li>
+    <li>Breadcrumb schema so agents parsing a specific page understand its position in your content hierarchy</li>
+  </ul>
+  <p>
+    Structured data is still HTML — it won't replace your structured endpoints. But it bridges the gap for agents that encounter your web pages first, giving them enough machine-readable context to find your agent surface without starting from zero.
+  </p>
+
+  <h2>The Agent-First Architecture Audit: 20 Checks</h2>
+
+  <p>
+    Use this checklist to evaluate your site's current agent-readiness. Each item has a measurable pass/fail state — no interpretation required. Run through it, score yourself, and treat the gaps as a prioritized engineering backlog.
+  </p>
+
+  <h3>Discovery layer (0–40 points)</h3>
+  <ul class="checklist">
+    <li><code>/llms.txt</code> exists at the domain root and is accessible without auth</li>
+    <li><code>llms.txt</code> includes product description, capabilities list, API base URL, and agent protocol links</li>
+    <li><code>llms.txt</code> is updated on every deploy (not stale)</li>
+    <li><code>/.well-known/agent.json</code> exists and returns valid JSON with correct MIME type</li>
+    <li>Agent Card includes <code>name</code>, <code>description</code>, <code>url</code>, <code>skills</code> array, and <code>authentication</code></li>
+    <li>OpenAPI spec hosted at predictable URL (<code>/openapi.json</code> or <code>/.well-known/openapi.yaml</code>)</li>
+    <li>Domain is listed in at least one agent capability registry</li>
+    <li>Trust proof or verified identity is attached to your registry listing</li>
+  </ul>
+
+  <h3>Capability schema layer (0–30 points)</h3>
+  <ul class="checklist">
+    <li><code>/capabilities.json</code> (or equivalent) exists and is machine-readable</li>
+    <li>Every capability has typed <code>input</code> and <code>output</code> schemas — not just descriptions</li>
+    <li>Constraints (file size limits, rate limits, latency p99) are declared in the capability schema</li>
+    <li>Pricing model is machine-readable: per-call, per-token, subscription — with unit costs</li>
+    <li>Capability schema is cross-referenced from <code>llms.txt</code>, Agent Card, and OpenAPI spec</li>
+    <li>Capabilities are granular — separate entries for separate actions, not a single monolithic description</li>
+  </ul>
+
+  <h3>Endpoint layer (0–20 points)</h3>
+  <ul class="checklist">
+    <li>MCP server is running and responds to tool discovery requests</li>
+    <li>MCP tool definitions match the capability schema — consistent naming and scope</li>
+    <li>Every API endpoint has a complete OpenAPI entry: summary, description, parameter descriptions, response schemas</li>
+    <li>API authentication accepts bearer tokens or API keys (not session-only)</li>
+  </ul>
+
+  <h3>Content layer (0–10 points)</h3>
+  <ul class="checklist">
+    <li><code>SoftwareApplication</code> or <code>WebAPI</code> Schema.org markup on your product/docs pages</li>
+    <li>All HTML pages that describe capabilities are linked from your sitemap (not just blog posts)</li>
+  </ul>
+
+  <div style="margin: 36px 0;">
+    <div class="score-row">
+      <span class="score-label">Discovery layer</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:100%"></div></div>
+      <span class="score-num">40 pts</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Capability schema</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:75%"></div></div>
+      <span class="score-num">30 pts</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Endpoint layer</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:50%"></div></div>
+      <span class="score-num">20 pts</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Content layer</span>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:25%"></div></div>
+      <span class="score-num">10 pts</span>
+    </div>
+  </div>
+
+  <p>
+    Score 80–100: Your site is agent-ready. Focus on registry presence and trust proofs.<br>
+    Score 50–79: Good foundation. The gaps are likely in capability schema richness and cross-referencing.<br>
+    Score 20–49: You have SEO infrastructure but no agent surface. Start with <code>llms.txt</code> and MCP.<br>
+    Score 0–19: Traditional website only. Every item on this list is an opportunity.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Build the Agent Surface Alongside Your Website</h2>
+
+  <p>
+    The mistake most teams will make is treating agent-first architecture as a migration — something you do instead of your existing website. It's not. Your website continues to serve humans and feed language models exactly as it does today. The agent surface is an additional layer, built in parallel, targeting a different audience.
+  </p>
+  <p>
+    The good news: the agent surface is relatively small. <code>llms.txt</code> is a text file. An Agent Card is a JSON document you maintain alongside your existing code. A capability schema is a structured version of what your API already does. An MCP server wraps your existing endpoints in a typed protocol. None of this requires rebuilding your product.
+  </p>
+  <p>
+    The bad news: inertia is real. Teams that "don't have time for this right now" will find themselves behind when agent traffic becomes material to their growth metrics — and the organizations that act in the early window will have discovery history and trust scores that compound over time.
+  </p>
+  <p>
+    The agentic web isn't replacing the human web. It's running in parallel, handling the automated, transacting, orchestrating layer of digital activity. Agent-first architecture is how you participate in that layer — not by abandoning your website, but by giving it a voice that AI agents can actually hear.
+  </p>
+
+  <div class="cta-box">
+    <h3>Run Your Agent-First Audit</h3>
+    <p>Get a scored breakdown across discovery, capability schema, endpoints, and content layers — with specific fixes for every gap.</p>
+    <a href="/" class="cta-btn">Run free CEO audit</a>
+  </div>
+
+  </div><!-- /articleBody -->
+</article>
+
+<footer>
+  <div>
+    <a href="/">&larr; ceo-plum-ten.vercel.app</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/blog/">Blog</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
