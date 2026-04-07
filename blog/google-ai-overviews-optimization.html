@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google AI Overviews: How to Get Your Content Included — CEO Blog</title>
+  <meta name="description" content="Google AI Overviews synthesize answers from multiple sources — and traditional SEO ranking doesn't determine who gets cited. Here's what actually drives AI Overview inclusion in 2026.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="Google AI Overviews, AI Overview optimization, AI Overview SEO, how to appear in AI Overviews, GEO optimization, generative engine optimization, AIO">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/google-ai-overviews-optimization.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/google-ai-overviews-optimization.html">
+  <meta property="og:title" content="Google AI Overviews: How to Get Your Content Included">
+  <meta property="og:description" content="Traditional SEO ranking doesn't determine who gets cited in AI Overviews. Here's what actually matters in 2026.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-07T00:00:00Z">
+  <meta property="article:author" content="CEO Team">
+  <meta property="article:section" content="GEO Strategy">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="Google AI Overviews: How to Get Your Content Included">
+  <meta name="twitter:description" content="Traditional ranking doesn't determine AI Overview citations. Here's what actually drives inclusion.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: rgba(124,58,237,0.15);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --cyan: #06b6d4;
+      --text: #e8e8f0;
+      --text-secondary: #8888aa;
+      --code-bg: #1a1a28;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 760px; margin: 0 auto;
+      display: flex; align-items: center; gap: 24px;
+      height: 56px;
+    }
+    .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-logo svg { color: var(--accent-light); }
+    .nav-links { display: flex; gap: 20px; margin-left: auto; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .article-tag {
+      background: rgba(124,58,237,0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(124,58,237,0.3);
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .article-date { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read::before { content: "·"; margin-right: 12px; }
+
+    h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .article-lead { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 48px; }
+
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 52px 0 16px; letter-spacing: -0.01em; color: var(--text); }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; color: var(--accent-light); }
+    p { margin-bottom: 20px; color: var(--text); }
+    a { color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--cyan); }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--text-secondary); font-style: italic; }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--code-bg);
+      padding: 2px 7px; border-radius: 5px;
+      color: var(--cyan);
+    }
+
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(124,58,237,0.07);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 28px 0;
+    }
+    .callout.cyan { border-color: var(--cyan); background: rgba(6,182,212,0.07); }
+    .callout.green { border-color: #22c55e; background: rgba(34,197,94,0.07); }
+    .callout p { margin-bottom: 0; color: var(--text); }
+    .callout strong { color: inherit; }
+
+    .compare-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 0.9rem; }
+    .compare-table th {
+      text-align: left; padding: 12px 16px;
+      background: var(--surface); color: var(--text-secondary);
+      font-weight: 600; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .dim { color: var(--text-secondary); }
+
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+    .checklist li::before { content: "✓"; color: #22c55e; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 36px; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+
+    .cta-box {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08));
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .cta-box h3 { color: var(--text); font-size: 1.3rem; margin-bottom: 10px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 24px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">GEO Strategy</span>
+    <span class="article-date">April 7, 2026</span>
+    <span class="article-read">8 min read</span>
+  </div>
+
+  <h1>Google AI Overviews: How to Get Your Content Included</h1>
+
+  <p class="article-lead">
+    Google AI Overviews synthesize answers from multiple sources and display them above organic results. Being ranked #1 doesn't guarantee inclusion — and being ranked #8 doesn't exclude you. The selection logic is different from traditional SEO. Here's what actually drives inclusion in 2026.
+  </p>
+
+  <h2>What AI Overviews Actually Are</h2>
+
+  <p>
+    Google AI Overviews (AIO) — formerly called Search Generative Experience — are AI-generated summaries that appear at the top of search results for qualifying queries. Rather than linking to a single result, they synthesize information from multiple sources into a direct answer, with attribution links appearing below or within the summary text.
+  </p>
+
+  <p>
+    The scale matters: AI Overviews now appear on an estimated 10–15% of all Google searches in English-language markets, with higher rates on informational and how-to queries. For the categories where they appear — health, technology, finance, how-to, comparisons — they capture a substantial fraction of the attention that would previously have gone to the top organic results.
+  </p>
+
+  <p>
+    The practical consequence: for queries where AI Overviews appear, the organic results below them get materially less traffic. Being included in the AI Overview becomes more valuable than being ranked #3 organically — and not being included at all is a genuine visibility loss.
+  </p>
+
+  <h2>Why Traditional Ranking Doesn't Determine Inclusion</h2>
+
+  <p>
+    The most important thing to understand about AI Overview optimization is that Google's selection of sources for the AI Overview is a separate process from organic ranking. Pages ranked #1–3 are not automatically included. Pages ranked #7–10 are sometimes included. The factors that drive inclusion overlap with SEO but are not identical.
+  </p>
+
+  <p>
+    Research into AI Overview citation patterns has identified several consistent properties of pages that get included:
+  </p>
+
+  <ul>
+    <li><strong>Direct, clear answers early in the page.</strong> AI Overviews are answer machines. Pages that take three paragraphs to get to the actual answer are less likely to be cited than pages where the answer appears in the first 100–150 words. The <em>inverted pyramid</em> structure — lead with the conclusion, fill in detail below — consistently outperforms the traditional web content pattern of context-then-answer.</li>
+    <li><strong>Structured content that maps to query intent.</strong> Headers that directly restate common question variants, definition-style opening sentences, and bulleted lists of clear steps or factors all correlate with AI Overview inclusion. Google's model is looking for content it can cleanly extract and attribute — not for narrative depth.</li>
+    <li><strong>Topical authority signals.</strong> Pages on sites with demonstrated expertise in the query domain are cited preferentially over equally-accurate pages on generalist domains. A specific, well-maintained site covering a narrow topic area outperforms a broad publication with one article on the same topic, even when the broad publication has more overall authority.</li>
+    <li><strong>Freshness on time-sensitive queries.</strong> For queries where recency matters, content updated in the last 6–12 months has a clear inclusion advantage. Stale content, even if accurate and well-structured, is deprioritized when Google can find something more recent.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Key insight:</strong> AI Overviews optimize for <em>extractability</em>, not depth. A 600-word page with a direct answer in the first paragraph will often outperform a 3,000-word comprehensive guide where the answer is buried in section 4. Write for extraction first, then add depth below.</p>
+  </div>
+
+  <h2>Content Structure That Gets Cited</h2>
+
+  <h3>The direct-answer opening</h3>
+  <p>
+    For any page targeting a question-format query, the first paragraph should contain a complete, standalone answer to the question. Not context for the answer — the answer itself. This is counterintuitive for writers trained to build context before delivering conclusions, but it matches the extraction logic AI Overviews use.
+  </p>
+  <p>
+    Example: if your page targets "how long does IRB approval take," the first sentence should answer that question directly ("IRB approval typically takes 4–12 weeks for full board review, 2–6 weeks for expedited review") before providing any context about what IRB review is or why it takes that long.
+  </p>
+
+  <h3>FAQ and question-format headers</h3>
+  <p>
+    Headers phrased as questions that users actually type — not just keyword-optimized headers — are cited at higher rates in AI Overviews. The model is matching query patterns against your content structure. A header like "How does AI Overview selection work?" signals directly that this section answers that specific question type.
+  </p>
+  <p>
+    The FAQ section format, long viewed as a technical SEO tactic, turns out to be structurally ideal for AI Overview extraction: clear question, immediate answer, supporting detail. Consider adding an FAQ section to any page targeting high-value informational queries, even if the rest of the page uses conventional long-form structure.
+  </p>
+
+  <h3>Numbered steps for process queries</h3>
+  <p>
+    How-to and process queries ("how to set up X," "steps to Y") generate AI Overviews that tend to cite sources with explicit numbered lists. Pages that describe a process in prose form, even accurate prose, are passed over for pages with numbered steps. The format signals to the model that the content maps cleanly to the step-by-step structure of the query.
+  </p>
+
+  <h2>Technical Factors That Affect Inclusion</h2>
+
+  <h3>Crawlability and indexing</h3>
+  <p>
+    A page can't be cited in an AI Overview if it's not in Google's index. This sounds obvious, but there are several ways pages inadvertently exclude themselves: <code>noindex</code> meta tags added by CMS plugins, JavaScript-rendered content that the crawler doesn't execute, canonicalization to a different URL that gets indexed instead, and <code>robots.txt</code> disallow rules that block Googlebot from specific paths.
+  </p>
+  <p>
+    Run a site audit specifically checking for indexability issues before investing in content optimization. Fix crawl problems first.
+  </p>
+
+  <h3>Core Web Vitals</h3>
+  <p>
+    Page experience signals — particularly Largest Contentful Paint and Cumulative Layout Shift — are part of Google's overall quality scoring. Pages with poor Core Web Vitals scores are at a disadvantage across all Google products including AI Overviews. The threshold isn't perfection, but pages in the "needs improvement" range on LCP (2.5–4s) or failing on CLS (above 0.1) should address these issues as part of any optimization program.
+  </p>
+
+  <h3>Structured data</h3>
+  <p>
+    JSON-LD structured data — particularly <code>Article</code>, <code>FAQPage</code>, <code>HowTo</code>, and <code>QAPage</code> schema — doesn't directly cause AI Overview inclusion, but it signals content type and structure in a way the model uses during selection. Pages with correctly implemented <code>FAQPage</code> schema that matches the content are consistently cited at higher rates than equivalent pages without it.
+  </p>
+
+  <div class="callout cyan">
+    <p><strong>For agent-accessible products:</strong> The same structured data that helps AI Overviews also helps autonomous AI agents discover your capabilities. <code>FAQPage</code> and <code>HowTo</code> schema, combined with a well-structured <code>llms.txt</code>, creates overlapping coverage across Google AI Overviews, Perplexity, and direct agent queries. One investment, multiple discovery channels.</p>
+  </div>
+
+  <h2>What Doesn't Work (Common Misconceptions)</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Tactic</th>
+        <th>What people think</th>
+        <th>What actually happens</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Higher word count</td>
+        <td class="dim">More content = more likely to be cited</td>
+        <td class="dim">No correlation. Extractability matters more than length</td>
+      </tr>
+      <tr>
+        <td>Targeting #1 ranking</td>
+        <td class="dim">#1 rank guarantees AIO inclusion</td>
+        <td class="dim">Rank and AIO citation are separate signals</td>
+      </tr>
+      <tr>
+        <td>More backlinks</td>
+        <td class="dim">High DA drives AIO inclusion</td>
+        <td class="dim">Topical authority matters; broad authority matters less</td>
+      </tr>
+      <tr>
+        <td>Keyword density</td>
+        <td class="dim">More keyword repetition = better AIO signal</td>
+        <td class="dim">Semantic relevance and direct answers outperform keyword stuffing</td>
+      </tr>
+      <tr>
+        <td>Blocking AI crawlers</td>
+        <td class="dim">Block GPTBot but keep Googlebot</td>
+        <td class="dim">Blocking AI crawlers can reduce training data inclusion, not AIO citation; they're separate systems</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Monitoring AI Overview Presence</h2>
+
+  <p>
+    Standard Google Search Console doesn't directly report AI Overview impressions or clicks. You can infer AI Overview presence through several methods:
+  </p>
+
+  <ul>
+    <li><strong>Manual SERP checks.</strong> Search your target queries from an incognito window. Note which queries show AI Overviews and whether your content is cited. This is manual but precise.</li>
+    <li><strong>CTR anomalies in Search Console.</strong> Queries where you rank in positions 1–5 but have unusually low CTR (below 5%) often have AI Overviews above them. The traffic that would have come to you is going to the AI Overview instead.</li>
+    <li><strong>Third-party tools.</strong> Tools like Semrush, Ahrefs, and specialized AI Overview monitoring platforms have added explicit AIO tracking to their keyword data. These are the most scalable option for ongoing monitoring at scale.</li>
+  </ul>
+
+  <p>
+    The metric to watch: if a query has an AI Overview and your page is cited, your organic result may show lower clicks but the citation provides brand exposure and some traffic via the attribution link. If a query has an AI Overview and you're not cited, you're losing visibility with no compensating benefit.
+  </p>
+
+  <hr class="divider">
+
+  <h2>The 2026 GEO Checklist for AI Overview Optimization</h2>
+
+  <ul class="checklist">
+    <li>Direct answer appears in the first 100–150 words of the page</li>
+    <li>Main header (H1) and subheaders match natural question phrasing, not just keywords</li>
+    <li>Process content uses numbered lists, not prose</li>
+    <li>FAQPage or HowTo schema implemented where applicable</li>
+    <li>Page is indexed and crawlable (verify in Search Console)</li>
+    <li>Core Web Vitals in "good" range for LCP and CLS</li>
+    <li>Content updated in the last 12 months for time-sensitive queries</li>
+    <li>Site has demonstrated topical depth in the query domain</li>
+    <li>CTR monitoring in place to detect AI Overview displacement on key queries</li>
+    <li><a href="/blog/llms-txt-complete-setup-guide.html">llms.txt deployed</a> for parallel coverage across Perplexity, Claude, and agent queries</li>
+  </ul>
+
+  <div class="cta-box">
+    <h3>Check Your AI Overview Readiness</h3>
+    <p>Get a CEO Score audit — content structure, structured data, crawlability, and GEO signals scored in seconds.</p>
+    <a href="/" class="cta-btn">Run free audit</a>
+  </div>
+</article>
+
+<footer>
+  <div>
+    <a href="/">&larr; ceo-plum-ten.vercel.app</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/blog/">Blog</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
