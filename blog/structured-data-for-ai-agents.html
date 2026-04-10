@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Structured Data for AI Agents: How JSON-LD Helps AI Systems Understand Your Content — CEO Blog</title>
+  <meta name="description" content="JSON-LD and schema.org were built for Google. AI agents read them too — and the signals that drive rich results also drive AI citations. Here's how to use structured data to improve AI visibility.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="structured data AI agents, JSON-LD AI, schema.org AI visibility, AI citation structured data, CEO optimization, agent-readable content">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/structured-data-for-ai-agents.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/structured-data-for-ai-agents.html">
+  <meta property="og:title" content="Structured Data for AI Agents: How JSON-LD Helps AI Systems Understand Your Content">
+  <meta property="og:description" content="JSON-LD was built for Google — but AI agents read it too. Here's how structured data signals drive AI citations alongside rich results.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-10T00:00:00Z">
+  <meta property="article:author" content="CEO Team">
+  <meta property="article:section" content="CEO Fundamentals">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="Structured Data for AI Agents: How JSON-LD Helps AI Systems Understand Your Content">
+  <meta name="twitter:description" content="JSON-LD was built for Google — but AI agents read it too. How structured data drives AI visibility alongside search rich results.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Structured Data for AI Agents: How JSON-LD Helps AI Systems Understand Your Content",
+    "description": "JSON-LD and schema.org were built for Google. AI agents read them too — and the signals that drive rich results also drive AI citations. Here's how to use structured data to improve AI visibility.",
+    "datePublished": "2026-04-10",
+    "dateModified": "2026-04-10",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/structured-data-for-ai-agents.html" },
+    "keywords": ["structured data", "JSON-LD", "schema.org", "AI agents", "AI visibility", "CEO optimization"]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: rgba(124,58,237,0.15);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --cyan: #06b6d4;
+      --text: #e8e8f0;
+      --text-secondary: #8888aa;
+      --code-bg: #1a1a28;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; font-size: 17px; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 24px; }
+    .nav-inner { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 24px; height: 56px; }
+    .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-logo svg { color: var(--accent-light); }
+    .nav-links { display: flex; gap: 20px; margin-left: auto; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .article-tag { background: rgba(124,58,237,0.15); color: var(--accent-light); border: 1px solid rgba(124,58,237,0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .article-date { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read::before { content: "·"; margin-right: 12px; }
+
+    h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .article-lead { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 48px; }
+
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 52px 0 16px; letter-spacing: -0.01em; color: var(--text); }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; color: var(--accent-light); }
+    p { margin-bottom: 20px; color: var(--text); }
+    a { color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--cyan); }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+
+    code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.875em; background: var(--code-bg); padding: 2px 7px; border-radius: 5px; color: var(--cyan); }
+
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; overflow-x: auto; margin: 28px 0; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.875rem; line-height: 1.6; color: var(--cyan); }
+    pre .key { color: var(--accent-light); }
+    pre .val { color: #86efac; }
+    pre .str { color: #fde68a; }
+    pre .comment { color: var(--text-secondary); }
+
+    .callout { border-left: 3px solid var(--accent); background: rgba(124,58,237,0.07); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 28px 0; }
+    .callout.cyan { border-color: var(--cyan); background: rgba(6,182,212,0.07); }
+    .callout p { margin-bottom: 0; color: var(--text); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 36px; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+
+    .cta-box { background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08)); border: 1px solid rgba(124,58,237,0.3); border-radius: 12px; padding: 36px; text-align: center; margin-top: 60px; }
+    .cta-box h3 { color: var(--text); font-size: 1.3rem; margin-bottom: 10px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 24px; }
+    .cta-btn { display: inline-block; background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: opacity 0.2s; }
+    .cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    footer { border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; color: var(--text-secondary); font-size: 0.875rem; }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 19"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">CEO Fundamentals</span>
+    <span class="article-date">April 10, 2026</span>
+    <span class="article-read">7 min read</span>
+  </div>
+
+  <h1>Structured Data for AI Agents: How JSON-LD Helps AI Systems Understand Your Content</h1>
+
+  <p class="article-lead">JSON-LD and schema.org were designed to help Google serve rich results. AI agents consume the same markup — and a well-structured page is easier for a language model to cite accurately than a page that forces the model to infer meaning from prose alone.</p>
+
+  <h2>Why Structured Data Matters to AI Agents</h2>
+
+  <p>When a language model retrieves a web page to answer a question, it has to make sense of what it's reading. An HTML page gives it raw text mixed with navigation, ads, boilerplate, and layout elements. The model has to determine which part of the page is the main content, what the page is about, who wrote it, when it was published, and what specific claims it makes.</p>
+
+  <p>JSON-LD structured data answers those questions explicitly. Instead of forcing the model to infer that a block of text under a certain heading is the article title, the page announces: <code>"@type": "Article", "headline": "..."</code>. Instead of asking the model to guess the publication date from a timestamp somewhere in the page, the page states: <code>"datePublished": "2026-04-10"</code>.</p>
+
+  <p>The practical effect: structured data reduces the ambiguity the model has to resolve when extracting information. Reduced ambiguity means more accurate extraction, which means more accurate citations. A page that accurately describes itself is more likely to be cited correctly — and more likely to be cited at all — than a page that leaves critical metadata implicit.</p>
+
+  <div class="callout cyan">
+    <p><strong>The parallel to search:</strong> Google uses structured data to generate rich results — star ratings, FAQ dropdowns, recipe cards. AI agents use it to generate accurate, attributable answers. The schema is the same; the consumer is different.</p>
+  </div>
+
+  <h2>The Schema Types That Matter Most for AI Visibility</h2>
+
+  <h3>Article and BlogPosting</h3>
+
+  <p>For content sites, <code>Article</code> and <code>BlogPosting</code> are the highest-value schema types. They establish the context an AI agent needs to cite your content accurately: who wrote it, when, what organization published it, and what it's about. A minimal but complete Article schema looks like this:</p>
+
+  <pre>{
+  <span class="key">"@context"</span>: <span class="str">"https://schema.org"</span>,
+  <span class="key">"@type"</span>: <span class="str">"Article"</span>,
+  <span class="key">"headline"</span>: <span class="str">"Your Article Title"</span>,
+  <span class="key">"description"</span>: <span class="str">"One-paragraph summary of the article"</span>,
+  <span class="key">"datePublished"</span>: <span class="str">"2026-04-10"</span>,
+  <span class="key">"dateModified"</span>: <span class="str">"2026-04-10"</span>,
+  <span class="key">"author"</span>: {
+    <span class="key">"@type"</span>: <span class="str">"Person"</span>,
+    <span class="key">"name"</span>: <span class="str">"Author Name"</span>,
+    <span class="key">"url"</span>: <span class="str">"https://yoursite.com/about"</span>
+  },
+  <span class="key">"publisher"</span>: {
+    <span class="key">"@type"</span>: <span class="str">"Organization"</span>,
+    <span class="key">"name"</span>: <span class="str">"Your Site Name"</span>,
+    <span class="key">"url"</span>: <span class="str">"https://yoursite.com"</span>
+  },
+  <span class="key">"mainEntityOfPage"</span>: {
+    <span class="key">"@type"</span>: <span class="str">"WebPage"</span>,
+    <span class="key">"@id"</span>: <span class="str">"https://yoursite.com/blog/article-slug"</span>
+  }
+}</pre>
+
+  <p>The <code>description</code> field deserves special attention. AI agents often use this as a quick-reference summary when the full page isn't loaded — write it as a genuine one-paragraph summary of the article's core argument, not as marketing copy.</p>
+
+  <h3>Organization and WebSite</h3>
+
+  <p>On your homepage, <code>Organization</code> schema establishes your entity identity. When AI agents answer questions about what your company does, they pull from this markup. Include your name, URL, description, logo, social profiles, and any structured contact information that's relevant.</p>
+
+  <pre>{
+  <span class="key">"@context"</span>: <span class="str">"https://schema.org"</span>,
+  <span class="key">"@type"</span>: <span class="str">"Organization"</span>,
+  <span class="key">"name"</span>: <span class="str">"Your Company"</span>,
+  <span class="key">"url"</span>: <span class="str">"https://yoursite.com"</span>,
+  <span class="key">"description"</span>: <span class="str">"One sentence: what you do and for whom"</span>,
+  <span class="key">"logo"</span>: <span class="str">"https://yoursite.com/logo.png"</span>,
+  <span class="key">"sameAs"</span>: [
+    <span class="str">"https://github.com/yourhandle"</span>,
+    <span class="str">"https://twitter.com/yourhandle"</span>
+  ]
+}</pre>
+
+  <p>The <code>sameAs</code> property is particularly valuable for entity disambiguation. When multiple entities share similar names, AI models use <code>sameAs</code> links to confirm which one is being referenced. Linking to your GitHub, Twitter, LinkedIn, and Crunchbase profiles gives models multiple cross-references to confirm your identity.</p>
+
+  <h3>FAQPage</h3>
+
+  <p>FAQ schema is one of the most direct ways to shape how AI agents answer questions about your product or domain. Each question-answer pair in a <code>FAQPage</code> schema block is a structured claim that AI retrieval systems can extract and cite directly.</p>
+
+  <pre>{
+  <span class="key">"@context"</span>: <span class="str">"https://schema.org"</span>,
+  <span class="key">"@type"</span>: <span class="str">"FAQPage"</span>,
+  <span class="key">"mainEntity"</span>: [
+    {
+      <span class="key">"@type"</span>: <span class="str">"Question"</span>,
+      <span class="key">"name"</span>: <span class="str">"What is Claw Engine Optimization?"</span>,
+      <span class="key">"acceptedAnswer"</span>: {
+        <span class="key">"@type"</span>: <span class="str">"Answer"</span>,
+        <span class="key">"text"</span>: <span class="str">"CEO (Claw Engine Optimization) is the practice of making your site readable and actionable by AI agents — through llms.txt, MCP endpoints, structured data, and agent-first content architecture."</span>
+      }
+    }
+  ]
+}</pre>
+
+  <p>If you're trying to own specific question-answer pairs in your domain — "What is [your product]?", "How does [your method] work?", "What's the difference between [X] and [Y]?" — FAQ schema is the most direct way to hand those answers to AI systems in a machine-readable format.</p>
+
+  <h3>Product and SoftwareApplication</h3>
+
+  <p>For SaaS products, <code>SoftwareApplication</code> schema communicates your product's category, pricing, and platform requirements in a structured format that AI agents can retrieve without parsing your pricing page prose. Include <code>applicationCategory</code>, <code>operatingSystem</code>, <code>offers</code> with pricing, and a clear <code>description</code>.</p>
+
+  <h2>What AI Agents Actually Do With Structured Data</h2>
+
+  <p>Different AI systems interact with structured data in different ways, but the general pattern is consistent: structured data reduces the cost of correct extraction.</p>
+
+  <p>When a retrieval-augmented AI system pulls a page to answer a question, it may process the page in multiple ways: reading the visible text, parsing the page's metadata, checking the structured data in <code>&lt;script type="application/ld+json"&gt;</code> blocks, and combining signals to generate an answer. A page with complete, accurate structured data gives the model more confident signal — the equivalent of a person who has clearly labeled everything versus one who keeps their information scattered across the page.</p>
+
+  <p>For citation accuracy specifically: when an AI cites a claim with a source, the source metadata (title, author, date, URL) often comes from the page's structured data or meta tags rather than from extracting it from the page text. A page whose structured data disagrees with its visible content — different dates, different titles, different descriptions — creates signal noise that can lead to inaccurate citations.</p>
+
+  <div class="callout">
+    <p><strong>Alignment principle:</strong> Your structured data, meta tags, Open Graph tags, and visible page content should all tell the same story. Inconsistency across these layers is a citation quality risk.</p>
+  </div>
+
+  <h2>Practical Implementation Checklist</h2>
+
+  <h3>For every content page</h3>
+  <ul>
+    <li>Article or BlogPosting schema with headline, description, datePublished, author, publisher, and mainEntityOfPage</li>
+    <li>Canonical URL that matches the schema's mainEntityOfPage @id</li>
+    <li>Open Graph title and description that match the schema headline and description</li>
+    <li>meta description that is consistent with the schema description</li>
+  </ul>
+
+  <h3>For your homepage</h3>
+  <ul>
+    <li>Organization schema with name, URL, description, logo, and sameAs links</li>
+    <li>WebSite schema with name, URL, and optional SearchAction if you have site search</li>
+    <li>FAQPage schema for any FAQ section, with answers written to be cited directly</li>
+  </ul>
+
+  <h3>For product pages</h3>
+  <ul>
+    <li>SoftwareApplication or Product schema with name, description, applicationCategory, and offers</li>
+    <li>Review or AggregateRating if you have user reviews</li>
+    <li>FAQPage for common product questions</li>
+  </ul>
+
+  <h3>Testing your implementation</h3>
+  <ul>
+    <li>Google's Rich Results Test validates JSON-LD syntax and completeness</li>
+    <li>Schema.org's validator checks type conformance</li>
+    <li>Check that your structured data is consistent with your visible content — title, date, and description should match what a reader sees</li>
+    <li>CEO's audit checks structured data completeness and flags inconsistencies between schema, meta tags, and page content</li>
+  </ul>
+
+  <h2>The CEO Stack: Where Structured Data Fits</h2>
+
+  <p>Structured data is one layer in a complete CEO implementation. The full stack:</p>
+  <ol>
+    <li><strong><a href="/blog/llms-txt-complete-setup-guide.html">llms.txt</a></strong> — site-level summary for AI agents that want a quick overview before crawling</li>
+    <li><strong>Structured data (JSON-LD)</strong> — page-level metadata that tells AI agents exactly what each page is about, who wrote it, and when</li>
+    <li><strong><a href="/blog/robots-txt-for-ai-agents.html">robots.txt</a></strong> — access control for which AI crawlers can reach which pages</li>
+    <li><strong><a href="/blog/mcp-endpoint-optimization.html">MCP endpoints</a></strong> — action layer for AI agents that need to do things, not just read things</li>
+  </ol>
+
+  <p>Structured data is the layer that works hardest right now, because it's immediately consumable by every major AI system that crawls the web. llms.txt is read when agents specifically look for it. MCP is invoked by agentic workflows. But structured data is parsed on every page load by every crawler that knows what to do with it — which, increasingly, includes all of them.</p>
+
+  <hr class="divider">
+
+  <div class="cta-box">
+    <h3>Audit your structured data for AI visibility</h3>
+    <p>CEO checks your JSON-LD completeness, consistency across schema/meta/OG layers, and flags missing entity signals that reduce your AI citation confidence.</p>
+    <a href="/" class="cta-btn">Run a CEO audit</a>
+  </div>
+</article>
+
+<footer>
+  <p>
+    <a href="/">CEO</a> &nbsp;·&nbsp;
+    <a href="/blog/">Blog</a> &nbsp;·&nbsp;
+    <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    <br><br>
+    Claw Engine Optimization — making your site readable and actionable for AI agents.
+  </p>
+</footer>
+
+</body>
+</html>
