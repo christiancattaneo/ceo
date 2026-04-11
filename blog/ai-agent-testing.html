@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Testing and Evaluation: How to Validate Agents Before Production — CEO Blog</title>
+  <meta name="description" content="Unit testing LLM agents is fundamentally different from testing deterministic code. A practical framework for behavioral testing, golden datasets, LLM-as-judge evaluation, and CI/CD integration for AI agents.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="AI agent testing, LLM evaluation, agent evaluation framework, LLM-as-judge, AI agent CI/CD, testing language models, agent regression testing, golden dataset LLM">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/ai-agent-testing.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/ai-agent-testing.html">
+  <meta property="og:title" content="AI Agent Testing and Evaluation: How to Validate Agents Before Production">
+  <meta property="og:description" content="Unit testing LLM agents is fundamentally different from testing deterministic code. A practical framework for behavioral testing, golden datasets, and CI/CD integration.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-11T00:00:00Z">
+  <meta property="article:section" content="AI Engineering">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="AI Agent Testing and Evaluation: How to Validate Agents Before Production">
+  <meta name="twitter:description" content="Unit testing LLM agents is fundamentally different from deterministic code. A practical framework for behavioral testing, golden datasets, and CI/CD integration for AI agents.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "AI Agent Testing and Evaluation: How to Validate Agents Before Production",
+    "description": "Unit testing LLM agents is fundamentally different from testing deterministic code. A practical framework for behavioral testing, golden datasets, LLM-as-judge evaluation, and CI/CD integration for AI agents.",
+    "datePublished": "2026-04-11",
+    "dateModified": "2026-04-11",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/ai-agent-testing.html" },
+    "keywords": ["AI agent testing", "LLM evaluation", "LLM-as-judge", "agent CI/CD", "AI observability"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .eval-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .eval-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .eval-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .eval-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .tag-unit{display:inline-block;background:rgba(124,58,237,0.2);color:var(--accent-light);padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600}
+    .tag-behav{display:inline-block;background:rgba(6,182,212,0.2);color:var(--cyan);padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600}
+    .tag-e2e{display:inline-block;background:rgba(34,197,94,0.2);color:#86efac;padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Engineering</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">9 min read</span>
+  </div>
+
+  <h1>AI Agent Testing and Evaluation: How to Validate Agents Before Production</h1>
+  <p class="article-lead">Traditional unit tests break when the function under test is a language model. Here's a practical framework — from tool-level unit tests to behavioral evaluation suites to CI/CD integration — for building confidence in agents before they touch real users.</p>
+
+  <h2>Why Testing Agents Is Fundamentally Different</h2>
+  <p>When you test a function that parses a date string, you have a ground truth. Given input <code>"2026-04-11"</code>, the correct output is a <code>Date</code> object representing April 11th. Deterministic. Binary. Easy to assert.</p>
+  <p>LLM-based agents don't work that way. The same prompt might produce slightly different phrasing each run. "Correct" often means something about intent, not exact string equality. An agent that calls <code>search_web("best restaurant NYC")</code> instead of <code>search_web("top-rated restaurants New York City")</code> might still accomplish the task perfectly — or might not, depending on the retrieval system.</p>
+  <p>The implication: you can't just assert <code>output === expected</code>. You need a different vocabulary for what "passing" means, and a different infrastructure to enforce it.</p>
+
+  <div class="callout warning">
+    <p><strong>The trap teams fall into:</strong> They skip evaluation entirely ("we'll know when it's wrong") or use simple string matching ("if 'I cannot help' appears, flag it"). Both approaches give you false confidence. The first misses regressions. The second produces flaky tests that break on trivially different phrasing.</p>
+  </div>
+
+  <h2>The Three Layers of Agent Testing</h2>
+  <p>Think of agent testing as a pyramid. Each layer builds on the one below it and is progressively more expensive to run.</p>
+
+  <h3>Layer 1 — Unit Tests for Deterministic Components</h3>
+  <p>The non-LLM parts of your agent are fully testable with conventional unit tests. Don't skip these because you're distracted by the harder parts.</p>
+  <p>Deterministic components in a typical agent include:</p>
+  <ul>
+    <li><strong>Tool implementations</strong> — the Python/JS functions that execute when the model calls a tool. <code>get_weather("Austin, TX")</code> should return a specific shape. Mock the HTTP call and assert the shape.</li>
+    <li><strong>Tool schema validation</strong> — if your model calls a tool with invalid parameters, does the error handling work? Can the agent recover?</li>
+    <li><strong>Retrieval pipelines</strong> — if your agent uses RAG, test that the retrieval returns the right chunks for known queries against a fixed corpus. Embed once, serialize, run assertions on retrieved doc IDs.</li>
+    <li><strong>Context assembly logic</strong> — if you build the system prompt programmatically from user data, test that assembly function directly. It's just string construction.</li>
+    <li><strong>Output parsers</strong> — if your agent emits structured JSON and you parse it, test the parser against known outputs including malformed cases.</li>
+  </ul>
+
+  <pre><code># Example: unit test for a tool implementation
+def test_search_tool_returns_correct_shape():
+    results = search_web_tool("climate change 2026", max_results=3)
+    assert isinstance(results, list)
+    assert len(results) <= 3
+    for r in results:
+        assert "title" in r
+        assert "url" in r
+        assert "snippet" in r
+
+def test_search_tool_handles_empty_query():
+    with pytest.raises(ValueError, match="query cannot be empty"):
+        search_web_tool("", max_results=5)</code></pre>
+
+  <p>These tests are fast, cheap, and should run on every commit. Get them green before worrying about the harder layers.</p>
+
+  <h3>Layer 2 — Behavioral Tests with Golden Datasets</h3>
+  <p>Behavioral tests check that your agent does the right <em>thing</em>, not that it produces the exact same <em>output</em>. You define a set of input scenarios with expected behaviors, run the agent against them, and evaluate whether the behavior was correct.</p>
+  <p>Building a golden dataset is the most important investment you'll make in agent quality. Start with 20-50 cases that cover:</p>
+  <ul>
+    <li>Happy path — typical inputs that should work</li>
+    <li>Edge cases — ambiguous queries, missing information, conflicting constraints</li>
+    <li>Adversarial inputs — things that should fail gracefully (rude requests, off-topic questions, prompt injection attempts)</li>
+    <li>Regression cases — specific failures you've seen in production, captured as test cases</li>
+  </ul>
+
+  <p>Each entry in the dataset includes an input, the expected behavior (not the exact output), and optionally a rubric the evaluator should use.</p>
+
+  <pre><code>[
+  {
+    "id": "booking-001",
+    "input": "I want to book a flight from Austin to New York next Friday",
+    "expected_behavior": "Agent asks clarifying questions about departure time, class preference, or passenger count before searching",
+    "tags": ["booking", "clarification"],
+    "should_use_tools": ["search_flights"],
+    "should_not_say": ["I cannot help", "as an AI"]
+  },
+  {
+    "id": "booking-002",
+    "input": "Book me a flight",
+    "expected_behavior": "Agent asks for origin, destination, and date — does not attempt to search without this information",
+    "tags": ["booking", "incomplete-input"]
+  }
+]</code></pre>
+
+  <div class="callout cyan">
+    <p><strong>Keep the dataset in version control.</strong> The golden dataset is code. It documents your expected agent behavior as precisely as any spec. When behavior intentionally changes, update the dataset in the same PR. When a production incident surfaces a new failure mode, add a test case before the fix.</p>
+  </div>
+
+  <h3>Layer 3 — End-to-End Scenario Tests</h3>
+  <p>E2E tests run complete multi-turn conversations and evaluate outcomes at the task level. They're the most expensive layer — each run costs real API tokens and takes real time — but they're the only way to catch emergent failures that only appear across turn sequences.</p>
+  <p>An E2E test for a research agent might run a 6-turn conversation simulating a user drilling into a topic, then check: Did the agent maintain coherent context across turns? Did it cite sources? Did it avoid hallucinating facts that contradict documents it retrieved?</p>
+  <p>Keep your E2E suite small (10-20 scenarios), run it on a schedule rather than every commit, and invest in good logging so failures are diagnosable.</p>
+
+  <h2>Evaluation Methods: How to Score Non-Deterministic Outputs</h2>
+  <p>Once you have test cases, you need evaluation methods — ways of turning "agent output" into a pass/fail or score. There's a spectrum from cheap-and-brittle to expensive-and-robust.</p>
+
+  <table class="eval-table">
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>When to use</th>
+        <th>Cost</th>
+        <th>Reliability</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag-unit">Exact match</span></td>
+        <td>Structured outputs, IDs, enum values</td>
+        <td>Free</td>
+        <td>Brittle for prose</td>
+      </tr>
+      <tr>
+        <td><span class="tag-unit">Contains / regex</span></td>
+        <td>Required phrases, forbidden phrases, format checks</td>
+        <td>Free</td>
+        <td>Moderate — misses semantic equivalents</td>
+      </tr>
+      <tr>
+        <td><span class="tag-behav">Semantic similarity</span></td>
+        <td>Comparing meaning of short answers against reference</td>
+        <td>Low (embedding call)</td>
+        <td>Good for factual answers, weaker for instructions</td>
+      </tr>
+      <tr>
+        <td><span class="tag-behav">LLM-as-judge</span></td>
+        <td>Behavioral rubrics, open-ended quality, nuanced criteria</td>
+        <td>Medium (~$0.001–0.01/eval)</td>
+        <td>High when prompt is well-designed</td>
+      </tr>
+      <tr>
+        <td><span class="tag-e2e">Human eval</span></td>
+        <td>High-stakes releases, new capability validation</td>
+        <td>High</td>
+        <td>Ground truth</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Designing Good LLM-as-Judge Prompts</h3>
+  <p>LLM-as-judge is the workhorse of modern agent evaluation. The idea: use a separate model call to score your agent's output against a rubric. It scales better than human review and handles nuance better than string matching.</p>
+  <p>The quality of your evaluator depends entirely on how well you specify the rubric. Vague criteria like "was the response helpful?" produce noisy, inconsistent scores. Specific, anchored criteria produce reliable ones.</p>
+
+  <pre><code>EVAL_PROMPT = """
+You are evaluating an AI assistant's response to a user message.
+
+User message: {user_message}
+Assistant response: {assistant_response}
+
+Evaluate the response on the following criteria. For each criterion,
+output a score of 0, 1, or 2 and a one-sentence justification.
+
+Criteria:
+1. TASK_ADDRESSED (0=ignored the task, 1=partially addressed, 2=fully addressed)
+2. FACTUAL_ACCURACY (0=contains clear errors, 1=uncertain/unverifiable, 2=accurate)
+3. APPROPRIATE_SCOPE (0=out of scope or refuses unnecessarily, 1=borderline, 2=appropriate)
+4. NO_HARMFUL_CONTENT (0=contains harmful content, 2=clean)
+
+Return JSON: {{"scores": {{"TASK_ADDRESSED": N, "FACTUAL_ACCURACY": N, ...}},
+               "justifications": {{"TASK_ADDRESSED": "...", ...}},
+               "overall_pass": true/false}}
+
+overall_pass is true only if all scores are 2 except FACTUAL_ACCURACY
+which may be 1 if the topic is inherently uncertain.
+"""</code></pre>
+
+  <div class="callout">
+    <p><strong>Calibration tip:</strong> Before trusting your LLM judge, calibrate it against 20-30 human-labeled examples. If the judge's pass/fail agrees with humans less than 85% of the time, rework the rubric before relying on it for CI.</p>
+  </div>
+
+  <h2>Measuring What Matters: Key Evaluation Metrics</h2>
+  <p>Beyond individual test cases, track these metrics across your evaluation suite over time:</p>
+
+  <h3>Task Completion Rate</h3>
+  <p>What percentage of end-to-end scenarios did the agent complete successfully? This is your headline number. Define "completed" per scenario type — for a booking agent, it might mean "reached a confirmed reservation state." Track it weekly, alarm if it drops more than 5 points.</p>
+
+  <h3>Tool Call Accuracy</h3>
+  <p>When the agent calls a tool, does it call the right one with the right parameters? You can assert on tool call logs deterministically: given scenario X, the agent must call <code>search_flights</code> before <code>book_flight</code>, and the destination parameter must match what the user said.</p>
+
+  <h3>Hallucination Rate</h3>
+  <p>For agents that cite or retrieve information, track what percentage of factual claims in responses are supported by retrieved documents. LLM-as-judge works well here: "Given these retrieved documents and this response, which factual claims in the response are not supported by the documents?"</p>
+
+  <h3>Refusal Rate (with segmentation)</h3>
+  <p>Refusals aren't inherently bad — an agent <em>should</em> refuse clearly harmful requests. The metric to watch is the rate of <em>inappropriate</em> refusals: cases where the user's request was legitimate but the agent declined anyway. Segment refusals by scenario type to find the policy miscalibrations.</p>
+
+  <h3>Cost per Successful Task</h3>
+  <p>Track total token spend divided by successful task completions. Evaluation surfaces the expensive paths — agents that spin in loops, contexts that balloon unnecessarily, tool calls that should be cached. Cost per task often reveals architectural problems that pure quality metrics miss.</p>
+
+  <h2>Integrating Evaluation into CI/CD</h2>
+  <p>Running evaluations manually doesn't scale. The goal is a pipeline where every significant change to your agent — prompt edits, new tools, model version bumps — triggers an automatic evaluation run before merging.</p>
+  <p>A practical CI integration runs in three stages:</p>
+
+  <h3>Stage 1 — Fast gate (every PR, every commit)</h3>
+  <p>Run unit tests and a small behavioral slice — 10-15 cases from your golden dataset, selected to cover the critical paths. Should complete in under 2 minutes. Fails the PR if any deterministic assertion breaks or if task completion rate drops below threshold.</p>
+
+  <pre><code># .github/workflows/agent-eval.yml (partial)
+jobs:
+  fast-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt
+      - run: pytest tests/unit/ -x -q
+      - run: python eval/run_eval.py
+            --dataset eval/golden_critical.json
+            --model $AGENT_MODEL
+            --threshold-pass-rate 0.85
+            --output eval-results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: eval-results.json</code></pre>
+
+  <h3>Stage 2 — Full suite (nightly or pre-release)</h3>
+  <p>Run the complete golden dataset plus E2E scenarios. Catches regressions across the full distribution of inputs, not just critical paths. Results feed a dashboard — track pass rate and per-category scores over time to spot slow degradations that don't cross any single threshold.</p>
+
+  <h3>Stage 3 — Shadow evaluation (production)</h3>
+  <p>Log a sample of production conversations (with appropriate privacy handling) and run them through your judge asynchronously. This is your ground truth signal. When production quality diverges from eval suite quality, it tells you your golden dataset is missing coverage for real-world inputs.</p>
+
+  <div class="callout cyan">
+    <p><strong>The shadow eval feedback loop:</strong> When production surfaces a new failure type, add 3-5 examples to the golden dataset immediately. Don't wait for a postmortem. The dataset grows toward the actual distribution of inputs your agent faces, which is the whole point.</p>
+  </div>
+
+  <h2>Common Testing Anti-Patterns</h2>
+
+  <h3>Testing the prompt, not the behavior</h3>
+  <p>If your eval checks that the system prompt contains certain phrases, you're testing authoring, not execution. The model might follow the prompt perfectly and still fail the task. Always test outputs, not inputs.</p>
+
+  <h3>Eval suite that only covers happy paths</h3>
+  <p>If every case in your dataset is a well-formed request that the agent handles correctly, your suite will always pass — and tell you nothing. Deliberately include edge cases, adversarial inputs, and known failure modes. A 95% pass rate on a challenging dataset is more meaningful than 100% on a trivial one.</p>
+
+  <h3>Judge prompts that are easier than the agent task</h3>
+  <p>If your judge is a smaller/cheaper model than your agent, and the evaluation task requires the same reasoning as the agent task, the judge will make errors that corrupt your metrics. Use a model at least as capable as your agent for quality evaluation. Use the faster/cheaper model only for format and constraint checks.</p>
+
+  <h3>No version tracking for the eval suite</h3>
+  <p>If you update the golden dataset without recording when and why cases changed, you can't compare eval results across time. Tag each case with a version, record the version used for each eval run, and diff results against the same dataset version — not whatever's currently checked in.</p>
+
+  <h2>Starting From Scratch: A Practical Sequence</h2>
+  <p>If you have a working agent with no test coverage, here's the sequence that gives you the fastest return on investment:</p>
+  <ol>
+    <li><strong>Write unit tests for all tools this week.</strong> Mock external calls. Assert on output shapes and error handling. This immediately prevents a class of regressions that are otherwise invisible.</li>
+    <li><strong>Capture 20 real conversations from production or manual testing.</strong> Label them: did the agent succeed or fail? This becomes the seed of your golden dataset.</li>
+    <li><strong>Write a basic LLM-as-judge evaluator</strong> against those 20 cases. Calibrate against your labels until agreement exceeds 85%.</li>
+    <li><strong>Add the fast eval slice to CI.</strong> Even 10 cases with a 0.8 pass threshold will catch the regressions that matter most.</li>
+    <li><strong>Grow the dataset over time,</strong> especially after production incidents. By the time you have 100 cases, you'll have a reliable signal for every release.</li>
+  </ol>
+
+  <div class="callout">
+    <p><strong>The goal isn't perfection, it's signal.</strong> An imperfect eval suite that runs automatically is worth more than a perfect one that requires manual effort to run. Start with something that catches 60% of regressions automatically. Improve from there.</p>
+  </div>
+
+  <h2>Further Reading</h2>
+  <p>This article focuses on the testing layer. For related topics: <a href="/blog/ai-agent-observability.html">AI Agent Observability</a> covers the production monitoring that complements your eval suite, and <a href="/blog/prompt-injection-ai-agents.html">Prompt Injection in AI Agents</a> covers the adversarial test cases that belong in every security-conscious golden dataset. For the underlying architecture that makes agents testable in the first place, see <a href="/blog/agentic-ai-architecture.html">Agentic AI Architecture</a>.</p>
+
+  <div class="cta-box">
+    <h3>Build production-ready AI agents with CEO</h3>
+    <p>CEO gives you the agent infrastructure, eval tooling, and observability primitives to ship with confidence. From golden dataset management to LLM-as-judge integration, everything you need to validate agents before they touch users.</p>
+    <a href="/#waitlist" class="cta-btn">Join the waitlist</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO / OpenClaw &nbsp;&middot;&nbsp; <a href="/blog/">Blog</a> &nbsp;&middot;&nbsp; <a href="/#features">Features</a> &nbsp;&middot;&nbsp; <a href="/#pricing">Pricing</a></p>
+</footer>
+</body>
+</html>
