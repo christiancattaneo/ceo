@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fine-Tuning vs. RAG: When to Train the Model and When to Update the Knowledge Base — CEO Blog</title>
+  <meta name="description" content="Fine-tuning and RAG solve different problems. A practical framework for deciding which approach fits your use case — and when to combine them — based on what's actually driving your AI system's failures.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="fine-tuning vs RAG, when to fine-tune LLM, retrieval augmented generation, LLM knowledge update, fine-tuning cost, RAG vs fine-tuning comparison, AI knowledge base">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/fine-tuning-vs-rag.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/fine-tuning-vs-rag.html">
+  <meta property="og:title" content="Fine-Tuning vs. RAG: When to Train the Model and When to Update the Knowledge Base">
+  <meta property="og:description" content="Fine-tuning and RAG solve different problems. A practical framework for deciding which approach fits your use case — based on what's actually driving your AI failures.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-11T00:00:00Z">
+  <meta property="article:section" content="AI Engineering">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="Fine-Tuning vs. RAG: When to Train the Model and When to Update the Knowledge Base">
+  <meta name="twitter:description" content="Fine-tuning and RAG solve different problems. The practical framework for deciding which approach — or combination — fits your use case.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Fine-Tuning vs. RAG: When to Train the Model and When to Update the Knowledge Base",
+    "description": "Fine-tuning and RAG solve different problems. A practical framework for deciding which approach fits your use case — and when to combine them — based on what's actually driving your AI system's failures.",
+    "datePublished": "2026-04-11",
+    "dateModified": "2026-04-11",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/fine-tuning-vs-rag.html" },
+    "keywords": ["fine-tuning", "RAG", "retrieval augmented generation", "LLM knowledge", "AI engineering"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .decision-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .decision-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .decision-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .decision-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .tag-ft{display:inline-block;background:rgba(124,58,237,0.2);color:var(--accent-light);padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600}
+    .tag-rag{display:inline-block;background:rgba(6,182,212,0.2);color:var(--cyan);padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600}
+    .tag-both{display:inline-block;background:rgba(34,197,94,0.2);color:#86efac;padding:2px 8px;border-radius:4px;font-size:0.8rem;font-weight:600}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a><a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 5 12"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Engineering</span>
+    <span class="article-date">April 11, 2026</span>
+    <span class="article-read">8 min read</span>
+  </div>
+
+  <h1>Fine-Tuning vs. RAG: When to Train the Model and When to Update the Knowledge Base</h1>
+
+  <p class="article-lead">The most common mistake teams make when their AI system produces wrong answers is choosing the wrong fix. Fine-tuning and RAG solve different problems. Applying the wrong one wastes time, money, and often makes things worse. Getting this decision right starts with diagnosing what's actually failing.</p>
+
+  <h2>What Each Approach Actually Does</h2>
+
+  <p>Fine-tuning and RAG are often discussed as alternatives to the same problem, but they operate at fundamentally different levels:</p>
+
+  <p><strong>Fine-tuning</strong> modifies the model's weights using additional training data. It changes what the model "knows" in a parametric sense — the knowledge baked into the weights — and can change how the model behaves (its tone, format, reasoning style, or domain-specific patterns). The changes are permanent until you fine-tune again.</p>
+
+  <p><strong>RAG (Retrieval-Augmented Generation)</strong> doesn't modify the model at all. It adds a retrieval step that fetches relevant information from an external store and inserts it into the model's context before generation. The model's knowledge is unchanged; its context is enriched. The external store can be updated at any time without touching the model.</p>
+
+  <p>The core distinction: fine-tuning changes the model; RAG changes the information the model has access to at generation time.</p>
+
+  <h2>The Diagnostic Question: What Is Actually Failing?</h2>
+
+  <p>Most teams reach for fine-tuning or RAG before they've properly diagnosed the failure. The right diagnostic question is: <em>why is my AI producing the wrong output?</em></p>
+
+  <p>There are three distinct failure types, and they point to different solutions:</p>
+
+  <h3>Knowledge failures</h3>
+  <p>The model doesn't have the right information. It's producing plausible-sounding answers that are factually wrong, outdated, or specific to your domain in a way the base model hasn't seen. Examples: asking about your internal product documentation, recent events after the training cutoff, proprietary terminology, or specific facts about your company.</p>
+  <p><strong>Solution: RAG.</strong> The model's reasoning capabilities are intact — it just lacks the right context. Provide it through retrieval.</p>
+
+  <h3>Behavior failures</h3>
+  <p>The model has the information but isn't using it correctly — wrong format, wrong tone, wrong reasoning pattern, wrong task decomposition. Examples: the model doesn't structure outputs in the format your application needs, it reasons through problems in a way that produces systematic errors, or it consistently interprets your domain-specific terminology incorrectly.</p>
+  <p><strong>Solution: fine-tuning</strong> (or, often, prompt engineering first — see below).</p>
+
+  <h3>Reasoning failures</h3>
+  <p>The model fails at multi-step reasoning tasks in your domain. It makes incorrect logical inferences, misapplies rules, or can't reliably perform the class of tasks you need. This is the hardest failure type to fix and the one where fine-tuning has the most variable results.</p>
+  <p><strong>Solution: depends.</strong> Fine-tuning on high-quality examples of correct reasoning can help, but the reasoning capabilities of frontier models are difficult to significantly improve through fine-tuning on moderate-scale datasets. Consider whether the task can be decomposed differently, or whether you need a larger base model.</p>
+
+  <div class="callout">
+    <p><strong>Before either approach: try prompt engineering.</strong> A significant fraction of "knowledge failures" and "behavior failures" can be fixed with a better system prompt — more specific instructions, examples, explicit formatting requirements, or better framing. Prompt engineering is free and instant. Exhaust it before committing to RAG or fine-tuning. If prompt engineering plus a few examples solves 80% of your failures, that's a much cheaper solution than either alternative.</p>
+  </div>
+
+  <h2>When RAG Is the Right Choice</h2>
+
+  <p>RAG is the right tool when:</p>
+
+  <ul>
+    <li><strong>Your knowledge is dynamic</strong> — information changes frequently (product docs, prices, support tickets, news). Fine-tuning is a snapshot; RAG is a live query. If your knowledge base updates weekly, RAG is almost always the right architecture.</li>
+    <li><strong>You need citations and source attribution</strong> — RAG systems can return the exact passages they retrieved, making answers verifiable. Fine-tuned models produce answers from weights, with no way to trace which training example contributed.</li>
+    <li><strong>Your knowledge base is large</strong> — fine-tuning on a 10,000-document corpus is expensive and produces a model that "sort of knows" all of it. RAG retrieves the specific documents relevant to each query with higher precision.</li>
+    <li><strong>You need to add knowledge without retraining</strong> — adding a new product, a new policy, or a new topic to a RAG system is an indexing operation. Adding it to a fine-tuned model requires a new fine-tuning run.</li>
+    <li><strong>Factual accuracy is paramount</strong> — RAG grounds answers in retrieved sources, which makes hallucination easier to detect and mitigate. Fine-tuned models can hallucinate confidently on facts that weren't well-represented in the training data.</li>
+  </ul>
+
+  <h2>When Fine-Tuning Is the Right Choice</h2>
+
+  <p>Fine-tuning is the right tool when:</p>
+
+  <ul>
+    <li><strong>You need consistent style, format, or tone</strong> — you want every output to match a specific structure (a particular JSON schema, a specific response format, a brand voice) and prompt engineering alone doesn't achieve sufficient consistency. Fine-tuning on examples internalizes the pattern.</li>
+    <li><strong>You need to teach domain-specific reasoning patterns</strong> — not facts, but how to reason about a domain. A model fine-tuned on thousands of high-quality medical reasoning examples reasons about clinical information differently than a base model prompted to "think like a doctor."</li>
+    <li><strong>You need smaller, faster, cheaper inference</strong> — fine-tuning a smaller model (7B–13B parameters) on your specific task can match the quality of a much larger general model for that task, at a fraction of the inference cost. For high-volume, latency-sensitive applications, this economic argument is often compelling.</li>
+    <li><strong>Your task is narrow and well-defined</strong> — classification, extraction, summarization in a specific format, code generation for a specific framework. Narrow, well-defined tasks with abundant high-quality examples are where fine-tuning most reliably improves performance.</li>
+    <li><strong>The knowledge is stable</strong> — fine-tuning on facts that don't change (historical data, scientific principles, a stable product line) is reasonable. Fine-tuning on facts that change is technical debt.</li>
+  </ul>
+
+  <h2>The Decision Framework</h2>
+
+  <table class="decision-table">
+    <thead>
+      <tr>
+        <th>Situation</th>
+        <th>Recommended Approach</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Knowledge is dynamic or frequently updated</td>
+        <td><span class="tag-rag">RAG</span></td>
+      </tr>
+      <tr>
+        <td>Need citations / source traceability</td>
+        <td><span class="tag-rag">RAG</span></td>
+      </tr>
+      <tr>
+        <td>Large, diverse knowledge base</td>
+        <td><span class="tag-rag">RAG</span></td>
+      </tr>
+      <tr>
+        <td>Need to add knowledge without retraining</td>
+        <td><span class="tag-rag">RAG</span></td>
+      </tr>
+      <tr>
+        <td>Consistent output format / brand voice</td>
+        <td><span class="tag-ft">Fine-tuning</span></td>
+      </tr>
+      <tr>
+        <td>Domain-specific reasoning patterns</td>
+        <td><span class="tag-ft">Fine-tuning</span></td>
+      </tr>
+      <tr>
+        <td>High-volume, latency-sensitive, cost-sensitive</td>
+        <td><span class="tag-ft">Fine-tuning</span> (smaller model)</td>
+      </tr>
+      <tr>
+        <td>Narrow, well-defined task + abundant examples</td>
+        <td><span class="tag-ft">Fine-tuning</span></td>
+      </tr>
+      <tr>
+        <td>Domain knowledge + consistent behavior needed</td>
+        <td><span class="tag-both">Both</span></td>
+      </tr>
+      <tr>
+        <td>Wrong format / inconsistent output (before trying examples in prompt)</td>
+        <td>Prompt engineering first</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Combining Both: When You Need Domain Knowledge and Consistent Behavior</h2>
+
+  <p>The most capable production AI systems often use both approaches in combination. A model fine-tuned for domain-specific reasoning and formatting, augmented with RAG for up-to-date knowledge retrieval, outperforms either approach alone for complex, knowledge-intensive tasks.</p>
+
+  <p>The typical architecture:</p>
+  <ul>
+    <li>Fine-tune the base model on high-quality domain examples — teach it how to reason about your domain, what format to produce outputs in, what terminology means</li>
+    <li>Add a RAG layer for knowledge that changes: current product documentation, recent events, user-specific context</li>
+    <li>The fine-tuned model is a better consumer of retrieved context than the base model — it understands the domain-specific signals in the retrieved text</li>
+  </ul>
+
+  <p>This combination is particularly effective for enterprise applications where domain expertise (fine-tuning), up-to-date knowledge (RAG), and consistent behavior (fine-tuning) are all required simultaneously.</p>
+
+  <h2>The Practical Costs You Need to Model</h2>
+
+  <p>Fine-tuning has real costs that teams often underestimate:</p>
+
+  <ul>
+    <li><strong>Data preparation</strong> — curating, formatting, and quality-checking training data is the most labor-intensive part. 1,000 high-quality examples takes significant human time to produce; 10,000 even more so.</li>
+    <li><strong>Training compute</strong> — a full fine-tuning run on a 70B parameter model on even a small dataset costs hundreds of dollars in GPU time. Fine-tuning via API (OpenAI, Anthropic, Together) is more accessible but still adds cost per training run.</li>
+    <li><strong>Iteration cost</strong> — fine-tuning is not one-and-done. You'll iterate: train, eval, identify failures, collect more data, retrain. Budget for multiple runs.</li>
+    <li><strong>Maintenance cost</strong> — every time the base model is updated, your fine-tuned version is obsolete. Keeping a fine-tuned model current with base model improvements is ongoing work.</li>
+  </ul>
+
+  <p>RAG has lower upfront cost but higher ongoing operational complexity: you need to maintain the retrieval pipeline, monitor retrieval quality, handle index updates, and manage chunking and embedding as your corpus evolves. Neither approach is free of ongoing work.</p>
+
+  <div class="callout cyan">
+    <p><strong>The content discoverability angle:</strong> For AI agents that retrieve web content via RAG, the quality of what they retrieve depends entirely on how well-structured the source content is. Content that chunks cleanly, has explicit semantics, and uses <a href="/blog/structured-data-for-ai-agents.html">structured metadata</a> retrieves better than content that requires the retrieval system to infer meaning from poorly organized prose. This is the CEO optimization opportunity: the same editorial discipline that makes content useful for humans makes it retrievable — and citable — by AI agents.</p>
+  </div>
+
+  <div class="cta-box">
+    <h3>Make Your Content Retrieval-Ready</h3>
+    <p>CEO is the open-source toolkit for making your site discoverable by AI retrieval systems — structured data, llms.txt, agent-readable sitemaps, and content analysis that identifies retrieval anti-patterns.</p>
+    <a href="/" class="cta-btn">Explore CEO &rarr;</a>
+  </div>
+</article>
+
+<footer>
+  <p><a href="/blog/">Blog</a> &nbsp;·&nbsp; <a href="/">CEO Home</a> &nbsp;·&nbsp; <a href="https://github.com/christiancattaneo/ceo">GitHub</a></p>
+  <p style="margin-top:8px">&copy; 2026 OpenClaw</p>
+</footer>
+
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>
