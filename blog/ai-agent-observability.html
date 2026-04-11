@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Observability: How to Monitor, Debug, and Improve Agents in Production — CEO Blog</title>
+  <meta name="description" content="Observability for AI agents isn't just logging. Traces, spans, evaluations, and feedback loops — the instrumentation stack that makes production agents debuggable and improvable over time.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="AI agent observability, LLM tracing, agent monitoring, LLM evaluation, agent debugging, production AI agents, LLM ops, agent telemetry">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/ai-agent-observability.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/ai-agent-observability.html">
+  <meta property="og:title" content="AI Agent Observability: How to Monitor, Debug, and Improve Agents in Production">
+  <meta property="og:description" content="Traces, spans, evaluations, and feedback loops — the instrumentation stack that makes production AI agents debuggable and improvable over time.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-11T00:00:00Z">
+  <meta property="article:author" content="CEO Team">
+  <meta property="article:section" content="AI Engineering">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="AI Agent Observability: How to Monitor, Debug, and Improve Agents in Production">
+  <meta name="twitter:description" content="The instrumentation stack for production AI agents — tracing, evaluation, feedback loops, and the metrics that actually matter.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "AI Agent Observability: How to Monitor, Debug, and Improve Agents in Production",
+    "description": "Observability for AI agents isn't just logging. Traces, spans, evaluations, and feedback loops — the instrumentation stack that makes production agents debuggable and improvable over time.",
+    "datePublished": "2026-04-11",
+    "dateModified": "2026-04-11",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/ai-agent-observability.html" },
+    "keywords": ["AI agent observability", "LLM tracing", "agent monitoring", "LLM evaluation", "production AI agents"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: rgba(124,58,237,0.15);
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --cyan: #06b6d4;
+      --green: #22c55e;
+      --text: #e8e8f0;
+      --text-secondary: #8888aa;
+      --code-bg: #1a1a28;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; font-size: 17px; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 24px; }
+    .nav-inner { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 24px; height: 56px; }
+    .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-logo svg { color: var(--accent-light); }
+    .nav-links { display: flex; gap: 20px; margin-left: auto; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .article-tag { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .article-date { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read { color: var(--text-secondary); font-size: 0.875rem; }
+    .article-read::before { content: "·"; margin-right: 12px; }
+
+    h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .article-lead { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 48px; }
+
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 52px 0 16px; letter-spacing: -0.01em; color: var(--text); }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 36px 0 12px; color: var(--accent-light); }
+    p { margin-bottom: 20px; color: var(--text); }
+    a { color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--cyan); }
+    ul, ol { padding-left: 24px; margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+
+    code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.875em; background: var(--code-bg); padding: 2px 7px; border-radius: 5px; color: var(--cyan); }
+
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; overflow-x: auto; margin: 28px 0; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.875rem; line-height: 1.6; color: var(--cyan); }
+    pre .key { color: var(--accent-light); }
+    pre .val { color: #86efac; }
+    pre .comment { color: var(--text-secondary); }
+
+    .callout { border-left: 3px solid var(--accent); background: rgba(124,58,237,0.07); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 28px 0; }
+    .callout.cyan { border-color: var(--cyan); background: rgba(6,182,212,0.07); }
+    .callout p { margin-bottom: 0; color: var(--text); }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin: 28px 0; }
+    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+    .metric-name { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 6px; }
+    .metric-desc { font-size: 0.875rem; color: var(--text); line-height: 1.5; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 36px; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+
+    .cta-box { background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08)); border: 1px solid rgba(124,58,237,0.3); border-radius: 12px; padding: 36px; text-align: center; margin-top: 60px; }
+    .cta-box h3 { color: var(--text); font-size: 1.3rem; margin-bottom: 10px; }
+    .cta-box p { color: var(--text-secondary); margin-bottom: 24px; }
+    .cta-btn { display: inline-block; background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: opacity 0.2s; }
+    .cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    footer { border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; color: var(--text-secondary); font-size: 0.875rem; }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/christiancattaneo/ceo" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<article class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 5 12"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Engineering</span>
+    <span class="article-date">April 11, 2026</span>
+    <span class="article-read">8 min read</span>
+  </div>
+
+  <h1>AI Agent Observability: How to Monitor, Debug, and Improve Agents in Production</h1>
+
+  <p class="article-lead">Shipping an AI agent to production without observability is like deploying a backend service with no logs. You'll know something is wrong when users complain. You won't know what, why, or when it started. The good news: agent observability is a solved problem at the tooling level — the gap is adoption, not availability.</p>
+
+  <h2>Why Agent Observability Is Harder Than API Observability</h2>
+
+  <p>Traditional software observability — logs, metrics, traces — transfers to AI agents, but with important complications. A REST endpoint either returns 200 or it doesn't. An AI agent can return 200 while producing an incorrect, harmful, or misleading response. The failure mode is semantic, not syntactic.</p>
+
+  <p>This means the standard observability stack is necessary but not sufficient. You need infrastructure-level observability (latency, error rates, token costs) AND quality-level observability (is the agent doing the right thing?). Most teams have the first. The second is where production agent deployments fall short.</p>
+
+  <p>A few additional complications specific to agents:</p>
+  <ul>
+    <li><strong>Non-determinism</strong> — the same input doesn't produce the same output. You can't diff yesterday's output against today's to detect regressions the way you can with deterministic systems.</li>
+    <li><strong>Multi-step execution</strong> — a failure at step 7 of a 10-step task may have been caused by a reasoning error at step 3. Tracing causality through a multi-step sequence requires structured trace data, not just a final-output log.</li>
+    <li><strong>Tool call complexity</strong> — agents interact with external systems. An apparent agent failure may actually be a tool failure, a retrieval failure, or a downstream API failure. Attribution requires capturing the full tool call chain, not just the LLM output.</li>
+    <li><strong>Long-running sessions</strong> — some agents run for minutes or hours. Real-time monitoring during execution, not just post-hoc log analysis, matters for catching failures before they compound.</li>
+  </ul>
+
+  <h2>The Three Layers of Agent Observability</h2>
+
+  <h3>Layer 1: Infrastructure telemetry</h3>
+
+  <p>The baseline — what you'd instrument in any production system:</p>
+
+  <div class="metric-grid">
+    <div class="metric-card">
+      <p class="metric-name">Latency</p>
+      <p class="metric-desc">End-to-end task completion time, broken down by LLM inference, tool calls, and retrieval.</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-name">Token usage</p>
+      <p class="metric-desc">Input/output tokens per request and per task. Direct cost proxy and context window utilization signal.</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-name">Error rate</p>
+      <p class="metric-desc">Tool call failures, API errors, context overflow errors, timeout rate.</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-name">Throughput</p>
+      <p class="metric-desc">Tasks per minute, concurrent sessions, queue depth.</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-name">Tool call volume</p>
+      <p class="metric-desc">Calls per tool per session. Unusually high tool call counts signal reasoning loops.</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-name">Context utilization</p>
+      <p class="metric-desc">% of context window used per step. High utilization triggers compression behavior.</p>
+    </div>
+  </div>
+
+  <h3>Layer 2: Execution traces</h3>
+
+  <p>Traces are the core primitive for agent observability. A trace captures the full execution of an agent task as a tree of spans — each reasoning step, each tool call, each retrieval, each LLM inference is a span with timing, inputs, outputs, and metadata.</p>
+
+  <pre><span class="comment">// Simplified trace structure for a single agent task</span>
+{
+  <span class="key">"trace_id"</span>: <span class="val">"t_abc123"</span>,
+  <span class="key">"task"</span>: <span class="val">"Research competitors for ProductX and summarize findings"</span>,
+  <span class="key">"status"</span>: <span class="val">"completed"</span>,
+  <span class="key">"duration_ms"</span>: <span class="val">14200</span>,
+  <span class="key">"spans"</span>: [
+    {
+      <span class="key">"span_id"</span>: <span class="val">"s_001"</span>, <span class="key">"type"</span>: <span class="val">"llm_inference"</span>,
+      <span class="key">"input_tokens"</span>: <span class="val">512</span>, <span class="key">"output_tokens"</span>: <span class="val">128</span>,
+      <span class="key">"thought"</span>: <span class="val">"I'll search for the top 3 competitors first."</span>
+    },
+    {
+      <span class="key">"span_id"</span>: <span class="val">"s_002"</span>, <span class="key">"type"</span>: <span class="val">"tool_call"</span>,
+      <span class="key">"tool"</span>: <span class="val">"web_search"</span>, <span class="key">"input"</span>: <span class="val">"ProductX competitors 2026"</span>,
+      <span class="key">"output_length"</span>: <span class="val">2400</span>, <span class="key">"duration_ms"</span>: <span class="val">890</span>
+    },
+    <span class="comment">// ... additional spans</span>
+  ]
+}</pre>
+
+  <p>Structured traces enable debugging at the step level. When an agent produces a wrong answer, you don't have to guess where it went wrong — you look at the trace, find the span where the reasoning diverged, and identify whether it was a bad tool result, a reasoning error, or a context issue.</p>
+
+  <p>The OpenTelemetry standard is the right foundation here. Most LLM observability platforms (LangSmith, Langfuse, Arize, Helicone, Braintrust) support OpenTelemetry-compatible traces. Instrumenting your agent with the OpenTelemetry SDK gives you portability across tools and compatibility with your existing infrastructure observability stack.</p>
+
+  <h3>Layer 3: Quality evaluation</h3>
+
+  <p>The hardest layer — and the one most teams skip. Quality evaluation answers: is the agent doing the right thing, not just running without errors?</p>
+
+  <p>There are three approaches, each with different tradeoffs:</p>
+
+  <h4 style="font-size:1rem;font-weight:600;color:var(--accent-light);margin:24px 0 10px;">Human evaluation</h4>
+  <p>Ground truth. A human reviewer looks at agent inputs and outputs and rates them on relevant dimensions — accuracy, helpfulness, safety, task completion. Human evaluation is expensive and doesn't scale, but it's the calibration standard that everything else is measured against. Every production agent deployment should have some human evaluation, even if it's a small sample.</p>
+
+  <h4 style="font-size:1rem;font-weight:600;color:var(--accent-light);margin:24px 0 10px;">LLM-as-judge</h4>
+  <p>A separate LLM evaluates agent outputs against a rubric. Scales better than human evaluation and can be run continuously. The output quality depends heavily on how well the rubric is designed — vague rubrics produce unreliable scores. Best practice: calibrate your LLM judge against human evaluations to ensure it's tracking the same signal.</p>
+
+  <pre><span class="comment">// LLM judge prompt pattern</span>
+<span class="key">You are evaluating the output of an AI agent.</span>
+
+<span class="key">Task:</span> <span class="val">{task}</span>
+<span class="key">Agent output:</span> <span class="val">{output}</span>
+<span class="key">Reference answer (if available):</span> <span class="val">{reference}</span>
+
+<span class="key">Rate on these dimensions (1-5):</span>
+<span class="val">- Accuracy: Does the output correctly address the task?</span>
+<span class="val">- Completeness: Does it cover all required aspects?</span>
+<span class="val">- Faithfulness: Are claims grounded in the provided context?</span>
+<span class="val">- Conciseness: Is the output appropriately focused?</span>
+
+<span class="key">Return JSON: {accuracy, completeness, faithfulness, conciseness, rationale}</span></pre>
+
+  <h4 style="font-size:1rem;font-weight:600;color:var(--accent-light);margin:24px 0 10px;">Automated test suites</h4>
+  <p>Deterministic checks on specific properties: did the agent call the right tools, did it produce output in the expected format, did it respect constraints specified in the system prompt, did it avoid content policy violations? These are cheap to run and catch regression on known failure modes. They don't catch unknown failure modes — which is why they complement, not replace, human and LLM-as-judge evaluation.</p>
+
+  <h2>The Metrics That Actually Matter in Production</h2>
+
+  <p>With observability infrastructure in place, the question becomes: what metrics do you actually track and act on?</p>
+
+  <h3>Task completion rate</h3>
+  <p>What percentage of tasks does the agent complete successfully (as defined by your success criteria)? This is the top-line quality metric. Decompose it by task type, user segment, and time to surface patterns.</p>
+
+  <h3>Tool call accuracy</h3>
+  <p>When the agent calls a tool, does it call the right tool with the right parameters? Wrong tool selection and malformed parameters are the most common sources of agent failure. Track per-tool error rates and fix the tools or descriptions for outliers.</p>
+
+  <h3>Hallucination rate</h3>
+  <p>For retrieval-augmented agents: how often does the agent make claims not supported by the retrieved context? Faithfulness metrics from your LLM judge or RAG evaluation frameworks (RAGAS, etc.) track this. High hallucination rates usually indicate retrieval quality problems, not model problems — fix the retrieval before blaming the LLM.</p>
+
+  <h3>Cost per task</h3>
+  <p>Total token cost (input + output, priced at your API rate) per completed task. Tracks efficiency and surfaces agents that are looping (unusually high token counts per task) or using inefficient prompting patterns.</p>
+
+  <h3>Latency percentiles (p50, p95, p99)</h3>
+  <p>Average latency is misleading for agents because the distribution is heavy-tailed. A p99 of 30 seconds might be acceptable; a p99 of 5 minutes is not. Track percentiles, not averages.</p>
+
+  <div class="callout cyan">
+    <p><strong>On feedback loops:</strong> The most underused observability signal is user feedback — thumbs up/down, explicit corrections, task abandonment. Implicit signals (did the user accept the agent's output or immediately ask a follow-up) are often more reliable than explicit ratings. Build feedback collection into your agent UX from day one. It's the cheapest labeled data you'll ever get.</p>
+  </div>
+
+  <h2>Debugging Production Failures</h2>
+
+  <p>With traces in place, debugging a production failure follows a consistent workflow:</p>
+
+  <ol>
+    <li><strong>Find the failing trace</strong> — use your trace search to find the specific session. Filter by task ID, user ID, or error type.</li>
+    <li><strong>Identify the divergence span</strong> — walk the trace tree to find the span where the agent's reasoning or output deviated from expected. Look for: bad tool returns, unexpected reasoning jumps, context window saturation, malformed tool inputs.</li>
+    <li><strong>Reproduce in dev</strong> — replay the failing trace inputs in your development environment. If the failure is deterministic (bad tool result, malformed input), you can reproduce it reliably. If it's stochastic, you may need to run multiple replays.</li>
+    <li><strong>Fix at the right layer</strong> — tool description, system prompt, tool implementation, retrieval quality, or context management. Don't change the model until you've ruled out the layers above.</li>
+    <li><strong>Add to your eval suite</strong> — once fixed, add the failure case as a test. Prevent regression on this specific failure mode going forward.</li>
+  </ol>
+
+  <h2>The Observability-Discoverability Connection</h2>
+
+  <p>Agent observability connects directly to CEO (Claw Engine Optimization) in one important way: the content your agent retrieves as part of its tasks is part of the execution trace. If your agent is citing your site's content — or failing to — that's visible in the trace data.</p>
+
+  <p>Sites that appear in agent retrieval traces are being indexed by AI systems. Sites that don't appear aren't. And the content quality signals that determine retrieval relevance — <a href="/blog/structured-data-for-ai-agents.html">structured data</a>, <a href="/blog/llms-txt-complete-setup-guide.html">llms.txt</a>, clean heading structure, explicit authorship and date metadata — are the same signals that make retrieved content trustworthy enough to cite. Observability on the agent side reveals what's being cited; CEO work on the content side determines whether your content is what gets retrieved.</p>
+
+  <div class="cta-box">
+    <h3>Make Your Content Agent-Observable</h3>
+    <p>CEO is the open-source toolkit for making your site discoverable, citable, and trustworthy to AI agents — structured data, llms.txt, agent-readable sitemaps, and discoverability scoring.</p>
+    <a href="/" class="cta-btn">Explore CEO &rarr;</a>
+  </div>
+</article>
+
+<footer>
+  <p><a href="/blog/">Blog</a> &nbsp;·&nbsp; <a href="/">CEO Home</a> &nbsp;·&nbsp; <a href="https://github.com/christiancattaneo/ceo">GitHub</a></p>
+  <p style="margin-top:8px">&copy; 2026 OpenClaw</p>
+</footer>
+
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>
