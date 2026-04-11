@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Window Management for Production AI Agents — CEO Blog</title>
+  <meta name="description" content="Token budgets, context compression, summarization strategies, and the architectural patterns that keep production AI agents from hitting context limits at the worst possible moment.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="context window management, LLM context limit, token budget, context compression, AI agent context, sliding window LLM, context summarization, long context agents">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/context-window-management.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/context-window-management.html">
+  <meta property="og:title" content="Context Window Management for Production AI Agents">
+  <meta property="og:description" content="Token budgets, context compression, and the patterns that keep production AI agents from hitting context limits at the worst possible moment.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-11T00:00:00Z">
+  <meta property="article:section" content="AI Engineering">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="Context Window Management for Production AI Agents">
+  <meta name="twitter:description" content="Token budgets, context compression, and the patterns that keep production AI agents from hitting context limits at the worst possible moment.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Context Window Management for Production AI Agents",
+    "description": "Token budgets, context compression, summarization strategies, and the architectural patterns that keep production AI agents from hitting context limits at the worst possible moment.",
+    "datePublished": "2026-04-11",
+    "dateModified": "2026-04-11",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/context-window-management.html" },
+    "keywords": ["context window", "LLM context management", "token budget", "AI agents", "context compression"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .strategy-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .strategy-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .strategy-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .strategy-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Engineering</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">8 min read</span>
+  </div>
+
+  <h1>Context Window Management for Production AI Agents</h1>
+  <p class="article-lead">Context limits don't announce themselves gracefully. An agent that has been working reliably for 15 turns suddenly truncates earlier context, loses track of earlier instructions, or hits a hard limit mid-task. Here's how to design for context from the start — and what to do when you didn't.</p>
+
+  <h2>The Problem With "Just Use a Bigger Context Window"</h2>
+  <p>When 128K-token and 200K-token context windows became available, a lot of teams concluded that context management was a solved problem. Just stuff everything in and let the model sort it out. That conclusion turned out to be premature for two reasons.</p>
+  <p>First, long contexts are expensive. A 200K-token context costs roughly 40× more per call than a 5K-token context. For an agent that makes 20 tool calls in a session, each carrying the full conversation history, your cost-per-task calculation changes dramatically. At scale, what seemed like an acceptable per-call cost becomes unsustainable.</p>
+  <p>Second, model attention degrades over very long contexts. Research has consistently shown the "lost in the middle" effect: models recall information near the beginning and end of a context well, but attend poorly to content buried in the middle. A 200K-token context doesn't give you 200K tokens of equal retrieval quality — it gives you a gradient where the most important information can get lost if it's not near the edges.</p>
+  <p>Context management, then, is not just a cost optimization. It's a quality concern.</p>
+
+  <h2>Anatomy of an Agent's Context Budget</h2>
+  <p>Before you can manage a context, you need to understand what's consuming it. A typical agent turn draws from several distinct sources:</p>
+
+  <h3>System prompt</h3>
+  <p>The instructions that define the agent's persona, capabilities, constraints, and tool schemas. System prompts for capable agents tend to grow over time as you add guardrails, examples, and edge case handling. It's common to see system prompts balloon to 4K–10K tokens. Review them periodically — many contain deprecated instructions, redundant examples, or verbose descriptions that could be tightened without affecting behavior.</p>
+
+  <h3>Tool definitions</h3>
+  <p>Every tool you register with the model consumes tokens, whether the tool is used that turn or not. A set of 15 tools with descriptive schemas can consume 3K–6K tokens per turn. For agents that have access to many tools, consider dynamic tool loading — injecting only the tools relevant to the current task rather than the full registry.</p>
+
+  <h3>Conversation history</h3>
+  <p>The accumulating turns of the conversation. This is the primary growth vector for long-running agents. A conversation that starts at 2K tokens can reach 50K after 30 turns if history is naive — appending every message in full without any compression.</p>
+
+  <h3>Retrieved context</h3>
+  <p>Documents, search results, or other content retrieved from external sources mid-task. RAG-retrieved chunks that aren't carefully sized can consume large blocks of context even when most of the retrieved content isn't relevant to the current step.</p>
+
+  <h3>Tool call results</h3>
+  <p>The responses from tool executions. A web search that returns three full-page documents, a database query that returns 500 rows, a code execution result with verbose stdout — these can consume context rapidly if you pass results through unfiltered.</p>
+
+  <div class="callout">
+    <p><strong>Instrument before optimizing.</strong> Add token counting to every agent invocation. Log the breakdown: system prompt tokens, tool schema tokens, history tokens, retrieved context tokens, tool result tokens. You cannot optimize what you haven't measured, and the distribution is almost always surprising — usually a different component than you assumed is the primary driver.</p>
+  </div>
+
+  <h2>Context Management Strategies</h2>
+  <p>There's no universal answer — the right strategy depends on your agent's task type, session length, and quality requirements. Most production agents use a combination.</p>
+
+  <table class="strategy-table">
+    <thead>
+      <tr>
+        <th>Strategy</th>
+        <th>Best for</th>
+        <th>Trade-off</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Sliding window</strong></td>
+        <td>Conversational agents, customer support</td>
+        <td>Simple to implement; loses early context permanently</td>
+      </tr>
+      <tr>
+        <td><strong>Summarization</strong></td>
+        <td>Long research or analysis tasks</td>
+        <td>Preserves semantic content; adds latency + cost for summarization call</td>
+      </tr>
+      <tr>
+        <td><strong>Hierarchical memory</strong></td>
+        <td>Multi-session agents, personal assistants</td>
+        <td>Highest fidelity; complex to implement correctly</td>
+      </tr>
+      <tr>
+        <td><strong>Dynamic tool loading</strong></td>
+        <td>Agents with large tool registries</td>
+        <td>Reduces per-turn cost; requires tool routing logic</td>
+      </tr>
+      <tr>
+        <td><strong>Result compression</strong></td>
+        <td>Agents that call data-heavy tools</td>
+        <td>Targeted; only helps with tool result bloat</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Sliding Window</h3>
+  <p>The simplest approach: keep only the N most recent turns in context. When the conversation exceeds the window size, drop the oldest turns. Implementation is trivial — slice the message array before constructing the API call.</p>
+  <p>The weakness is obvious: if the user referenced something from 30 turns ago, the agent has no access to it. For task-focused agents where each turn is relatively self-contained, this is acceptable. For agents that accumulate context across a session — building on earlier research, tracking decisions made earlier — it breaks down.</p>
+
+  <pre><code>def build_context(messages: list[dict], max_turns: int = 20) -> list[dict]:
+    """Keep system message + last N turns."""
+    system = [m for m in messages if m["role"] == "system"]
+    conversation = [m for m in messages if m["role"] != "system"]
+
+    # Keep last max_turns messages (preserves most recent context)
+    trimmed = conversation[-max_turns:] if len(conversation) > max_turns else conversation
+    return system + trimmed</code></pre>
+
+  <h3>Progressive Summarization</h3>
+  <p>When the context approaches a threshold, summarize the oldest portion of the conversation into a compact representation, then replace those turns with the summary. The agent continues with the summary in context rather than the full history.</p>
+  <p>This preserves more semantic content than a sliding window, but introduces a new risk: summarization compresses information, and compressed information loses nuance. Critical details — a specific number mentioned in turn 3, an explicit constraint the user stated early in the conversation — can be lost in a summary that captures the gist but not the specifics.</p>
+  <p>Mitigate this with <strong>structured summarization prompts</strong> that explicitly ask the model to preserve key facts, decisions, and constraints, not just themes:</p>
+
+  <pre><code>SUMMARIZE_PROMPT = """
+Summarize this conversation segment. Preserve:
+- All specific numbers, dates, and identifiers mentioned
+- Explicit constraints or requirements stated by the user
+- Decisions that were made and their rationale
+- Current state of any in-progress tasks
+
+Format as a structured summary under these headers.
+Keep it concise — the goal is dense information, not narrative.
+
+Conversation:
+{conversation_segment}
+"""</code></pre>
+
+  <h3>Hierarchical Memory</h3>
+  <p>The most sophisticated approach, and the one used by the best long-running agents. Maintain memory at multiple levels of granularity simultaneously:</p>
+  <ul>
+    <li><strong>Working memory</strong> — the current context window, with full fidelity for recent turns</li>
+    <li><strong>Episodic memory</strong> — summaries of earlier turns in the current session, retrievable when relevant</li>
+    <li><strong>Semantic memory</strong> — durable facts extracted from conversations (user preferences, confirmed information, established context) stored in a vector database and retrieved as needed</li>
+  </ul>
+  <p>When constructing a context window, the agent retrieves relevant episodic and semantic memories based on the current query and injects them alongside the recent working memory. This gives the agent access to a much larger effective context than the window allows, at the cost of retrieval latency and the imprecision introduced by embedding-based retrieval.</p>
+
+  <div class="callout cyan">
+    <p><strong>Hierarchical memory is the right long-term architecture for persistent agents,</strong> but it's a significant engineering investment. Sliding window or summarization is almost always the right starting point — implement it, instrument it, and only graduate to hierarchical memory when you can demonstrate that the simpler approaches are failing for your specific use case.</p>
+  </div>
+
+  <h3>Dynamic Tool Loading</h3>
+  <p>Instead of registering all tools in every system prompt, maintain a tool registry and inject only the tools relevant to the current task. This requires a routing step — a lightweight classifier or another model call that maps the current user message to the relevant tool subset — but it can reduce tool schema token consumption by 60–80% for agents with large registries.</p>
+
+  <pre><code>def get_relevant_tools(user_message: str, all_tools: dict) -> list:
+    """Use a fast classifier to select relevant tools."""
+    tool_names = list(all_tools.keys())
+
+    # Fast heuristic: keyword matching for common cases
+    if any(w in user_message.lower() for w in ["search", "find", "look up"]):
+        priority = ["search_web", "search_docs", "search_database"]
+    elif any(w in user_message.lower() for w in ["email", "send", "message"]):
+        priority = ["send_email", "draft_message"]
+    else:
+        priority = tool_names  # fall back to all tools
+
+    # Return schemas for priority tools only
+    return [all_tools[t] for t in priority if t in all_tools]</code></pre>
+
+  <h3>Tool Result Compression</h3>
+  <p>Raw tool results are often far larger than what the agent actually needs. A web search returning three full articles when only a paragraph is relevant, a database query returning a full result set when only the count matters, a file read returning a 500-line file when only the function signature is needed.</p>
+  <p>Add a compression layer between tool execution and context injection. For each tool type, define a maximum token budget for results and a compression strategy for when results exceed it:</p>
+
+  <pre><code>def compress_tool_result(tool_name: str, result: str, max_tokens: int = 2000) -> str:
+    token_count = count_tokens(result)
+
+    if token_count <= max_tokens:
+        return result  # fits, pass through
+
+    if tool_name == "search_web":
+        # Extract just titles, URLs, and first sentence of each result
+        return extract_search_snippets(result, max_tokens)
+    elif tool_name == "read_file":
+        # Return first N lines with a note that content was truncated
+        return truncate_with_notice(result, max_tokens)
+    else:
+        # Generic: ask a fast model to summarize to budget
+        return summarize_to_budget(result, max_tokens)</code></pre>
+
+  <h2>Handling the Context Limit Gracefully</h2>
+  <p>Despite your best management, agents occasionally approach or hit context limits mid-task. The difference between a graceful degradation and a hard failure is whether you designed for this case.</p>
+
+  <h3>Monitor context usage proactively</h3>
+  <p>Calculate the token budget consumed before each API call. If you're within 20% of the limit, trigger compression proactively — don't wait for the API to return a context length error.</p>
+
+  <pre><code>MAX_CONTEXT = 128_000
+COMPRESSION_THRESHOLD = 0.80  # compress at 80% full
+
+def should_compress(messages: list[dict]) -> bool:
+    current_tokens = count_tokens(messages)
+    return current_tokens > (MAX_CONTEXT * COMPRESSION_THRESHOLD)</code></pre>
+
+  <h3>Checkpoint long tasks</h3>
+  <p>For multi-step tasks that will definitely span many turns, design the agent to checkpoint its state at defined intervals. A checkpoint captures: what has been accomplished, what remains, and any key facts accumulated so far. If the context needs to be reset, the agent can resume from the last checkpoint rather than starting over.</p>
+
+  <h3>Graceful degradation over hard failure</h3>
+  <p>When compression is unavoidable and you might lose important context, tell the user. "I've been working on this for a while and need to summarize our earlier conversation to continue. Let me know if I've missed anything important." This is far better than silently losing context and producing wrong answers.</p>
+
+  <h2>Cost Modeling</h2>
+  <p>Context management is ultimately a cost-quality trade-off. The math is worth doing explicitly for your use case. Suppose your agent makes 20 API calls per session with an average context size of 50K tokens (input) and 500 tokens (output), using a model at $3/M input + $15/M output:</p>
+  <ul>
+    <li>Input cost per session: 20 × 50K × ($3 / 1M) = <strong>$3.00</strong></li>
+    <li>Output cost per session: 20 × 500 × ($15 / 1M) = <strong>$0.15</strong></li>
+    <li>Total: <strong>~$3.15 per session</strong></li>
+  </ul>
+  <p>Implement summarization that reduces average context to 15K tokens:</p>
+  <ul>
+    <li>Input cost per session: 20 × 15K × ($3 / 1M) = <strong>$0.90</strong></li>
+    <li>Plus summarization calls: 5 × 5K × ($3 / 1M) = <strong>$0.075</strong></li>
+    <li>Total: <strong>~$0.975 per session — a 69% reduction</strong></li>
+  </ul>
+  <p>The quality cost of that compression depends on your task. For many conversational agents, a 70% cost reduction with no perceptible quality loss is available — it just requires instrumentation and intentional design to find it.</p>
+
+  <div class="callout warning">
+    <p><strong>Prompt caching changes the calculus.</strong> Anthropic and OpenAI both offer prompt caching that reduces the cost of repeated context prefixes by 80–90%. If your system prompt and tool schemas are stable across turns, caching makes large contexts more affordable. Design your context so cacheable content (system prompt, tools) stays at the front and changes (conversation history) append at the end.</p>
+  </div>
+
+  <h2>Further Reading</h2>
+  <p>Context management connects to several other production concerns. <a href="/blog/vector-databases-ai-agents.html">Vector Databases for AI Agents</a> covers the retrieval infrastructure that makes hierarchical memory practical. <a href="/blog/ai-agent-observability.html">AI Agent Observability</a> covers the instrumentation you need to measure context consumption before optimizing it. And <a href="/blog/fine-tuning-vs-rag.html">Fine-Tuning vs. RAG</a> covers when to offload knowledge from context entirely into retrieval or model weights.</p>
+
+  <div class="cta-box">
+    <h3>Build cost-efficient AI agents with CEO</h3>
+    <p>CEO includes context budget management, prompt caching integration, and per-session cost analytics out of the box — so you can optimize without building the instrumentation from scratch.</p>
+    <a href="/#waitlist" class="cta-btn">Join the waitlist</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO / OpenClaw &nbsp;&middot;&nbsp; <a href="/blog/">Blog</a> &nbsp;&middot;&nbsp; <a href="/#features">Features</a> &nbsp;&middot;&nbsp; <a href="/#pricing">Pricing</a></p>
+</footer>
+</body>
+</html>
