@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Gateway Patterns: Rate Limiting, Caching, and Model Routing for Production AI — CEO Blog</title>
+  <meta name="description" content="How to build an LLM gateway layer that adds rate limiting, prompt caching, model routing, cost controls, and observability to your AI agent infrastructure — without rebuilding it for every project.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="LLM gateway, AI gateway, model routing, LLM rate limiting, prompt caching, LLM cost control, AI infrastructure, model fallback, LLM proxy">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/llm-gateway-patterns.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/llm-gateway-patterns.html">
+  <meta property="og:title" content="LLM Gateway Patterns: Rate Limiting, Caching, and Model Routing for Production AI">
+  <meta property="og:description" content="Rate limiting, prompt caching, model routing, cost controls, and observability — the infrastructure layer every production AI system eventually builds.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-12T00:00:00Z">
+  <meta property="article:section" content="AI Engineering">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="LLM Gateway Patterns: Rate Limiting, Caching, and Model Routing for Production AI">
+  <meta name="twitter:description" content="Rate limiting, prompt caching, model routing, and cost controls — the infrastructure layer every production AI system eventually builds.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "LLM Gateway Patterns: Rate Limiting, Caching, and Model Routing for Production AI",
+    "description": "How to build an LLM gateway layer that adds rate limiting, prompt caching, model routing, cost controls, and observability to your AI agent infrastructure.",
+    "datePublished": "2026-04-12",
+    "dateModified": "2026-04-12",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/llm-gateway-patterns.html" },
+    "keywords": ["LLM gateway", "model routing", "rate limiting", "prompt caching", "AI infrastructure"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .gateway-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .gateway-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .gateway-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .gateway-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Infrastructure</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">9 min read</span>
+  </div>
+
+  <h1>LLM Gateway Patterns: Rate Limiting, Caching, and Model Routing for Production AI</h1>
+  <p class="article-lead">Every team building production AI eventually builds the same infrastructure layer: something that sits between their application and the model APIs, handling rate limits, caching repeated calls, routing to cheaper models when possible, and giving ops teams visibility into what's actually happening. That layer is the LLM gateway. Here's how to build it right.</p>
+
+  <h2>Why a Gateway Layer?</h2>
+  <p>When you start building with LLMs, you call the API directly from your application code. That works fine for prototypes. It breaks down in production for several reasons:</p>
+  <ul>
+    <li><strong>Rate limits hit at the worst time.</strong> Anthropic and OpenAI both impose per-minute and per-day rate limits. Without centralized rate limit management, a traffic spike silently degrades all users simultaneously instead of gracefully queuing.</li>
+    <li><strong>Costs are invisible until the bill arrives.</strong> Direct API calls provide no real-time cost visibility. Teams routinely discover they're spending 10× their estimate only after seeing a monthly invoice.</li>
+    <li><strong>Identical prompts get re-executed.</strong> Many agent workflows send the same or highly similar prompts repeatedly — the same system prompt, the same tool schema injections, the same knowledge base documents. Without a caching layer, you pay for each execution.</li>
+    <li><strong>Model selection is hardcoded.</strong> When you need to switch models for cost or performance reasons, or when a model API is down, changing hardcoded model names across a codebase is slow and error-prone.</li>
+    <li><strong>Observability is an afterthought.</strong> Debugging production issues without centralized logging is painful. What prompt triggered the bad response? How often does this tool get called? What's the p95 latency for this endpoint?</li>
+  </ul>
+  <p>A gateway layer solves all of these. It's a service (or middleware layer) that wraps your LLM calls and handles the cross-cutting concerns your application code shouldn't have to manage.</p>
+
+  <h2>Pattern 1: Rate Limiting and Backpressure</h2>
+  <p>Rate limiting at the gateway level lets you manage API quota centrally rather than fighting it piecemeal in application code. The key design decisions:</p>
+
+  <h3>Token bucket vs. sliding window</h3>
+  <p>For LLM rate limiting, a token bucket approach tends to work better than a fixed-window counter. Token bucket allows short bursts above the average rate (absorbing spikes) while enforcing an average rate over time — which matches how LLM APIs actually work. A fixed window that resets every minute leads to thundering herd behavior at reset time.</p>
+
+  <pre><code>import time
+from threading import Lock
+
+class TokenBucket:
+    def __init__(self, capacity: int, refill_rate: float):
+        """
+        capacity: max tokens in bucket (burst allowance)
+        refill_rate: tokens added per second
+        """
+        self.capacity = capacity
+        self.tokens = capacity
+        self.refill_rate = refill_rate
+        self.last_refill = time.monotonic()
+        self._lock = Lock()
+
+    def consume(self, tokens: int = 1) -> bool:
+        with self._lock:
+            now = time.monotonic()
+            elapsed = now - self.last_refill
+            self.tokens = min(
+                self.capacity,
+                self.tokens + elapsed * self.refill_rate
+            )
+            self.last_refill = now
+
+            if self.tokens >= tokens:
+                self.tokens -= tokens
+                return True
+            return False  # rate limited
+
+class LLMGateway:
+    def __init__(self):
+        # 100k TPM limit → ~1,667 tokens/second
+        self.rate_limiter = TokenBucket(capacity=10_000, refill_rate=1_667)
+
+    async def complete(self, messages, estimated_tokens: int = 1000, **kwargs):
+        if not self.rate_limiter.consume(estimated_tokens):
+            raise RateLimitError("Gateway rate limit exceeded — retry after backoff")
+        return await self._call_api(messages, **kwargs)</code></pre>
+
+  <h3>Per-tenant rate limiting</h3>
+  <p>If you're building a multi-tenant system, you need per-tenant limits in addition to global limits. A single tenant running a batch job shouldn't be able to starve interactive users. Maintain a separate bucket per tenant ID, with a hierarchy: per-tenant limits enforce fairness, global limits protect your API quota.</p>
+
+  <h2>Pattern 2: Semantic and Exact Caching</h2>
+  <p>Caching is typically the highest-ROI optimization available to an LLM gateway. There are two levels:</p>
+
+  <h3>Exact cache (deterministic prompts)</h3>
+  <p>When the exact same prompt is sent multiple times, serve the cached response without hitting the API. This is most valuable for:</p>
+  <ul>
+    <li>Classification or extraction endpoints where many inputs map to the same prompt template</li>
+    <li>FAQ or knowledge base queries where the same questions recur</li>
+    <li>Any agent step where the prompt is deterministic given the same inputs</li>
+  </ul>
+
+  <pre><code>import hashlib
+import json
+from functools import lru_cache
+
+class CachedGateway:
+    def __init__(self, cache_client, ttl_seconds=3600):
+        self.cache = cache_client  # Redis, Memcached, etc.
+        self.ttl = ttl_seconds
+
+    def _cache_key(self, messages: list, model: str, **kwargs) -> str:
+        payload = {"messages": messages, "model": model, **kwargs}
+        return "llm:" + hashlib.sha256(
+            json.dumps(payload, sort_keys=True).encode()
+        ).hexdigest()[:16]
+
+    async def complete(self, messages, model="claude-sonnet-4-6", **kwargs):
+        key = self._cache_key(messages, model, **kwargs)
+
+        cached = await self.cache.get(key)
+        if cached:
+            return json.loads(cached)  # cache hit — no API call
+
+        result = await self._call_api(messages, model=model, **kwargs)
+        await self.cache.setex(key, self.ttl, json.dumps(result))
+        return result</code></pre>
+
+  <h3>Semantic cache (similar prompts)</h3>
+  <p>Exact caching requires identical inputs. Semantic caching uses embeddings to find responses to semantically similar queries. A question about "how do I reset my password" and "I forgot my login password" should return the same cached answer.</p>
+  <p>The implementation: embed the query, search a vector store for similar cached queries above a similarity threshold, return the cached response if found. This is more complex and introduces false positive risk (returning a cached response for a query that's similar but not actually the same). Set the similarity threshold conservatively (0.95+) to start.</p>
+
+  <div class="callout cyan">
+    <p><strong>Don't cache agent responses that involve real-time data</strong> (current stock prices, live customer records, today's news) or any response where freshness matters. Build cache key namespacing so you can selectively disable caching per endpoint type. The most common caching mistake is caching too aggressively and serving stale data for queries that needed a fresh answer.</p>
+  </div>
+
+  <h2>Pattern 3: Model Routing</h2>
+  <p>Model routing — sending different requests to different models based on cost, capability, or load requirements — is one of the most powerful things a gateway layer enables. The routing logic can be as simple or sophisticated as your use case demands.</p>
+
+  <h3>Complexity-based routing</h3>
+  <p>Most production workloads have a bimodal distribution: many simple requests (classification, extraction, short Q&A) and fewer complex ones (long-form generation, multi-step reasoning, code synthesis). Routing simple requests to a cheaper, faster model and complex ones to a more capable model can cut costs by 50-80% with no perceptible quality degradation.</p>
+
+  <pre><code>class ModelRouter:
+    FAST_MODEL = "claude-haiku-4-5"      # cheap, fast
+    CAPABLE_MODEL = "claude-sonnet-4-6"  # more capable, moderate cost
+    EXPERT_MODEL = "claude-opus-4-6"     # most capable, expensive
+
+    def select_model(self, task_type: str, context_tokens: int,
+                     requires_reasoning: bool) -> str:
+        # Very long contexts benefit from larger models
+        if context_tokens > 50_000:
+            return self.CAPABLE_MODEL
+
+        # Tasks requiring complex reasoning
+        if requires_reasoning or task_type in {"code_synthesis", "strategic_analysis"}:
+            return self.CAPABLE_MODEL
+
+        # Simple classification, extraction, short answers
+        if task_type in {"classify", "extract", "yes_no", "short_answer"}:
+            return self.FAST_MODEL
+
+        return self.CAPABLE_MODEL  # default</code></pre>
+
+  <h3>Fallback routing</h3>
+  <p>When your primary model API is unavailable or rate-limited, a fallback route to a secondary provider keeps the system available. This requires standardizing on a common request/response format across providers — or using a library that abstracts provider differences.</p>
+
+  <pre><code>async def complete_with_fallback(self, messages, **kwargs):
+    providers = [
+        ("anthropic", "claude-sonnet-4-6"),
+        ("openai", "gpt-4o"),          # fallback
+    ]
+    last_error = None
+    for provider, model in providers:
+        try:
+            return await self._call(provider, model, messages, **kwargs)
+        except (RateLimitError, ServiceUnavailableError) as e:
+            last_error = e
+            continue
+    raise last_error</code></pre>
+
+  <h3>A/B routing for model evaluation</h3>
+  <p>A gateway is the natural place to implement A/B testing between models. Route X% of traffic to model A, the remainder to model B. Log both responses along with their latency and cost. Evaluate quality offline using LLM-as-judge or human review. This is far better than switching models wholesale and hoping quality holds.</p>
+
+  <h2>Pattern 4: Cost Controls</h2>
+  <p>Hard cost limits prevent runaway spend from infinite loops, malformed prompts that generate massive completions, or unexpected traffic spikes.</p>
+
+  <h3>Per-request token budget</h3>
+  <p>Always set <code>max_tokens</code> on your API calls. A missing <code>max_tokens</code> parameter on a generation endpoint can result in responses consuming far more tokens than intended. Set a sensible default in the gateway layer so individual callers can't accidentally omit it.</p>
+
+  <pre><code>DEFAULT_MAX_TOKENS = {
+    "classify": 50,
+    "extract": 500,
+    "summarize": 800,
+    "generate": 2000,
+    "code": 4000,
+    "default": 1000,
+}
+
+def apply_token_budget(self, kwargs: dict, task_type: str) -> dict:
+    if "max_tokens" not in kwargs:
+        kwargs["max_tokens"] = DEFAULT_MAX_TOKENS.get(task_type, DEFAULT_MAX_TOKENS["default"])
+    else:
+        # Don't let callers set max_tokens higher than your policy allows
+        kwargs["max_tokens"] = min(kwargs["max_tokens"], self.max_allowed_tokens)
+    return kwargs</code></pre>
+
+  <h3>Budget alerts and hard stops</h3>
+  <p>Track cumulative spend in real time and trigger alerts or hard stops at defined thresholds. Alert at 80% of daily budget; hard-stop non-critical endpoints at 100%. Keep a reserve for critical paths (customer-facing endpoints) that can run even when the budget is exhausted for background jobs.</p>
+
+  <table class="gateway-table">
+    <thead>
+      <tr><th>Budget level</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>50% of daily budget</td><td>Log warning, no action</td></tr>
+      <tr><td>80% of daily budget</td><td>Alert on-call via PagerDuty/Slack</td></tr>
+      <tr><td>90% of daily budget</td><td>Route non-critical tasks to cheapest available model</td></tr>
+      <tr><td>100% of daily budget</td><td>Disable background/batch endpoints; serve degraded response for non-critical interactive endpoints</td></tr>
+      <tr><td>110% of daily budget</td><td>Hard stop all non-essential LLM calls; return error with retry-after header</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Pattern 5: Observability</h2>
+  <p>The gateway is the right place to add comprehensive logging because every LLM call flows through it. Log at minimum:</p>
+  <ul>
+    <li>Request ID (tie to application trace)</li>
+    <li>Model used and why (routing decision log)</li>
+    <li>Input tokens, output tokens, estimated cost</li>
+    <li>Latency (total, time-to-first-token for streaming)</li>
+    <li>Cache hit or miss</li>
+    <li>Error type and count for failures</li>
+    <li>Tenant/user ID (for multi-tenant systems)</li>
+  </ul>
+  <p>This data feeds dashboards that answer the questions your team will ask in production: What's our cost per user? Which endpoints are the most expensive? What's causing latency spikes? Where are we hitting rate limits? Without the gateway logging it centrally, answering these questions requires digging through application logs across multiple services.</p>
+
+  <div class="callout warning">
+    <p><strong>Don't log prompt content by default in production.</strong> Prompt content may contain PII, customer data, or sensitive business information. Log token counts and hashes, not raw prompts. If you need prompt logging for debugging, implement it as an opt-in trace mode that can be enabled per-request or per-tenant, not as the default behavior.</p>
+  </div>
+
+  <h2>Build vs. Buy</h2>
+  <p>Several open-source and commercial LLM gateway solutions exist: LiteLLM, Portkey, Helicone, OpenRouter, AWS Bedrock Gateway, and others. They handle the basic patterns described here and some add advanced features like semantic caching, automatic PII redaction, and prompt management.</p>
+  <p>The build-vs-buy calculus:</p>
+  <ul>
+    <li><strong>Use an existing gateway</strong> if you primarily need observability, multi-provider support, and basic rate limiting. The setup cost is low and the functionality is solid.</li>
+    <li><strong>Build your own gateway</strong> if you have custom routing logic, strict data governance requirements that prevent external proxies, or unusual reliability requirements. Building the core patterns described here is 1-2 engineer-weeks and gives you full control.</li>
+    <li><strong>Use the API's native features first.</strong> Anthropic and OpenAI's prompt caching, Anthropic's token counting API, and provider-level rate limit headers handle many needs before a gateway is warranted. Don't build infrastructure for problems you don't have yet.</li>
+  </ul>
+
+  <p>For the context management techniques that work alongside a gateway to reduce per-call token counts, see <a href="/blog/context-window-management.html">Context Window Management for Production AI Agents</a>. For how to instrument the gateway's output for quality evaluation, see <a href="/blog/ai-agent-observability.html">AI Agent Observability</a>.</p>
+
+  <div class="cta-box">
+    <h3>Production AI infrastructure with CEO</h3>
+    <p>CEO includes a built-in LLM gateway with rate limiting, semantic caching, model routing, cost controls, and per-session observability — so you can focus on building your agent, not the infrastructure around it.</p>
+    <a href="/#waitlist" class="cta-btn">Join the waitlist</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO / OpenClaw &nbsp;&middot;&nbsp; <a href="/blog/">Blog</a> &nbsp;&middot;&nbsp; <a href="/#features">Features</a> &nbsp;&middot;&nbsp; <a href="/#pricing">Pricing</a></p>
+</footer>
+</body>
+</html>
