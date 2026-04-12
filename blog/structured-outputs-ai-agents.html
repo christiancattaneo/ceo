@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Structured Outputs in AI Agents: JSON Mode, Schema Enforcement, and Reliable Data Extraction — CEO Blog</title>
+  <meta name="description" content="How to use structured outputs to make AI agents reliable in production — JSON mode, response schemas, Pydantic validation, retry strategies, and when structured outputs break down.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="structured outputs AI, JSON mode LLM, LLM structured output, AI agent JSON, Pydantic LLM validation, response schema AI, reliable AI output, function calling structured">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/structured-outputs-ai-agents.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/structured-outputs-ai-agents.html">
+  <meta property="og:title" content="Structured Outputs in AI Agents: JSON Mode, Schema Enforcement, and Reliable Data Extraction">
+  <meta property="og:description" content="JSON mode, response schemas, Pydantic validation, and retry strategies — how to make AI agent outputs reliable enough for production pipelines.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-12T00:00:00Z">
+  <meta property="article:section" content="AI Engineering">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="Structured Outputs in AI Agents: JSON Mode, Schema Enforcement, and Reliable Data Extraction">
+  <meta name="twitter:description" content="JSON mode, response schemas, Pydantic validation, and retry strategies — how to make AI agent outputs reliable enough for production pipelines.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Structured Outputs in AI Agents: JSON Mode, Schema Enforcement, and Reliable Data Extraction",
+    "description": "How to use structured outputs to make AI agents reliable in production — JSON mode, response schemas, Pydantic validation, retry strategies, and when structured outputs break down.",
+    "datePublished": "2026-04-12",
+    "dateModified": "2026-04-12",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/structured-outputs-ai-agents.html" },
+    "keywords": ["structured outputs", "JSON mode", "LLM validation", "AI agents", "Pydantic"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .compare-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .compare-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .compare-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .compare-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Engineering</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">8 min read</span>
+  </div>
+
+  <h1>Structured Outputs in AI Agents: JSON Mode, Schema Enforcement, and Reliable Data Extraction</h1>
+  <p class="article-lead">Asking an LLM to "respond in JSON" and actually getting valid, schema-conformant JSON every time are two different problems. Here's how to use structured outputs properly — and how to handle the cases where they still fail.</p>
+
+  <h2>The Problem With Unstructured LLM Output</h2>
+  <p>When an agent's output needs to flow into a downstream system — a database write, a tool call, a UI component — you need that output to have a predictable shape. Prose responses are fine for displaying to users. They're not fine when you need to parse a status field, extract a list of action items, or trigger a workflow based on a classification.</p>
+  <p>The naive approach is to ask for JSON in the prompt: <code>"Respond with a JSON object containing..."</code>. This works most of the time. But "most of the time" is not production-grade reliability. Models will occasionally:</p>
+  <ul>
+    <li>Wrap the JSON in markdown code fences (<code>```json ... ```</code>)</li>
+    <li>Include a preamble before the JSON (<code>"Here is the JSON: {...}"</code>)</li>
+    <li>Produce keys with slightly different names than specified</li>
+    <li>Omit optional fields instead of including them with null values</li>
+    <li>Add extra explanation after the closing brace</li>
+    <li>Generate valid JSON that doesn't match the expected schema</li>
+  </ul>
+  <p>Any of these edge cases breaks a parser that expects clean JSON input. In production, these failures cluster around the edge cases in your prompt — the inputs the model finds ambiguous or unusual — which means they're hardest to reproduce in development and most likely to surface at scale.</p>
+
+  <h2>The Three Approaches to Structured Output</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Approach</th>
+        <th>Reliability</th>
+        <th>Flexibility</th>
+        <th>Works with</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Prompt-only JSON</strong></td>
+        <td>~95% (varies by model)</td>
+        <td>High — any schema</td>
+        <td>All models</td>
+      </tr>
+      <tr>
+        <td><strong>JSON mode</strong></td>
+        <td>~99% (valid JSON guaranteed)</td>
+        <td>Medium — valid JSON, not schema-validated</td>
+        <td>OpenAI, Anthropic (tool use), Gemini</td>
+      </tr>
+      <tr>
+        <td><strong>Structured outputs / constrained decoding</strong></td>
+        <td>~99.9% (schema conformance guaranteed)</td>
+        <td>Lower — schema must be JSON Schema</td>
+        <td>OpenAI gpt-4o+, some open-source models</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Prompt-Only JSON</h3>
+  <p>Describe the desired output format in the prompt with examples. Works well for simple schemas and capable models. The failure rate is low enough for many use cases, and it doesn't lock you into any particular API feature.</p>
+  <p>The key to reliable prompt-only JSON:</p>
+  <ul>
+    <li>Show a concrete example, not just a schema description</li>
+    <li>End the prompt with the opening brace of the JSON to prime the model to continue in JSON format</li>
+    <li>Specify what to do with null/missing values explicitly</li>
+    <li>Keep the schema simple — nested objects with many optional fields are harder</li>
+  </ul>
+
+  <pre><code>EXTRACT_PROMPT = """
+Extract the following information from the user message.
+Return ONLY a JSON object with no preamble or explanation.
+
+Schema:
+{
+  "intent": "one of: question, complaint, purchase_request, other",
+  "product_mentioned": "product name or null if none",
+  "urgency": "one of: high, medium, low",
+  "summary": "one sentence summary of the request"
+}
+
+Example output:
+{"intent": "complaint", "product_mentioned": "Pro Plan", "urgency": "high", "summary": "User reports billing error on Pro Plan subscription."}
+
+User message: {user_message}
+
+JSON:"""</code></pre>
+
+  <p>Ending with <code>JSON:</code> followed by nothing strongly biases the model to start with <code>{</code> on the next token. It's a simple trick that meaningfully reduces preamble generation.</p>
+
+  <h3>JSON Mode</h3>
+  <p>JSON mode (available in OpenAI, Anthropic via tool use, Google Gemini) constrains the model's output to be syntactically valid JSON. It doesn't guarantee the JSON matches your schema — it just guarantees it parses. You still need to validate the parsed object against your expected structure.</p>
+
+  <pre><code># OpenAI JSON mode
+response = client.chat.completions.create(
+    model="gpt-4o",
+    response_format={"type": "json_object"},
+    messages=[
+        {"role": "system", "content": "You are a data extraction assistant. Always respond with valid JSON."},
+        {"role": "user", "content": f"Extract intent and urgency from: {user_message}"}
+    ]
+)
+data = json.loads(response.choices[0].message.content)
+# data is guaranteed to parse — but may not have the fields you expect</code></pre>
+
+  <p>JSON mode eliminates parse errors but not schema mismatch errors. A model in JSON mode might return <code>{"urgency_level": "high"}</code> when you expected <code>{"urgency": "high"}</code>. Always validate the parsed object.</p>
+
+  <h3>Structured Outputs / Constrained Decoding</h3>
+  <p>The strongest approach: provide a JSON Schema and the model's output is guaranteed to conform to it at the token level. The decoding process is constrained to only produce tokens that keep the output schema-valid. This is available in OpenAI's <code>response_format</code> with a schema, and in open-source models via libraries like Outlines or Guidance.</p>
+
+  <pre><code># OpenAI structured outputs
+from pydantic import BaseModel
+from typing import Literal
+
+class ExtractedIntent(BaseModel):
+    intent: Literal["question", "complaint", "purchase_request", "other"]
+    product_mentioned: str | None
+    urgency: Literal["high", "medium", "low"]
+    summary: str
+
+response = client.beta.chat.completions.parse(
+    model="gpt-4o-2024-08-06",
+    messages=[...],
+    response_format=ExtractedIntent,
+)
+result: ExtractedIntent = response.choices[0].message.parsed
+# result is a validated Pydantic object — no json.loads, no KeyError, no validation needed</code></pre>
+
+  <p>The returned object is already a validated Pydantic instance. You can't get a parse error or a missing field. This is the most reliable approach for production pipelines where the output feeds directly into typed code.</p>
+
+  <div class="callout cyan">
+    <p><strong>Constrained decoding has a small quality cost.</strong> Forcing the model to conform to a strict schema can reduce the quality of generated text slightly, because the model sometimes can't produce the most natural phrasing if it would violate the schema. For extraction tasks (where there's a ground truth to extract) this tradeoff is almost always worth it. For generation tasks (where the model is creating content), consider whether strict schema enforcement is actually necessary.</p>
+  </div>
+
+  <h2>Validation with Pydantic</h2>
+  <p>Whether you use JSON mode or prompt-only JSON, adding a Pydantic validation layer between the raw LLM output and your application code is the most impactful reliability improvement you can make for minimal effort.</p>
+
+  <pre><code>from pydantic import BaseModel, validator
+from typing import Optional
+
+class ClassificationResult(BaseModel):
+    intent: str
+    confidence: float
+    entities: list[str]
+    requires_human_review: bool
+
+    @validator('confidence')
+    def confidence_in_range(cls, v):
+        if not 0.0 <= v <= 1.0:
+            raise ValueError(f'confidence must be 0-1, got {v}')
+        return v
+
+    @validator('intent')
+    def valid_intent(cls, v):
+        valid = {"question", "complaint", "purchase_request", "other"}
+        if v not in valid:
+            raise ValueError(f'intent must be one of {valid}, got {v!r}')
+        return v
+
+def parse_classification(raw_json: str) -> ClassificationResult:
+    try:
+        data = json.loads(raw_json)
+        return ClassificationResult(**data)
+    except (json.JSONDecodeError, ValidationError) as e:
+        raise OutputParseError(f"LLM output failed validation: {e}") from e</code></pre>
+
+  <p>Pydantic validators catch problems that JSON mode can't: values outside expected ranges, strings that don't match enum constraints, missing required fields. The validation error message is also useful for retry strategies — you can feed the error back to the model and ask for a correction.</p>
+
+  <h2>Retry Strategies for Parse Failures</h2>
+  <p>Even with structured outputs, failures happen. Your retry strategy should be smarter than "call the API again with the same prompt."</p>
+
+  <h3>Self-correction with the validation error</h3>
+  <p>When parsing fails, feed the error message back to the model as a follow-up message and ask it to fix the output:</p>
+
+  <pre><code>def extract_with_retry(prompt: str, max_retries: int = 2) -> ClassificationResult:
+    messages = [{"role": "user", "content": prompt}]
+
+    for attempt in range(max_retries + 1):
+        response = call_llm(messages)
+        raw = response.choices[0].message.content
+
+        try:
+            return parse_classification(raw)
+        except OutputParseError as e:
+            if attempt == max_retries:
+                raise
+
+            # Ask model to fix its output
+            messages.append({"role": "assistant", "content": raw})
+            messages.append({
+                "role": "user",
+                "content": f"Your response failed validation: {e}\n\nPlease provide a corrected JSON response that fixes this error."
+            })</code></pre>
+
+  <p>Self-correction works surprisingly well because the model can often reason about why its output was wrong when shown the specific error. This approach catches ~80% of initial failures in one retry, at the cost of one additional API call for the failures.</p>
+
+  <h3>Fallback to a more capable model</h3>
+  <p>If your primary extraction uses a fast/cheap model (haiku, mini, flash), consider falling back to a more capable model on validation failure. The speed-cost optimization holds for the 95%+ of cases that succeed on first try; the expensive model only runs on failures.</p>
+
+  <pre><code>async def extract_robust(prompt: str) -> ClassificationResult:
+    # Try fast model first
+    try:
+        return await extract_with_model(prompt, model="claude-haiku-4-5")
+    except OutputParseError:
+        pass
+
+    # Fall back to capable model
+    return await extract_with_model(prompt, model="claude-sonnet-4-6")</code></pre>
+
+  <h2>When Structured Outputs Break Down</h2>
+  <p>Structured outputs are not a silver bullet. Several scenarios cause even schema-constrained models to produce unusable results:</p>
+
+  <h3>The schema is too narrow for the input</h3>
+  <p>If a user's input doesn't fit any of your enumerated values, the model is forced to pick the closest one — which may be wrong. An intent classifier with four options will mis-classify inputs that don't fit any of them, not report "none of the above." Design escape hatches: <code>"other"</code> categories, nullable fields, or a <code>confidence</code> field that signals uncertain classifications.</p>
+
+  <h3>Deeply nested schemas with many optional fields</h3>
+  <p>Complex schemas — objects nested 3+ levels deep, many optional fields, arrays of objects — are harder for models to fill correctly. A constrained decoder can guarantee the JSON is structurally valid, but it can't guarantee the semantics are right. A model forced to populate a deeply nested schema may hallucinate plausible-looking values for fields it doesn't have enough information to fill.</p>
+  <p>Flatten schemas where possible. Extract in stages (extract the top-level structure first, then drill into sub-objects in separate calls) rather than asking for everything at once.</p>
+
+  <h3>Long outputs with structured requirements</h3>
+  <p>For very long outputs (articles, reports, extensive analysis) where you also need structured metadata, don't put the long text inside the structured object. Extract the metadata separately from the content generation. Trying to constrain a 2,000-word generation to a JSON schema adds latency, increases cost, and often degrades content quality.</p>
+
+  <div class="callout warning">
+    <p><strong>Structured outputs aren't a substitute for output validation in your business logic.</strong> A model can produce a perfectly valid <code>ClassificationResult</code> with <code>confidence: 0.95</code> that is semantically wrong — the classification is incorrect but schema-valid. Structured outputs handle format reliability. Semantic correctness still requires evaluation, human review thresholds, or LLM-as-judge techniques.</p>
+  </div>
+
+  <h2>Practical Extraction Patterns</h2>
+
+  <h3>Chain of thought before structured output</h3>
+  <p>For complex extractions, asking the model to reason before outputting the JSON often improves accuracy. Have the model think through the problem in a <code>reasoning</code> field that you discard, followed by the actual structured fields you need:</p>
+
+  <pre><code>class AnalysisResult(BaseModel):
+    reasoning: str  # model's scratchpad — you won't use this downstream
+    classification: Literal["positive", "negative", "neutral"]
+    key_topics: list[str]
+    action_required: bool</code></pre>
+
+  <p>The reasoning field "uses up" the model's tendency to produce explanatory text before the answer — channeling it into a field you can ignore rather than letting it pollute the structured fields.</p>
+
+  <h3>Extraction + generation separation</h3>
+  <p>Use structured outputs for the extraction pass; use free-form generation for the content pass. Don't mix them. If you need both a structured summary and a prose explanation of a document, make two calls: one that extracts the structured metadata, one that generates the prose.</p>
+
+  <p>For the full picture on how structured outputs fit into the larger agent architecture, see <a href="/blog/tool-calling-ai-agents.html">Tool Calling Design for AI Agents</a> — tool call schemas are a form of structured output. And for how to validate structured extraction quality at scale, see <a href="/blog/ai-agent-testing.html">AI Agent Testing and Evaluation</a>.</p>
+
+  <div class="cta-box">
+    <h3>Build reliable AI agents with CEO</h3>
+    <p>CEO includes schema-validated extraction pipelines, automatic retry with self-correction, and per-field validation metrics — so your structured outputs work the first time, every time.</p>
+    <a href="/#waitlist" class="cta-btn">Join the waitlist</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO / OpenClaw &nbsp;&middot;&nbsp; <a href="/blog/">Blog</a> &nbsp;&middot;&nbsp; <a href="/#features">Features</a> &nbsp;&middot;&nbsp; <a href="/#pricing">Pricing</a></p>
+</footer>
+</body>
+</html>
