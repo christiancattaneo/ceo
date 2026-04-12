@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tool Calling Design for AI Agents: Patterns That Work in Production — CEO Blog</title>
+  <meta name="description" content="How to design tools that AI agents can actually use reliably — schema design, error handling, idempotency, output formatting, and the structural patterns that separate brittle agent tools from production-ready ones.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="AI agent tool calling, function calling LLM, tool design AI agents, agent tool schema, LLM function calling patterns, tool use AI, AI agent tools production">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/tool-calling-ai-agents.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/tool-calling-ai-agents.html">
+  <meta property="og:title" content="Tool Calling Design for AI Agents: Patterns That Work in Production">
+  <meta property="og:description" content="Schema design, error handling, idempotency, and the structural patterns that separate brittle agent tools from production-ready ones.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-12T00:00:00Z">
+  <meta property="article:section" content="AI Engineering">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="Tool Calling Design for AI Agents: Patterns That Work in Production">
+  <meta name="twitter:description" content="Schema design, error handling, idempotency, and the structural patterns that separate brittle agent tools from production-ready ones.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Tool Calling Design for AI Agents: Patterns That Work in Production",
+    "description": "How to design tools that AI agents can actually use reliably — schema design, error handling, idempotency, output formatting, and the structural patterns that separate brittle agent tools from production-ready ones.",
+    "datePublished": "2026-04-12",
+    "dateModified": "2026-04-12",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/tool-calling-ai-agents.html" },
+    "keywords": ["tool calling", "function calling", "AI agents", "LLM tools", "agent design"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .pattern-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0}
+    @media(max-width:600px){.pattern-grid{grid-template-columns:1fr}}
+    .pattern-card{background:rgba(124,58,237,0.06);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+    .pattern-card h4{color:var(--accent-light);font-size:0.95rem;font-weight:600;margin-bottom:8px}
+    .pattern-card p{font-size:0.9rem;color:var(--text-secondary);margin-bottom:0}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Engineering</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">9 min read</span>
+  </div>
+
+  <h1>Tool Calling Design for AI Agents: Patterns That Work in Production</h1>
+  <p class="article-lead">The model's ability to call tools is what transforms a chat completion into an agent. But the quality of your tool design determines whether that agent is reliable or constantly surprising you in production. Here's what separates tools that work from tools that fail silently.</p>
+
+  <h2>Why Tool Design Is an Underrated Skill</h2>
+  <p>Most teams spend the majority of their agent development time on prompts and orchestration. Tool design — the schemas, error handling, return formats, and contracts that govern how the model interacts with your systems — often gets treated as boilerplate. Register the function, write a one-line description, ship it.</p>
+  <p>This is a mistake. The model makes tool-calling decisions based almost entirely on the information you provide in the schema: the function name, parameter descriptions, and return value. A poorly designed schema leads to wrong tool selection, incorrect parameter construction, and misinterpretation of results. These failures are hard to debug because they look like model errors when they're actually interface errors.</p>
+  <p>Good tool design is a form of API design, with one important difference: your user is a language model, not a human developer. The conventions that make APIs intuitive for humans — RESTful conventions, HTTP status codes, pagination patterns — don't necessarily translate. You're optimizing for a different kind of comprehension.</p>
+
+  <h2>Schema Design Principles</h2>
+
+  <h3>Name functions after their effect, not their mechanism</h3>
+  <p>The function name is the first signal the model uses to decide whether to call it. Names that describe the mechanism (<code>db_query</code>, <code>http_post</code>, <code>vector_search</code>) force the model to reason about implementation details it shouldn't need to know. Names that describe the effect (<code>search_knowledge_base</code>, <code>send_notification</code>, <code>get_customer_orders</code>) let the model match the tool to the task semantically.</p>
+  <p>This matters most when you have multiple tools with overlapping capabilities. If your agent has both <code>search_web</code> and <code>search_docs</code>, the names alone communicate when to use each. If you named them <code>serp_api_call</code> and <code>embedding_retrieval</code>, the model has to infer purpose from mechanics.</p>
+
+  <h3>Write parameter descriptions as instructions, not labels</h3>
+  <p>A parameter named <code>query</code> with description <code>"The search query"</code> gives the model almost no useful information. A description that reads <code>"The search query to send. Use specific, keyword-rich terms. Avoid full sentences — 3-7 words works best for this search engine."</code> is actually useful.</p>
+  <p>Think of parameter descriptions as the closest thing you have to inline documentation for a model that will interpret them at inference time. Be specific about:</p>
+  <ul>
+    <li>Format constraints (<code>"ISO 8601 date string, e.g. '2026-04-12'"</code>)</li>
+    <li>Value constraints (<code>"One of: 'low', 'medium', 'high'"</code>)</li>
+    <li>When to use optional parameters (<code>"Only include if filtering by date range is needed"</code>)</li>
+    <li>What counts as a good value vs. a bad value</li>
+  </ul>
+
+  <pre><code># Bad schema
+{
+  "name": "search",
+  "parameters": {
+    "q": {"type": "string", "description": "Query string"},
+    "n": {"type": "integer", "description": "Number of results"}
+  }
+}
+
+# Good schema
+{
+  "name": "search_knowledge_base",
+  "description": "Search the internal knowledge base for relevant documents. Use this when answering questions about company policies, product documentation, or internal procedures. Do NOT use for web search.",
+  "parameters": {
+    "query": {
+      "type": "string",
+      "description": "Search terms. Use specific keywords from the user's question. Avoid stop words. Example: 'refund policy international orders' not 'what is the refund policy for orders shipped internationally'"
+    },
+    "max_results": {
+      "type": "integer",
+      "description": "Maximum number of documents to return (1-10). Default 5. Use 10 only when comprehensive coverage is important.",
+      "default": 5
+    }
+  },
+  "required": ["query"]
+}</code></pre>
+
+  <h3>Use the description field to disambiguate between tools</h3>
+  <p>When multiple tools could plausibly apply to a situation, the model needs something to differentiate them. Put that disambiguation explicitly in the tool description — not just what the tool does, but when to use it versus the alternatives.</p>
+  <p><code>"Search the company knowledge base for internal documentation. Use this for questions about policies, procedures, and product specs. Use <code>search_web</code> instead for current events, prices, or any information that might have changed recently."</code></p>
+  <p>This explicit disambiguation reduces wrong-tool selection, which is one of the most common agent failure modes in production.</p>
+
+  <h2>Error Handling That Agents Can Recover From</h2>
+  <p>Tools fail. APIs time out, queries return no results, permissions are denied, upstream services are down. How your tools communicate failure determines whether the agent can recover gracefully or gets stuck in a loop.</p>
+
+  <h3>Return structured errors, not exceptions</h3>
+  <p>When a tool call fails, don't raise an exception that gets converted to a generic error message. Return a structured result that describes what went wrong and what the agent should do about it:</p>
+
+  <pre><code>def search_web(query: str, max_results: int = 5) -> dict:
+    try:
+        results = serp_api.search(query, num=max_results)
+        return {
+            "success": True,
+            "results": results,
+            "count": len(results)
+        }
+    except RateLimitError:
+        return {
+            "success": False,
+            "error_type": "rate_limit",
+            "message": "Search API rate limit reached. Wait 60 seconds before retrying, or try a different search approach.",
+            "retry_after_seconds": 60
+        }
+    except NoResultsError:
+        return {
+            "success": False,
+            "error_type": "no_results",
+            "message": "No results found for this query. Try broader search terms or a different phrasing.",
+            "suggestion": "broaden_query"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error_type": "unknown",
+            "message": f"Search failed: {str(e)}. Consider trying an alternative approach."
+        }</code></pre>
+
+  <p>Structured errors give the model actionable information. <code>"Wait 60 seconds before retrying"</code> is something the agent can act on. <code>"Error: 429"</code> is not.</p>
+
+  <h3>Never return empty results silently</h3>
+  <p>A tool that returns an empty list or null when it finds nothing is worse than a tool that returns an error. The model may interpret an empty result as "I searched and there is nothing," when the actual meaning might be "the query was too narrow" or "the category doesn't exist." Explicitly annotate empty results:</p>
+
+  <pre><code>if not results:
+    return {
+        "success": True,
+        "results": [],
+        "count": 0,
+        "note": "No records matched this query. Consider: (1) checking the spelling of the customer ID, (2) using a broader date range, or (3) searching by email instead of name."
+    }</code></pre>
+
+  <div class="callout warning">
+    <p><strong>The silent empty result trap:</strong> An agent searching for a customer record that doesn't exist might conclude "the customer doesn't exist" when in fact the query was wrong. If your data model has a distinction between "not found" and "query error," surface it explicitly in the return value.</p>
+  </div>
+
+  <h2>Idempotency and Side Effect Management</h2>
+  <p>This is where tool design intersects with system safety. Agents can and do call tools multiple times — due to retries, re-planning loops, or multi-step reasoning that returns to an earlier step. If your tools have unguarded side effects, multiple calls mean multiple side effects.</p>
+
+  <h3>Mark destructive tools clearly in their description</h3>
+  <p>Tools that write, delete, or trigger external actions should have their side effects called out in the description: <code>"IRREVERSIBLE: Sends an email to the customer. Only call this after confirming the email content with the user. Cannot be undone."</code></p>
+  <p>This isn't just good practice — models that have been trained to be careful about irreversible actions will attend to these signals and apply additional caution before calling.</p>
+
+  <h3>Implement idempotency keys for write operations</h3>
+  <p>Any tool that creates a record, sends a message, or initiates a transaction should accept an idempotency key. The tool handler uses the key to deduplicate calls — if the same key arrives twice, the second call returns the result of the first without executing again.</p>
+
+  <pre><code>def send_email(
+    to: str,
+    subject: str,
+    body: str,
+    idempotency_key: str  # agent generates this; same key = no duplicate send
+) -> dict:
+    if cache.get(idempotency_key):
+        return {"success": True, "status": "already_sent", "cached": True}
+
+    result = email_client.send(to=to, subject=subject, body=body)
+    cache.set(idempotency_key, result, ttl=3600)
+    return {"success": True, "status": "sent", "message_id": result.id}</code></pre>
+
+  <h3>Separate read and write operations</h3>
+  <p>Resist the temptation to build "do everything" tools. A single <code>manage_customer</code> tool that can read, update, and delete based on an <code>action</code> parameter is harder for the model to use safely than three separate tools: <code>get_customer</code>, <code>update_customer</code>, <code>delete_customer</code>. The separation makes the intent of each call explicit and makes it easier to add authorization checks at the tool boundary.</p>
+
+  <h2>Output Formatting for Model Consumption</h2>
+  <p>Tool results go back into the model's context. The format of that result affects how well the model can reason about it. A few patterns that consistently improve result utilization:</p>
+
+  <h3>Return semantic labels, not raw codes</h3>
+  <p>A tool that returns <code>{"status": 2}</code> forces the model to know your status encoding. A tool that returns <code>{"status": "pending_review"}</code> is self-documenting. Use human-readable values wherever possible, even if your database uses integer codes internally — translate at the tool boundary.</p>
+
+  <h3>Include context that helps the model interpret the result</h3>
+  <p>Don't just return data — return data plus the context the model needs to use it correctly:</p>
+
+  <pre><code># Instead of:
+{"balance": 47.23}
+
+# Return:
+{
+  "balance_usd": 47.23,
+  "currency": "USD",
+  "as_of": "2026-04-12T10:00:00Z",
+  "note": "This is the available balance. The total balance including pending transactions is 52.18."
+}</code></pre>
+
+  <h3>Summarize large results rather than truncating</h3>
+  <p>If a tool returns more data than you want in the context (see <a href="/blog/context-window-management.html">context window management</a>), summarize rather than truncate. A truncated result looks complete and may mislead the model. A summarized result explicitly represents the compression: <code>"Showing 5 of 247 matching records. To see more, call again with offset=5."</code></p>
+
+  <h2>The Tool Registry Pattern</h2>
+  <p>As your agent's capabilities grow, managing tools becomes an engineering challenge of its own. The tool registry pattern centralizes tool definitions, makes them composable, and keeps schema and implementation co-located:</p>
+
+  <pre><code>class ToolRegistry:
+    def __init__(self):
+        self._tools: dict[str, Tool] = {}
+
+    def register(self, fn, schema: dict, requires_auth: bool = False):
+        name = schema["name"]
+        self._tools[name] = Tool(fn=fn, schema=schema, requires_auth=requires_auth)
+        return fn  # allows use as decorator
+
+    def get_schemas(self, names: list[str] | None = None) -> list[dict]:
+        """Return tool schemas for injection into system prompt."""
+        tools = self._tools.values() if names is None else [self._tools[n] for n in names]
+        return [t.schema for t in tools]
+
+    def execute(self, name: str, params: dict, context: AgentContext) -> dict:
+        tool = self._tools.get(name)
+        if not tool:
+            return {"success": False, "error": f"Unknown tool: {name}"}
+        if tool.requires_auth and not context.is_authenticated:
+            return {"success": False, "error": "Authentication required for this tool"}
+        return tool.fn(**params)
+
+registry = ToolRegistry()
+
+@registry.register(schema={
+    "name": "get_order_status",
+    "description": "...",
+    "parameters": {...}
+}, requires_auth=True)
+def get_order_status(order_id: str) -> dict:
+    ...</code></pre>
+
+  <div class="callout cyan">
+    <p><strong>The registry also enables dynamic tool loading</strong> — inject only the tools relevant to the current task rather than the full set. See <a href="/blog/context-window-management.html">Context Window Management</a> for the cost implications of large tool registries.</p>
+  </div>
+
+  <h2>Common Tool Design Anti-Patterns</h2>
+
+  <div class="pattern-grid">
+    <div class="pattern-card">
+      <h4>The God Tool</h4>
+      <p>One tool that does everything via an <code>action</code> parameter. Hard to use safely, impossible to test well, and forces the model to reason about your internal API design.</p>
+    </div>
+    <div class="pattern-card">
+      <h4>The Silent Failure</h4>
+      <p>Returns <code>null</code> or empty array on failure. The model interprets this as "no results" rather than "something went wrong." Always distinguish failure from emptiness.</p>
+    </div>
+    <div class="pattern-card">
+      <h4>The Ambiguous Schema</h4>
+      <p>Parameter descriptions that don't specify format, valid values, or when to omit optional params. Forces the model to guess — and it will guess wrong inconsistently.</p>
+    </div>
+    <div class="pattern-card">
+      <h4>The Undifferentiated Toolkit</h4>
+      <p>Multiple tools with overlapping capabilities and no disambiguation in their descriptions. Leads to random tool selection when multiple tools could apply.</p>
+    </div>
+    <div class="pattern-card">
+      <h4>The Non-Idempotent Side Effect</h4>
+      <p>Write tools with no deduplication. In multi-turn sessions or on retry, the agent calls the tool again and the side effect fires twice. Customer gets two emails, order is placed twice.</p>
+    </div>
+    <div class="pattern-card">
+      <h4>The Raw Code Return</h4>
+      <p>Returns HTTP status codes, integer enums, or database codes that require external context to interpret. The model has to guess what <code>status: 3</code> means.</p>
+    </div>
+  </div>
+
+  <h2>Testing Your Tool Interfaces</h2>
+  <p>Tools are the most testable part of your agent stack. Unlike prompts and model outputs, tool inputs and outputs are deterministic. Build a test suite that covers:</p>
+  <ul>
+    <li><strong>Happy path</strong> — valid inputs produce the expected output shape</li>
+    <li><strong>Empty results</strong> — queries that match nothing return useful guidance, not bare empty arrays</li>
+    <li><strong>Error cases</strong> — each error type returns a structured response the model can act on</li>
+    <li><strong>Idempotency</strong> — calling a write tool twice with the same idempotency key produces one side effect</li>
+    <li><strong>Schema validity</strong> — your JSON schema is syntactically valid and passes the API's validation</li>
+  </ul>
+  <p>These tests catch a class of agent bugs that are otherwise invisible until they hit production — the tool works fine in isolation but fails under specific conditions the agent encounters. See <a href="/blog/ai-agent-testing.html">AI Agent Testing and Evaluation</a> for how tool unit tests fit into the broader evaluation stack.</p>
+
+  <div class="cta-box">
+    <h3>Build production-ready AI agents with CEO</h3>
+    <p>CEO includes a typed tool registry, built-in idempotency support, structured error handling, and the observability layer to track tool call accuracy across your agent sessions.</p>
+    <a href="/#waitlist" class="cta-btn">Join the waitlist</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO / OpenClaw &nbsp;&middot;&nbsp; <a href="/blog/">Blog</a> &nbsp;&middot;&nbsp; <a href="/#features">Features</a> &nbsp;&middot;&nbsp; <a href="/#pricing">Pricing</a></p>
+</footer>
+</body>
+</html>
