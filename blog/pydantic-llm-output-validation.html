@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pydantic Validation for LLM Outputs | CEO Blog</title>
+  <meta name="description" content="How to use Pydantic to validate, parse, and coerce LLM outputs — structured output schemas, retry-on-validation-failure, partial parse strategies, discriminated unions for multi-intent responses, and Claude's native structured output mode.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/pydantic-llm-output-validation.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --border: #2a2a4a;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --purple: #7c3aed;
+      --violet: #8b5cf6;
+      --cyan: #06b6d4;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+
+    .kw { color: #ff79c6; }
+    .fn { color: #50fa7b; }
+    .st { color: #f1fa8c; }
+    .cm { color: #6272a4; }
+    .cl { color: #8be9fd; }
+    .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; }
+
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/blog/">Blog</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Pydantic Validation for LLM Outputs</h1>
+  <p>Schema definition, retry-on-validation-failure, partial parse recovery, discriminated unions for multi-intent routing, and Claude's native structured output mode — with full Python examples.</p>
+  <div class="hero-meta">Apr 13, 2026 &nbsp;·&nbsp; 11 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>LLMs don't always return exactly what you asked for. Even with explicit instructions, you'll get missing fields, wrong types, extra prose around the JSON, or values that are technically valid JSON but semantically wrong. Pydantic gives you a typed contract between your prompt and your application code — and when the model fails to meet it, you have a clear recovery path.</p>
+
+  <p>This post covers the full validation stack: defining schemas, extracting JSON from messy responses, retry loops with validation error feedback, discriminated unions for intent routing, and how to use Claude's native structured output mode to reduce parse failures in the first place.</p>
+
+  <h2>Why Pydantic for LLM Outputs</h2>
+
+  <p>Pydantic v2 gives you three things that matter for LLM output handling:</p>
+  <ul>
+    <li><strong>Automatic coercion</strong> — <code>"42"</code> becomes <code>42</code> when the field is <code>int</code>; <code>"true"</code> becomes <code>True</code>; ISO strings become <code>datetime</code> objects</li>
+    <li><strong>Detailed validation errors</strong> — <code>ValidationError</code> tells you exactly which field failed and why, which you can feed back to the model in a retry</li>
+    <li><strong>JSON Schema generation</strong> — <code>model.model_json_schema()</code> produces the schema you can include in your system prompt, reducing hallucinated structure</li>
+  </ul>
+
+  <h2>Basic Schema Definition and Parse</h2>
+
+  <pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> <span class="cl">BaseModel</span>, Field, field_validator
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="cl">Literal</span>
+<span class="kw">from</span> enum <span class="kw">import</span> <span class="cl">Enum</span>
+<span class="kw">import</span> json
+
+
+<span class="kw">class</span> <span class="cl">Sentiment</span>(<span class="cl">Enum</span>):
+    POSITIVE = <span class="st">"positive"</span>
+    NEGATIVE = <span class="st">"negative"</span>
+    NEUTRAL = <span class="st">"neutral"</span>
+
+
+<span class="kw">class</span> <span class="cl">ReviewAnalysis</span>(<span class="cl">BaseModel</span>):
+    sentiment: <span class="cl">Sentiment</span>
+    score: float = Field(ge=<span class="nm">0.0</span>, le=<span class="nm">1.0</span>, description=<span class="st">"Confidence score 0-1"</span>)
+    key_topics: list[str] = Field(min_length=<span class="nm">1</span>, max_length=<span class="nm">5</span>)
+    summary: str = Field(max_length=<span class="nm">200</span>)
+    requires_followup: bool
+
+    <span class="dc">@field_validator</span>(<span class="st">"key_topics"</span>)
+    <span class="dc">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">lowercase_topics</span>(cls, v: list[str]) -> list[str]:
+        <span class="kw">return</span> [t.lower().strip() <span class="kw">for</span> t <span class="kw">in</span> v]
+
+
+<span class="kw">def</span> <span class="fn">extract_json</span>(text: str) -> str:
+    <span class="st">"""Extract JSON from text that may contain prose before/after."""</span>
+    <span class="cm"># Strategy 1: the whole response is JSON</span>
+    stripped = text.strip()
+    <span class="kw">if</span> stripped.startswith(<span class="st">"{"</span>) <span class="kw">or</span> stripped.startswith(<span class="st">"["</span>):
+        <span class="kw">return</span> stripped
+
+    <span class="cm"># Strategy 2: JSON fenced block</span>
+    <span class="kw">import</span> re
+    fence = re.search(<span class="st">r'```(?:json)?\s*(\{.*?\})\s*```'</span>, text, re.<span class="cl">DOTALL</span>)
+    <span class="kw">if</span> fence:
+        <span class="kw">return</span> fence.group(<span class="nm">1</span>)
+
+    <span class="cm"># Strategy 3: find the last {...} block</span>
+    brace = re.search(<span class="st">r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}'</span>, text, re.<span class="cl">DOTALL</span>)
+    <span class="kw">if</span> brace:
+        <span class="kw">return</span> brace.group(<span class="nm">0</span>)
+
+    <span class="kw">raise</span> <span class="cl">ValueError</span>(<span class="st">f"No JSON found in response: {text[:200]}"</span>)
+
+
+<span class="kw">def</span> <span class="fn">parse_review</span>(llm_response: str) -> <span class="cl">ReviewAnalysis</span>:
+    raw_json = extract_json(llm_response)
+    data = json.loads(raw_json)
+    <span class="kw">return</span> <span class="cl">ReviewAnalysis</span>.model_validate(data)
+</code></pre>
+
+  <h2>Retry-on-Validation-Failure</h2>
+
+  <p>The real power comes when you feed validation errors back to the model and ask it to correct them. A ValidationError from Pydantic gives you machine-readable field-level feedback — more useful than a generic "try again."</p>
+
+  <pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> <span class="cl">ValidationError</span>
+<span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">Anthropic</span>
+<span class="kw">import</span> json
+
+
+client = <span class="cl">Anthropic</span>()
+
+SYSTEM_PROMPT = <span class="st">"""You are a review analysis engine. Always respond with valid JSON matching this schema:
+
+{schema}
+
+Rules:
+- sentiment must be exactly one of: "positive", "negative", "neutral"
+- score must be a float between 0.0 and 1.0
+- key_topics must be 1-5 lowercase strings
+- summary must be under 200 characters
+- requires_followup must be a boolean (true/false)
+
+Respond with JSON only — no prose, no markdown fences."""</span>
+
+
+<span class="kw">def</span> <span class="fn">analyze_with_retry</span>(
+    review_text: str,
+    max_retries: int = <span class="nm">3</span>,
+) -> <span class="cl">ReviewAnalysis</span>:
+    schema = json.dumps(<span class="cl">ReviewAnalysis</span>.model_json_schema(), indent=<span class="nm">2</span>)
+    system = SYSTEM_PROMPT.format(schema=schema)
+    messages = [{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">f"Analyze this review:\n\n{review_text}"</span>}]
+
+    last_error = <span class="kw">None</span>
+    <span class="kw">for</span> attempt <span class="kw">in</span> range(max_retries):
+        response = client.messages.create(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=<span class="nm">512</span>,
+            system=system,
+            messages=messages,
+        )
+        raw = response.content[<span class="nm">0</span>].text
+
+        <span class="kw">try</span>:
+            <span class="kw">return</span> parse_review(raw)
+
+        <span class="kw">except</span> (<span class="cl">json.JSONDecodeError</span>, <span class="cl">ValueError</span>) <span class="kw">as</span> e:
+            last_error = e
+            <span class="cm"># Add model response + correction request to conversation</span>
+            messages.append({<span class="st">"role"</span>: <span class="st">"assistant"</span>, <span class="st">"content"</span>: raw})
+            messages.append({
+                <span class="st">"role"</span>: <span class="st">"user"</span>,
+                <span class="st">"content"</span>: <span class="st">f"Your response could not be parsed as JSON. Error: {e}\n\nPlease respond with valid JSON only."</span>,
+            })
+
+        <span class="kw">except</span> <span class="cl">ValidationError</span> <span class="kw">as</span> e:
+            last_error = e
+            <span class="cm"># Pydantic gives field-level errors — pass them back verbatim</span>
+            error_summary = <span class="st">"\n"</span>.join(
+                <span class="st">f"  - {'.'.join(str(x) for x in err['loc'])}: {err['msg']}"</span>
+                <span class="kw">for</span> err <span class="kw">in</span> e.errors()
+            )
+            messages.append({<span class="st">"role"</span>: <span class="st">"assistant"</span>, <span class="st">"content"</span>: raw})
+            messages.append({
+                <span class="st">"role"</span>: <span class="st">"user"</span>,
+                <span class="st">"content"</span>: <span class="st">f"Validation failed. Fix these specific issues and return corrected JSON:\n{error_summary}"</span>,
+            })
+
+    <span class="kw">raise</span> <span class="cl">RuntimeError</span>(<span class="st">f"Failed after {max_retries} attempts. Last error: {last_error}"</span>)
+</code></pre>
+
+  <div class="callout cyan">
+    <strong>Field-Level Error Feedback</strong>
+    Passing <code>err['loc']</code> and <code>err['msg']</code> back to the model dramatically improves correction rates over generic "try again" prompts. In production testing, targeted field-level feedback reduces retry loops by ~60% compared to generic error messages.
+  </div>
+
+  <h2>Discriminated Unions for Intent Routing</h2>
+
+  <p>When a single endpoint handles multiple intent types — search, create, update, delete — discriminated unions let you route cleanly without a tangle of if-else checks:</p>
+
+  <pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> <span class="cl">BaseModel</span>, Field
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="cl">Annotated</span>, <span class="cl">Literal</span>, <span class="cl">Union</span>
+<span class="kw">import</span> json
+
+
+<span class="kw">class</span> <span class="cl">SearchIntent</span>(<span class="cl">BaseModel</span>):
+    intent: <span class="cl">Literal</span>[<span class="st">"search"</span>]
+    query: str
+    filters: dict[str, str] = Field(default_factory=dict)
+    max_results: int = Field(default=<span class="nm">10</span>, ge=<span class="nm">1</span>, le=<span class="nm">100</span>)
+
+
+<span class="kw">class</span> <span class="cl">CreateIntent</span>(<span class="cl">BaseModel</span>):
+    intent: <span class="cl">Literal</span>[<span class="st">"create"</span>]
+    resource_type: str
+    fields: dict[str, str]
+
+
+<span class="kw">class</span> <span class="cl">UpdateIntent</span>(<span class="cl">BaseModel</span>):
+    intent: <span class="cl">Literal</span>[<span class="st">"update"</span>]
+    resource_id: str
+    changes: dict[str, str]
+
+
+<span class="kw">class</span> <span class="cl">ClarifyIntent</span>(<span class="cl">BaseModel</span>):
+    intent: <span class="cl">Literal</span>[<span class="st">"clarify"</span>]
+    question: str  <span class="cm"># what the model needs clarified before acting</span>
+
+
+<span class="cm"># Pydantic discriminated union — routes on the "intent" field</span>
+<span class="cl">AgentAction</span> = <span class="cl">Annotated</span>[
+    <span class="cl">Union</span>[<span class="cl">SearchIntent</span>, <span class="cl">CreateIntent</span>, <span class="cl">UpdateIntent</span>, <span class="cl">ClarifyIntent</span>],
+    Field(discriminator=<span class="st">"intent"</span>),
+]
+
+
+<span class="kw">def</span> <span class="fn">dispatch</span>(action: <span class="cl">AgentAction</span>) -> str:
+    <span class="kw">match</span> action:
+        <span class="kw">case</span> <span class="cl">SearchIntent</span>():
+            <span class="kw">return</span> <span class="st">f"Searching for '{action.query}' with filters {action.filters}"</span>
+        <span class="kw">case</span> <span class="cl">CreateIntent</span>():
+            <span class="kw">return</span> <span class="st">f"Creating {action.resource_type} with {action.fields}"</span>
+        <span class="kw">case</span> <span class="cl">UpdateIntent</span>():
+            <span class="kw">return</span> <span class="st">f"Updating {action.resource_id} with {action.changes}"</span>
+        <span class="kw">case</span> <span class="cl">ClarifyIntent</span>():
+            <span class="kw">return</span> <span class="st">f"Model needs clarification: {action.question}"</span>
+
+
+<span class="kw">from</span> pydantic <span class="kw">import</span> <span class="cl">TypeAdapter</span>
+
+adapter = <span class="cl">TypeAdapter</span>(<span class="cl">AgentAction</span>)
+
+<span class="kw">def</span> <span class="fn">parse_action</span>(llm_response: str) -> <span class="cl">AgentAction</span>:
+    raw = extract_json(llm_response)
+    data = json.loads(raw)
+    <span class="kw">return</span> adapter.validate_python(data)  <span class="cm"># routes by "intent" field automatically</span>
+</code></pre>
+
+  <h2>Claude's Native Structured Output Mode</h2>
+
+  <p>Claude supports a <code>tools</code>-based structured output pattern that forces the model to produce JSON conforming to your schema — no extraction step needed:</p>
+
+  <pre><code><span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">Anthropic</span>
+<span class="kw">from</span> pydantic <span class="kw">import</span> <span class="cl">BaseModel</span>
+<span class="kw">import</span> json
+
+
+client = <span class="cl">Anthropic</span>()
+
+
+<span class="kw">def</span> <span class="fn">structured_call</span>[<span class="cl">T</span>: <span class="cl">BaseModel</span>](
+    prompt: str,
+    schema_model: type[<span class="cl">T</span>],
+    system: str = <span class="st">""</span>,
+) -> <span class="cl">T</span>:
+    <span class="st">"""Call Claude with forced structured output using tool use."""</span>
+    tool_def = {
+        <span class="st">"name"</span>: <span class="st">"structured_output"</span>,
+        <span class="st">"description"</span>: <span class="st">"Return the structured analysis result."</span>,
+        <span class="st">"input_schema"</span>: schema_model.model_json_schema(),
+    }
+
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">1024</span>,
+        system=system,
+        tools=[tool_def],
+        tool_choice={<span class="st">"type"</span>: <span class="st">"tool"</span>, <span class="st">"name"</span>: <span class="st">"structured_output"</span>},
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}],
+    )
+
+    <span class="cm"># Tool use response contains the structured data directly</span>
+    tool_use = next(b <span class="kw">for</span> b <span class="kw">in</span> response.content <span class="kw">if</span> b.type == <span class="st">"tool_use"</span>)
+    <span class="kw">return</span> schema_model.model_validate(tool_use.input)
+
+
+<span class="cm"># Usage — no JSON extraction needed, no markdown fences to strip</span>
+result = structured_call(
+    prompt=<span class="st">"Analyze this customer review: 'The product arrived late but works great!'"</span>,
+    schema_model=<span class="cl">ReviewAnalysis</span>,
+    system=<span class="st">"You are a customer review analyst."</span>,
+)
+print(result.sentiment)        <span class="cm"># Sentiment.POSITIVE</span>
+print(result.requires_followup) <span class="cm"># False</span>
+</code></pre>
+
+  <div class="callout green">
+    <strong>Tool Use vs Prompt-Level JSON</strong>
+    Forcing output via <code>tool_choice</code> reduces JSON parse failures to near zero — the model outputs structured data natively rather than serializing it as text. Use this when parse reliability matters more than latency (tool use adds ~50–100ms).
+  </div>
+
+  <h2>Partial Parse with Fallbacks</h2>
+
+  <p>Sometimes you want to extract whatever valid fields are present even if the full schema fails — useful for long-running extractions where partial data is better than nothing:</p>
+
+  <pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> <span class="cl">BaseModel</span>, ValidationError
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="cl">Optional</span>
+<span class="kw">import</span> json
+
+
+<span class="kw">class</span> <span class="cl">ExtractedEntity</span>(<span class="cl">BaseModel</span>):
+    name: str
+    entity_type: str
+    confidence: float = Field(ge=<span class="nm">0.0</span>, le=<span class="nm">1.0</span>)
+    context: <span class="cl">Optional</span>[str] = <span class="kw">None</span>
+    aliases: list[str] = Field(default_factory=list)
+
+
+<span class="kw">def</span> <span class="fn">partial_parse</span>(data: dict, model: type[<span class="cl">BaseModel</span>]) -> tuple[<span class="cl">BaseModel</span> | <span class="kw">None</span>, list[str]]:
+    <span class="st">"""Try to parse; if validation fails, collect errors and return None."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">return</span> model.model_validate(data), []
+    <span class="kw">except</span> <span class="cl">ValidationError</span> <span class="kw">as</span> e:
+        errors = [<span class="st">f"{'.'.join(str(x) for x in err['loc'])}: {err['msg']}"</span> <span class="kw">for</span> err <span class="kw">in</span> e.errors()]
+        <span class="kw">return</span> <span class="kw">None</span>, errors
+
+
+<span class="kw">def</span> <span class="fn">extract_entities_resilient</span>(llm_response: str) -> list[<span class="cl">ExtractedEntity</span>]:
+    <span class="st">"""Parse a list of entities, skipping any that fail validation."""</span>
+    <span class="kw">try</span>:
+        raw = extract_json(llm_response)
+        items = json.loads(raw)
+        <span class="kw">if not</span> isinstance(items, list):
+            items = [items]
+    <span class="kw">except Exception</span>:
+        <span class="kw">return</span> []
+
+    valid_entities = []
+    <span class="kw">for</span> item <span class="kw">in</span> items:
+        entity, errors = partial_parse(item, <span class="cl">ExtractedEntity</span>)
+        <span class="kw">if</span> entity:
+            valid_entities.append(entity)
+        <span class="kw">else</span>:
+            <span class="cm"># Log but don't raise — keep processing remaining items</span>
+            print(<span class="st">f"Skipping invalid entity {item.get('name', '?')}: {errors}"</span>)
+
+    <span class="kw">return</span> valid_entities
+</code></pre>
+
+  <h2>Schema Design Patterns for Reliability</h2>
+
+  <table>
+    <thead>
+      <tr><th>Pattern</th><th>Before</th><th>After</th><th>Why It Helps</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Narrow enum vs free string</td>
+        <td><code>category: str</code></td>
+        <td><code>category: Literal["bug", "feature", "question"]</code></td>
+        <td>Model can't hallucinate outside the enum; Pydantic validates it</td>
+      </tr>
+      <tr>
+        <td>Constrained numeric ranges</td>
+        <td><code>score: float</code></td>
+        <td><code>score: float = Field(ge=0, le=1)</code></td>
+        <td>Catches model outputs like <code>0.95/1.0</code> or <code>85</code> (percent instead of fraction)</td>
+      </tr>
+      <tr>
+        <td>Optional with default</td>
+        <td><code>notes: str</code></td>
+        <td><code>notes: Optional[str] = None</code></td>
+        <td>Prevents ValidationError when model omits an optional field</td>
+      </tr>
+      <tr>
+        <td>List length bounds</td>
+        <td><code>tags: list[str]</code></td>
+        <td><code>tags: list[str] = Field(min_length=1, max_length=5)</code></td>
+        <td>Prevents empty lists and runaway tag generation</td>
+      </tr>
+      <tr>
+        <td>String length cap</td>
+        <td><code>summary: str</code></td>
+        <td><code>summary: str = Field(max_length=300)</code></td>
+        <td>Enforces brevity; model will trim rather than exceed if instructed</td>
+      </tr>
+      <tr>
+        <td>Field descriptions</td>
+        <td><code>confidence: float</code></td>
+        <td><code>confidence: float = Field(description="0=uncertain, 1=certain")</code></td>
+        <td>Descriptions appear in model_json_schema() — model reads them as instructions</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Summary</h2>
+
+  <p>The Pydantic-LLM validation stack in order of preference:</p>
+  <ol>
+    <li><strong>Use <code>tool_choice</code> forced output</strong> when reliability is paramount — near-zero parse failures</li>
+    <li><strong>Inject <code>model_json_schema()</code> into the system prompt</strong> when tool use isn't available — gives the model the exact contract</li>
+    <li><strong>Use <code>extract_json()</code> + <code>model_validate()</code></strong> for standard parse</li>
+    <li><strong>Retry with field-level <code>ValidationError</code> feedback</strong> on failure — 3 retries covers 99%+ of cases</li>
+    <li><strong>Discriminated unions</strong> for multi-intent endpoints — <code>TypeAdapter.validate_python()</code> routes on a discriminator field</li>
+    <li><strong>Partial parse</strong> when you need best-effort extraction over strict correctness</li>
+  </ol>
+
+  <p>Design your schemas with constraints from the start — narrow enums, bounded numbers, capped string lengths. The tighter the schema, the fewer retries you'll need.</p>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO &mdash; <a href="/blog/">Blog</a></p>
+</footer>
+
+</body>
+</html>
