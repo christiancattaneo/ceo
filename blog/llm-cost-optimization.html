@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Cost Optimization: Caching, Model Routing, and Token Reduction Patterns — CEO Blog</title>
+  <meta name="description" content="How to cut LLM API costs in production — prompt caching, model routing by task complexity, token reduction techniques, batch inference, output compression, and the cost accounting patterns that tell you where your budget is actually going.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="LLM cost optimization, prompt caching, model routing, token reduction, LLM API cost, AI cost management, reduce LLM costs, batch inference LLM, LLM pricing optimization">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/llm-cost-optimization.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/llm-cost-optimization.html">
+  <meta property="og:title" content="LLM Cost Optimization: Caching, Model Routing, and Token Reduction Patterns">
+  <meta property="og:description" content="Prompt caching, model routing by task complexity, token reduction, batch inference, output compression, and cost accounting patterns for production AI systems.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-13T00:00:00Z">
+  <meta property="article:section" content="AI Infrastructure">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="LLM Cost Optimization: Caching, Model Routing, and Token Reduction Patterns">
+  <meta name="twitter:description" content="Prompt caching, model routing, token reduction, and the cost accounting patterns that show you where your LLM budget is going.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "LLM Cost Optimization: Caching, Model Routing, and Token Reduction Patterns",
+    "description": "How to cut LLM API costs in production — prompt caching, model routing by task complexity, token reduction techniques, batch inference, output compression, and cost accounting patterns.",
+    "datePublished": "2026-04-13",
+    "dateModified": "2026-04-13",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/llm-cost-optimization.html" },
+    "keywords": ["LLM cost optimization", "prompt caching", "model routing", "token reduction", "batch inference", "AI cost management"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .metrics-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .metrics-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .metrics-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .metrics-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Infrastructure</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">11 min read</span>
+  </div>
+
+  <h1>LLM Cost Optimization: Caching, Model Routing, and Token Reduction Patterns</h1>
+  <p class="article-lead">LLM API costs at scale are not a fixed expense — they're an engineering variable. The same product can cost 10× more or 10× less to run depending on whether you've implemented caching, routed requests to appropriately-sized models, and eliminated token waste. Most teams don't do this work until the bills arrive; the teams that do it from the start build a structural cost advantage that compounds as they scale.</p>
+
+  <h2>Where the Money Goes: Cost Accounting First</h2>
+  <p>Before optimizing anything, instrument what you have. Blind optimization is guesswork. You need to know which call paths, features, and user segments are driving your token spend before you know where to focus.</p>
+
+<pre><code>from dataclasses import dataclass, field
+from typing import Any
+import time
+
+
+# Anthropic pricing as of Q1 2026 (per million tokens)
+MODEL_RATES: dict[str, dict[str, float]] = {
+    "claude-opus-4-6": {
+        "input": 15.00, "output": 75.00,
+        "cache_write": 18.75, "cache_read": 1.50,
+    },
+    "claude-sonnet-4-6": {
+        "input": 3.00, "output": 15.00,
+        "cache_write": 3.75, "cache_read": 0.30,
+    },
+    "claude-haiku-4-5-20251001": {
+        "input": 0.80, "output": 4.00,
+        "cache_write": 1.00, "cache_read": 0.08,
+    },
+}
+
+
+@dataclass
+class CallCost:
+    model: str
+    input_tokens: int
+    output_tokens: int
+    cache_read_tokens: int = 0
+    cache_write_tokens: int = 0
+    feature: str = "unknown"
+    user_id: str | None = None
+    latency_ms: float = 0.0
+    timestamp: float = field(default_factory=time.time)
+
+    @property
+    def usd(self) -> float:
+        rates = MODEL_RATES.get(self.model, {})
+        m = 1_000_000
+        return (
+            self.input_tokens * rates.get("input", 0) / m
+            + self.output_tokens * rates.get("output", 0) / m
+            + self.cache_write_tokens * rates.get("cache_write", 0) / m
+            + self.cache_read_tokens * rates.get("cache_read", 0) / m
+        )
+
+    @property
+    def effective_input_rate(self) -> float:
+        """Blended $/M input tokens after cache effects."""
+        if self.input_tokens == 0:
+            return 0.0
+        return self.usd / (self.input_tokens / 1_000_000)
+
+
+class CostTracker:
+    def __init__(self):
+        self.calls: list[CallCost] = []
+
+    def record(self, call: CallCost) -> None:
+        self.calls.append(call)
+
+    def report(self, group_by: str = "feature") -> dict[str, Any]:
+        from collections import defaultdict
+        groups: dict[str, list[CallCost]] = defaultdict(list)
+        for call in self.calls:
+            key = getattr(call, group_by, "unknown")
+            groups[key].append(call)
+
+        summary = {}
+        for key, calls in groups.items():
+            total_usd = sum(c.usd for c in calls)
+            total_calls = len(calls)
+            avg_input = sum(c.input_tokens for c in calls) / total_calls
+            avg_output = sum(c.output_tokens for c in calls) / total_calls
+            cache_hit_rate = (
+                sum(c.cache_read_tokens for c in calls)
+                / max(sum(c.input_tokens for c in calls), 1)
+            )
+            summary[key] = {
+                "total_usd": round(total_usd, 4),
+                "calls": total_calls,
+                "usd_per_call": round(total_usd / total_calls, 5),
+                "avg_input_tokens": int(avg_input),
+                "avg_output_tokens": int(avg_output),
+                "cache_hit_rate": round(cache_hit_rate, 3),
+            }
+        return dict(sorted(summary.items(), key=lambda x: -x[1]["total_usd"]))</code></pre>
+
+  <div class="callout cyan">
+    <p><strong>Start here:</strong> Run cost accounting for one week before touching anything else. You'll almost always find that 20% of call types account for 80% of cost. Optimize those first — everything else is noise until you've addressed the top drivers.</p>
+  </div>
+
+  <h2>Prompt Caching</h2>
+  <p>Prompt caching is the single highest-leverage optimization for most production agents. If your system prompt or context is large and repeated across calls, caching reduces input token cost to 10% of the uncached rate (for Anthropic's cache read pricing). A system prompt of 10,000 tokens that's cached saves $0.135 per call on Sonnet — at 10,000 calls/day that's $1,350/day.</p>
+
+<pre><code>import anthropic
+
+
+def make_cached_system_prompt(system_content: str) -> list[dict]:
+    """
+    Structure a system prompt for prompt caching.
+    The cache_control block tells Claude to cache this prefix.
+    Minimum cacheable block: 1,024 tokens (Haiku) / 2,048 tokens (Sonnet/Opus).
+    """
+    return [
+        {
+            "type": "text",
+            "text": system_content,
+            "cache_control": {"type": "ephemeral"},
+        }
+    ]
+
+
+def call_with_caching(
+    client: anthropic.Anthropic,
+    system: str,
+    messages: list[dict],
+    model: str = "claude-sonnet-4-6",
+    max_tokens: int = 1024,
+) -> tuple[str, dict]:
+    """
+    Make a cached API call. Returns (response_text, usage_dict).
+    On first call: writes cache (cache_creation_input_tokens).
+    On subsequent calls: reads cache (cache_read_input_tokens).
+    """
+    response = client.messages.create(
+        model=model,
+        max_tokens=max_tokens,
+        system=make_cached_system_prompt(system),
+        messages=messages,
+    )
+
+    usage = {
+        "input_tokens": response.usage.input_tokens,
+        "output_tokens": response.usage.output_tokens,
+        "cache_read_tokens": getattr(response.usage, "cache_read_input_tokens", 0),
+        "cache_write_tokens": getattr(response.usage, "cache_creation_input_tokens", 0),
+    }
+    return response.content[0].text, usage</code></pre>
+
+  <h3>What to Cache</h3>
+  <ul>
+    <li><strong>System prompt</strong> — always cache if it exceeds the minimum token threshold; this is free money</li>
+    <li><strong>RAG context</strong> — if the retrieved documents are the same across multiple calls (e.g., per-session document analysis), cache the document block</li>
+    <li><strong>Few-shot examples</strong> — if you prepend the same examples to many calls, cache the example block</li>
+    <li><strong>Conversation history</strong> — for long sessions, cache the growing history prefix and only pay full price for the new message</li>
+  </ul>
+
+  <div class="callout warning">
+    <p><strong>Cache TTL:</strong> Anthropic's ephemeral cache has a 5-minute TTL. If your call rate is low (less than once every 5 minutes per cache block), the cache will expire before it's reused and you'll pay the write cost every time. Cache is most valuable for high-frequency, low-latency call patterns. Track <code>cache_hit_rate</code> in your cost accounting to verify it's actually helping.</p>
+  </div>
+
+  <h2>Model Routing</h2>
+  <p>Not every task needs Opus. Routing requests to the smallest model that can handle them is the second-biggest cost lever after caching. The price difference between Haiku and Opus is roughly 94× on input and 19× on output — routing even a fraction of calls to Haiku has dramatic cost impact.</p>
+
+<pre><code>from enum import Enum
+from dataclasses import dataclass
+
+
+class TaskComplexity(str, Enum):
+    SIMPLE = "simple"       # classification, extraction, formatting
+    MEDIUM = "medium"       # summarization, Q&A with context
+    COMPLEX = "complex"     # reasoning, code generation, multi-step analysis
+
+
+MODEL_BY_COMPLEXITY: dict[TaskComplexity, str] = {
+    TaskComplexity.SIMPLE: "claude-haiku-4-5-20251001",
+    TaskComplexity.MEDIUM: "claude-sonnet-4-6",
+    TaskComplexity.COMPLEX: "claude-opus-4-6",
+}
+
+
+@dataclass
+class RoutingRule:
+    feature: str
+    complexity: TaskComplexity
+    reason: str
+
+
+# Explicit routing table — no LLM needed to decide
+ROUTING_TABLE: list[RoutingRule] = [
+    RoutingRule("intent_classification", TaskComplexity.SIMPLE,
+                "Binary/multi-class classification — Haiku handles well"),
+    RoutingRule("entity_extraction", TaskComplexity.SIMPLE,
+                "Structured extraction from short text"),
+    RoutingRule("document_summarization", TaskComplexity.MEDIUM,
+                "Summarization of moderate-length docs"),
+    RoutingRule("rag_qa", TaskComplexity.MEDIUM,
+                "Q&A over retrieved context — Sonnet handles well"),
+    RoutingRule("code_generation", TaskComplexity.COMPLEX,
+                "Non-trivial code requires reasoning"),
+    RoutingRule("multi_step_reasoning", TaskComplexity.COMPLEX,
+                "Requires sustained coherent reasoning chain"),
+]
+
+ROUTING_MAP = {r.feature: MODEL_BY_COMPLEXITY[r.complexity] for r in ROUTING_TABLE}
+
+
+def route(feature: str, fallback: TaskComplexity = TaskComplexity.MEDIUM) -> str:
+    if feature in ROUTING_MAP:
+        return ROUTING_MAP[feature]
+    return MODEL_BY_COMPLEXITY[fallback]
+
+
+# Dynamic routing: use a cheap model to classify task complexity
+COMPLEXITY_CLASSIFIER_PROMPT = """Classify this task's complexity for LLM routing.
+
+TASK: {task}
+
+Reply with exactly one word: simple, medium, or complex.
+- simple: classification, extraction, formatting, yes/no questions
+- medium: summarization, Q&A, explanation, short generation
+- complex: multi-step reasoning, code generation, analysis, planning"""
+
+
+def classify_complexity(
+    client: anthropic.Anthropic,
+    task_description: str,
+) -> TaskComplexity:
+    result = client.messages.create(
+        model="claude-haiku-4-5-20251001",  # Always use Haiku to classify
+        max_tokens=5,
+        messages=[{
+            "role": "user",
+            "content": COMPLEXITY_CLASSIFIER_PROMPT.format(task=task_description[:500])
+        }],
+    )
+    label = result.content[0].text.strip().lower()
+    try:
+        return TaskComplexity(label)
+    except ValueError:
+        return TaskComplexity.MEDIUM</code></pre>
+
+  <h2>Token Reduction Techniques</h2>
+  <p>Every unnecessary token in your prompt is money you're paying on every call. Token reduction is tedious but compounds: cutting 500 tokens from a system prompt saves $0.0015 per Sonnet call, which is $150/day at 100,000 calls.</p>
+
+  <h3>Prompt Compression</h3>
+
+<pre><code>def compress_conversation_history(
+    client: anthropic.Anthropic,
+    messages: list[dict],
+    keep_last_n: int = 4,
+    max_summary_tokens: int = 300,
+) -> list[dict]:
+    """
+    Compress old messages into a summary, keep the last N turns verbatim.
+    Reduces input tokens for long sessions without losing critical context.
+    """
+    if len(messages) <= keep_last_n * 2:
+        return messages
+
+    to_compress = messages[:-keep_last_n * 2]
+    to_keep = messages[-keep_last_n * 2:]
+
+    history_text = "\n".join(
+        f"{m['role'].upper()}: {m['content']}" for m in to_compress
+    )
+    result = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=max_summary_tokens,
+        messages=[{
+            "role": "user",
+            "content": f"Summarize this conversation history in {max_summary_tokens} tokens or fewer. Preserve key facts, decisions, and context.\n\n{history_text}"
+        }],
+    )
+    summary_message = {
+        "role": "user",
+        "content": f"[Previous conversation summary]: {result.content[0].text}"
+    }
+    return [summary_message] + to_keep
+
+
+def trim_system_prompt(system: str) -> str:
+    """
+    Remove common token-wasting patterns from system prompts.
+    Run once at startup, not per call.
+    """
+    import re
+    # Remove redundant whitespace
+    system = re.sub(r'\n{3,}', '\n\n', system)
+    system = re.sub(r' {2,}', ' ', system)
+    # Remove filler phrases that add tokens without adding meaning
+    filler = [
+        "Please note that ", "It's important to ", "Always remember to ",
+        "Make sure to ", "Be sure to ", "You should always ",
+        "As an AI assistant, ", "As a helpful assistant, ",
+    ]
+    for phrase in filler:
+        system = system.replace(phrase, "")
+    return system.strip()</code></pre>
+
+  <h3>Output Length Control</h3>
+
+<pre><code>LENGTH_INSTRUCTIONS = {
+    "brief": "Respond in 1-3 sentences.",
+    "concise": "Respond in under 100 words.",
+    "standard": "Respond concisely — omit preamble and filler.",
+    "detailed": "Provide thorough detail.",
+}
+
+
+def add_length_control(prompt: str, mode: str = "concise") -> str:
+    instruction = LENGTH_INSTRUCTIONS.get(mode, LENGTH_INSTRUCTIONS["concise"])
+    return f"{prompt}\n\n{instruction}"
+
+
+def estimate_max_tokens(task_type: str, mode: str = "standard") -> int:
+    """
+    Set max_tokens to an appropriate ceiling, not the API maximum.
+    Prevents runaway output on tasks where length is bounded.
+    """
+    ceilings = {
+        ("classification", "brief"): 10,
+        ("extraction", "concise"): 200,
+        ("summarization", "concise"): 300,
+        ("summarization", "detailed"): 800,
+        ("qa", "concise"): 200,
+        ("qa", "detailed"): 600,
+        ("code", "standard"): 1500,
+        ("code", "detailed"): 3000,
+    }
+    return ceilings.get((task_type, mode), 512)</code></pre>
+
+  <h2>Batch Inference</h2>
+  <p>For workloads that don't need real-time responses — nightly processing, document analysis, evaluation runs — the Anthropic Message Batches API provides a 50% cost discount. The tradeoff is 24-hour turnaround instead of synchronous response.</p>
+
+<pre><code>import anthropic
+import json
+from pathlib import Path
+
+
+def submit_batch(
+    client: anthropic.Anthropic,
+    requests: list[dict],    # each: {"custom_id": str, "params": {...}}
+    model: str = "claude-sonnet-4-6",
+) -> str:
+    """Submit a batch job. Returns batch_id."""
+    batch_requests = [
+        anthropic.types.message_create_params.Request(
+            custom_id=req["custom_id"],
+            params=anthropic.types.MessageCreateParamsNonStreaming(
+                model=model,
+                max_tokens=req["params"].get("max_tokens", 1024),
+                messages=req["params"]["messages"],
+                system=req["params"].get("system", ""),
+            ),
+        )
+        for req in requests
+    ]
+    batch = client.beta.messages.batches.create(requests=batch_requests)
+    return batch.id
+
+
+def poll_batch(client: anthropic.Anthropic, batch_id: str) -> dict | None:
+    """Returns results dict when complete, None if still processing."""
+    batch = client.beta.messages.batches.retrieve(batch_id)
+    if batch.processing_status != "ended":
+        return None
+    results = {}
+    for result in client.beta.messages.batches.results(batch_id):
+        if result.result.type == "succeeded":
+            results[result.custom_id] = result.result.message.content[0].text
+        else:
+            results[result.custom_id] = None
+    return results</code></pre>
+
+  <h2>The Cost-Quality Tradeoff Matrix</h2>
+  <p>Every optimization involves a tradeoff. Track quality alongside cost so you don't accidentally cut quality in pursuit of savings:</p>
+
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Optimization</th>
+        <th>Typical Cost Reduction</th>
+        <th>Quality Risk</th>
+        <th>When to Use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Prompt caching</strong></td>
+        <td>60–90% on cached tokens</td>
+        <td>None — identical output</td>
+        <td>Always, if prompt exceeds minimum threshold</td>
+      </tr>
+      <tr>
+        <td><strong>Route simple tasks to Haiku</strong></td>
+        <td>80–95% vs. Opus</td>
+        <td>Low for simple tasks; high if misclassified</td>
+        <td>Classification, extraction, formatting</td>
+      </tr>
+      <tr>
+        <td><strong>Conversation compression</strong></td>
+        <td>30–60% on long sessions</td>
+        <td>Medium — can lose subtle context</td>
+        <td>Sessions exceeding ~10 turns</td>
+      </tr>
+      <tr>
+        <td><strong>Output length caps</strong></td>
+        <td>20–50% on output tokens</td>
+        <td>Low if tuned; high if too aggressive</td>
+        <td>Tasks with naturally bounded output</td>
+      </tr>
+      <tr>
+        <td><strong>Batch inference</strong></td>
+        <td>50% flat discount</td>
+        <td>None — same model, same quality</td>
+        <td>Async workloads, evals, nightly processing</td>
+      </tr>
+      <tr>
+        <td><strong>Prompt compression</strong></td>
+        <td>10–30%</td>
+        <td>Low if done carefully</td>
+        <td>System prompts with redundant language</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Putting It Together: A Cost-Aware Agent</h2>
+
+<pre><code>class CostAwareAgent:
+    def __init__(
+        self,
+        client: anthropic.Anthropic,
+        system_prompt: str,
+        tracker: CostTracker,
+    ):
+        self.client = client
+        self.system = trim_system_prompt(system_prompt)
+        self.tracker = tracker
+        self.history: list[dict] = []
+
+    def respond(
+        self,
+        user_message: str,
+        feature: str = "chat",
+        force_model: str | None = None,
+    ) -> str:
+        # 1. Compress history if needed
+        if len(self.history) > 8:
+            self.history = compress_conversation_history(
+                self.client, self.history, keep_last_n=3
+            )
+
+        # 2. Route to appropriate model
+        model = force_model or route(feature)
+
+        # 3. Set output ceiling
+        task_type = feature.split("_")[0]
+        max_tokens = estimate_max_tokens(task_type)
+
+        # 4. Build messages
+        self.history.append({"role": "user", "content": user_message})
+
+        # 5. Call with caching
+        t0 = time.time()
+        response_text, usage = call_with_caching(
+            self.client,
+            system=self.system,
+            messages=self.history,
+            model=model,
+            max_tokens=max_tokens,
+        )
+        latency = (time.time() - t0) * 1000
+
+        # 6. Track cost
+        self.tracker.record(CallCost(
+            model=model,
+            input_tokens=usage["input_tokens"],
+            output_tokens=usage["output_tokens"],
+            cache_read_tokens=usage["cache_read_tokens"],
+            cache_write_tokens=usage["cache_write_tokens"],
+            feature=feature,
+            latency_ms=latency,
+        ))
+
+        self.history.append({"role": "assistant", "content": response_text})
+        return response_text</code></pre>
+
+  <div class="callout">
+    <p><strong>The 90% rule:</strong> In practice, three optimizations cover 90% of achievable savings for most production agents: (1) prompt caching on the system prompt and any large fixed context, (2) routing classification and extraction tasks to Haiku, and (3) setting appropriate <code>max_tokens</code> ceilings instead of leaving it at the API maximum. Everything else is diminishing returns until you've done these three.</p>
+  </div>
+
+  <div class="cta-box">
+    <h3>Make your AI agent visible to the next generation of AI search</h3>
+    <p>CEO (Claw Engine Optimization) helps AI-powered products get discovered, cited, and recommended by LLMs, agents, and AI search. Start with a free visibility audit.</p>
+    <a href="/#pricing" class="cta-btn">Get a free CEO audit</a>
+  </div>
+</div>
+
+<footer>
+  <p>
+    <a href="/">CEO / OpenClaw</a> &middot;
+    <a href="/blog/">Blog</a> &middot;
+    <a href="/#pricing">Pricing</a>
+  </p>
+  <p style="margin-top:8px">© 2026 OpenClaw. Built for the agentic web.</p>
+</footer>
+</body>
+</html>
