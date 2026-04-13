@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Evaluation: Building an Eval Framework for Production AI Agents — CEO Blog</title>
+  <meta name="description" content="How to build a production eval framework for AI agents — LLM-as-judge, reference-free evals, regression suites for prompt changes, RAGAS metrics, and the eval pipeline that actually catches quality regressions before users do.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="LLM evaluation, AI agent evals, LLM as judge, prompt regression testing, RAGAS, LLM testing framework, AI quality metrics, eval pipeline, production AI testing">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/llm-evaluation-evals-framework.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/llm-evaluation-evals-framework.html">
+  <meta property="og:title" content="LLM Evaluation: Building an Eval Framework for Production AI Agents">
+  <meta property="og:description" content="LLM-as-judge, reference-free evals, regression suites for prompt changes, and the eval pipeline that catches quality regressions before users do.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-13T00:00:00Z">
+  <meta property="article:section" content="AI Infrastructure">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="LLM Evaluation: Building an Eval Framework for Production AI Agents">
+  <meta name="twitter:description" content="LLM-as-judge, reference-free evals, regression suites, and the eval pipeline that actually works in production.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "LLM Evaluation: Building an Eval Framework for Production AI Agents",
+    "description": "How to build a production eval framework for AI agents — LLM-as-judge, reference-free evals, regression suites for prompt changes, RAGAS metrics, and the eval pipeline that catches quality regressions before users do.",
+    "datePublished": "2026-04-13",
+    "dateModified": "2026-04-13",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/llm-evaluation-evals-framework.html" },
+    "keywords": ["LLM evaluation", "AI agent evals", "LLM as judge", "prompt regression testing", "RAGAS", "eval pipeline"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .metrics-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .metrics-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .metrics-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .metrics-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Infrastructure</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">11 min read</span>
+  </div>
+
+  <h1>LLM Evaluation: Building an Eval Framework for Production AI Agents</h1>
+  <p class="article-lead">Unit tests can't tell you if your AI agent got worse. An LLM call that returns HTTP 200 with well-formed JSON can still produce an answer that's factually wrong, tonally off, or inconsistent with the context from three turns earlier. Catching that requires a different kind of testing infrastructure — one built around evals, not assertions.</p>
+
+  <h2>Why Traditional Testing Breaks Down for LLMs</h2>
+  <p>Software tests work because the output space is discrete and deterministic. You assert that <code>add(2, 3)</code> returns <code>5</code>. LLM outputs are neither. The same prompt, same model, same temperature can produce meaningfully different responses on successive calls. And "meaningfully different" is itself a judgment that requires understanding the domain.</p>
+  <p>The failure modes that matter in production aren't exceptions — they're quality regressions. A prompt change that makes your agent 10% more verbose while slightly reducing factual accuracy won't throw any errors. Your CI pipeline will stay green. Your users will just start getting worse answers.</p>
+  <p>Evals are the testing infrastructure that addresses this. They measure quality against defined criteria, run at scale against representative inputs, and give you a score you can track across prompt versions, model upgrades, and feature changes.</p>
+
+  <div class="callout warning">
+    <p><strong>The expensive mistake:</strong> Teams often wait until they have a human annotation team before building evals. Don't. Start with automated evals — even imperfect ones — from day one. Imperfect evals you run on every PR are more valuable than perfect evals you run once a quarter.</p>
+  </div>
+
+  <h2>The Four Eval Strategies</h2>
+
+  <h3>1. Reference-Based Evals</h3>
+  <p>The simplest form: compare the model output to a ground-truth answer. Works well for extraction tasks (pull the patient name from this form), classification (is this message toxic?), and structured outputs where correctness is binary or near-binary.</p>
+
+<pre><code>from dataclasses import dataclass
+from typing import Optional
+import re
+
+
+@dataclass
+class EvalCase:
+    input: str
+    expected: str
+    metadata: dict = None
+
+
+def exact_match(output: str, expected: str) -> float:
+    return 1.0 if output.strip() == expected.strip() else 0.0
+
+
+def token_f1(output: str, expected: str) -> float:
+    """F1 over tokens — good for extraction tasks."""
+    out_tokens = set(output.lower().split())
+    exp_tokens = set(expected.lower().split())
+    if not exp_tokens:
+        return 1.0 if not out_tokens else 0.0
+    precision = len(out_tokens & exp_tokens) / len(out_tokens) if out_tokens else 0.0
+    recall = len(out_tokens & exp_tokens) / len(exp_tokens)
+    if precision + recall == 0:
+        return 0.0
+    return 2 * precision * recall / (precision + recall)
+
+
+def contains_expected(output: str, expected: str) -> float:
+    return 1.0 if expected.lower() in output.lower() else 0.0</code></pre>
+
+  <p>Reference-based evals break down when there are many correct phrasings for the same answer. Token F1 handles this better than exact match, but both fail on open-ended generation where no reference is available.</p>
+
+  <h3>2. Rule-Based Evals</h3>
+  <p>Regex, keyword presence, structural checks, and format validation. Fast, cheap, and 100% deterministic — run them first. They catch the obvious failures before you spend budget on LLM-as-judge.</p>
+
+<pre><code>@dataclass
+class RuleEvalResult:
+    passed: bool
+    score: float
+    reason: str
+
+
+def eval_json_valid(output: str) -> RuleEvalResult:
+    import json
+    try:
+        json.loads(output)
+        return RuleEvalResult(True, 1.0, "valid JSON")
+    except json.JSONDecodeError as e:
+        return RuleEvalResult(False, 0.0, f"invalid JSON: {e}")
+
+
+def eval_no_pii_leaked(output: str) -> RuleEvalResult:
+    patterns = [
+        (r'\b\d{3}-\d{2}-\d{4}\b', "SSN pattern"),
+        (r'\b4[0-9]{12}(?:[0-9]{3})?\b', "Visa card pattern"),
+        (r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', "email address"),
+    ]
+    for pattern, label in patterns:
+        if re.search(pattern, output):
+            return RuleEvalResult(False, 0.0, f"PII detected: {label}")
+    return RuleEvalResult(True, 1.0, "no PII patterns found")
+
+
+def eval_length_range(output: str, min_words: int, max_words: int) -> RuleEvalResult:
+    count = len(output.split())
+    if count < min_words:
+        return RuleEvalResult(False, count / min_words, f"too short: {count} words")
+    if count > max_words:
+        return RuleEvalResult(False, max_words / count, f"too long: {count} words")
+    return RuleEvalResult(True, 1.0, f"{count} words — in range")</code></pre>
+
+  <h3>3. LLM-as-Judge</h3>
+  <p>Use a capable model (typically a stronger or different model than the one being evaluated) to score outputs against a rubric. Expensive, but the only scalable approach for open-ended quality dimensions like helpfulness, accuracy, coherence, and tone.</p>
+
+<pre><code>import anthropic
+from dataclasses import dataclass
+
+
+@dataclass
+class JudgeScore:
+    score: float          # 0.0 – 1.0
+    reasoning: str
+    dimension: str
+
+
+JUDGE_PROMPT = """You are an evaluation judge for an AI assistant. Score the following response.
+
+USER QUERY: {query}
+
+ASSISTANT RESPONSE: {response}
+
+EVALUATION DIMENSION: {dimension}
+RUBRIC: {rubric}
+
+Respond with JSON only:
+{{
+  "score": <float 0.0 to 1.0>,
+  "reasoning": "<one sentence explanation>"
+}}"""
+
+
+def llm_judge(
+    client: anthropic.Anthropic,
+    query: str,
+    response: str,
+    dimension: str,
+    rubric: str,
+    judge_model: str = "claude-opus-4-6",
+) -> JudgeScore:
+    import json
+
+    prompt = JUDGE_PROMPT.format(
+        query=query,
+        response=response,
+        dimension=dimension,
+        rubric=rubric,
+    )
+    result = client.messages.create(
+        model=judge_model,
+        max_tokens=256,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    try:
+        data = json.loads(result.content[0].text)
+        return JudgeScore(
+            score=float(data["score"]),
+            reasoning=data["reasoning"],
+            dimension=dimension,
+        )
+    except (json.JSONDecodeError, KeyError, ValueError):
+        return JudgeScore(score=0.5, reasoning="parse error", dimension=dimension)
+
+
+DIMENSIONS = {
+    "factual_accuracy": "1.0 = all factual claims are correct. 0.0 = contains confident factual errors.",
+    "helpfulness": "1.0 = directly answers the question with actionable detail. 0.0 = vague, refuses unnecessarily, or misses the point.",
+    "tone": "1.0 = professional and appropriate for the context. 0.0 = inappropriate tone for the audience.",
+    "conciseness": "1.0 = no unnecessary padding or repetition. 0.0 = significantly longer than necessary.",
+}</code></pre>
+
+  <div class="callout cyan">
+    <p><strong>Judge bias:</strong> LLM judges prefer verbose, confident-sounding answers and systematically favor their own model family's style. Calibrate with human labels before treating judge scores as absolute. Use them for <em>relative</em> comparisons (prompt A vs. prompt B) more than for absolute thresholds.</p>
+  </div>
+
+  <h3>4. Reference-Free Semantic Evals</h3>
+  <p>Embedding-based similarity, entailment models, and task-specific classifiers. Faster than LLM-as-judge and more robust than string matching. Useful as a middle layer — run after rules, before the expensive judge pass.</p>
+
+<pre><code>import numpy as np
+
+
+def cosine_similarity(a: list[float], b: list[float]) -> float:
+    a_arr, b_arr = np.array(a), np.array(b)
+    denom = np.linalg.norm(a_arr) * np.linalg.norm(b_arr)
+    return float(np.dot(a_arr, b_arr) / denom) if denom > 0 else 0.0
+
+
+def semantic_similarity_eval(
+    client: anthropic.Anthropic,
+    output: str,
+    reference: str,
+    threshold: float = 0.85,
+) -> RuleEvalResult:
+    embeddings = client.beta.messages.batches  # use your embedding provider
+    # Pseudocode — substitute your embedding call
+    out_emb = get_embedding(output)
+    ref_emb = get_embedding(reference)
+    sim = cosine_similarity(out_emb, ref_emb)
+    passed = sim >= threshold
+    return RuleEvalResult(
+        passed=passed,
+        score=sim,
+        reason=f"semantic similarity {sim:.3f} (threshold {threshold})",
+    )</code></pre>
+
+  <h2>Building a Regression Suite</h2>
+  <p>A regression suite is a curated set of eval cases that runs on every prompt change or model upgrade. Its job isn't comprehensive coverage — it's catching regressions on the cases that have historically been tricky.</p>
+  <p>The most valuable eval cases come from production failures. When a user complains, or when you spot a bad output in your logs, that case goes into the regression suite. Over time you accumulate a suite that captures your actual failure distribution rather than hypothetical ones.</p>
+
+<pre><code>import json
+import time
+from pathlib import Path
+from typing import Callable
+from dataclasses import dataclass, field, asdict
+
+
+@dataclass
+class EvalResult:
+    case_id: str
+    input: str
+    output: str
+    scores: dict[str, float]
+    passed: bool
+    latency_ms: float
+    model: str
+    timestamp: str = field(default_factory=lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ"))
+
+
+class RegressionSuite:
+    def __init__(self, suite_path: str, pass_threshold: float = 0.75):
+        self.suite_path = Path(suite_path)
+        self.pass_threshold = pass_threshold
+        self.cases: list[dict] = json.loads(self.suite_path.read_text())
+
+    def run(
+        self,
+        agent_fn: Callable[[str], str],
+        eval_fns: list[Callable],
+        model: str,
+    ) -> dict:
+        results = []
+        for case in self.cases:
+            t0 = time.time()
+            output = agent_fn(case["input"])
+            latency = (time.time() - t0) * 1000
+
+            scores = {}
+            for fn in eval_fns:
+                result = fn(output=output, expected=case.get("expected", ""))
+                scores[fn.__name__] = result.score if hasattr(result, "score") else result
+
+            overall = sum(scores.values()) / len(scores) if scores else 0.0
+            results.append(EvalResult(
+                case_id=case["id"],
+                input=case["input"],
+                output=output,
+                scores=scores,
+                passed=overall >= self.pass_threshold,
+                latency_ms=latency,
+                model=model,
+            ))
+
+        total = len(results)
+        passed = sum(1 for r in results if r.passed)
+        avg_score = sum(
+            sum(r.scores.values()) / len(r.scores) for r in results if r.scores
+        ) / total if total else 0.0
+
+        return {
+            "total": total,
+            "passed": passed,
+            "failed": total - passed,
+            "pass_rate": passed / total if total else 0.0,
+            "avg_score": avg_score,
+            "results": [asdict(r) for r in results],
+        }</code></pre>
+
+  <h2>RAGAS for RAG Pipelines</h2>
+  <p>If your agent uses retrieval, you need evals specifically for the retrieval-augmented generation loop. The RAGAS framework defines four metrics that cover each stage of the RAG pipeline independently.</p>
+
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>What It Measures</th>
+        <th>Requires Reference?</th>
+        <th>Failure Signal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Faithfulness</strong></td>
+        <td>Does the answer contain only claims that are grounded in the retrieved context?</td>
+        <td>No</td>
+        <td>Hallucination — model adds facts not in the retrieved chunks</td>
+      </tr>
+      <tr>
+        <td><strong>Answer Relevance</strong></td>
+        <td>Does the answer actually address the question asked?</td>
+        <td>No</td>
+        <td>Off-topic answers, irrelevant retrieved context being parroted</td>
+      </tr>
+      <tr>
+        <td><strong>Context Precision</strong></td>
+        <td>What fraction of the retrieved chunks are actually relevant?</td>
+        <td>Yes (ground truth)</td>
+        <td>Retrieval noise — pulling irrelevant chunks that dilute the context</td>
+      </tr>
+      <tr>
+        <td><strong>Context Recall</strong></td>
+        <td>Did retrieval surface the chunks needed to answer the question?</td>
+        <td>Yes (ground truth)</td>
+        <td>Retrieval gaps — relevant chunks not making it to the context window</td>
+      </tr>
+    </tbody>
+  </table>
+
+<pre><code>@dataclass
+class RAGEvalCase:
+    question: str
+    retrieved_contexts: list[str]
+    generated_answer: str
+    ground_truth: str | None = None
+
+
+def eval_faithfulness(
+    client: anthropic.Anthropic,
+    case: RAGEvalCase,
+    judge_model: str = "claude-sonnet-4-6",
+) -> float:
+    """
+    Breaks the answer into claims, checks each against retrieved context.
+    Returns fraction of claims that are grounded.
+    """
+    context_block = "\n---\n".join(case.retrieved_contexts)
+    prompt = f"""Given these retrieved documents:
+{context_block}
+
+And this generated answer:
+{case.generated_answer}
+
+List each factual claim in the answer. For each claim, output:
+{{"claim": "...", "grounded": true/false, "evidence": "quote from context or null"}}
+
+Return a JSON array of these objects."""
+
+    result = client.messages.create(
+        model=judge_model,
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    import json
+    try:
+        claims = json.loads(result.content[0].text)
+        if not claims:
+            return 1.0
+        grounded = sum(1 for c in claims if c.get("grounded", False))
+        return grounded / len(claims)
+    except (json.JSONDecodeError, TypeError):
+        return 0.5  # uncertain
+
+
+def eval_answer_relevance(
+    client: anthropic.Anthropic,
+    case: RAGEvalCase,
+    n_questions: int = 3,
+) -> float:
+    """
+    Generate questions the answer would be a good response to.
+    Score = average semantic similarity to the original question.
+    """
+    prompt = f"""Given this answer: {case.generated_answer}
+
+Generate {n_questions} questions that this answer would directly address.
+Return as a JSON array of strings."""
+
+    result = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=256,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    import json
+    try:
+        generated_qs = json.loads(result.content[0].text)
+        # Compute embedding similarity to original question
+        # (substitute your embedding call)
+        similarities = [
+            embedding_similarity(case.question, q) for q in generated_qs
+        ]
+        return sum(similarities) / len(similarities) if similarities else 0.0
+    except (json.JSONDecodeError, TypeError):
+        return 0.5</code></pre>
+
+  <h2>Integrating Evals into CI</h2>
+  <p>Evals are only useful if they run automatically. The pattern that works: a small fast suite on every PR (rule-based + cheap semantic checks, &lt;30 seconds), and a deeper judge-based suite that runs nightly or on main-branch merges.</p>
+
+<pre><code>#!/usr/bin/env python3
+"""
+eval_ci.py — lightweight eval gate for CI.
+Fails with exit code 1 if pass rate drops below threshold.
+"""
+import sys
+import json
+import argparse
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--suite", required=True)
+    parser.add_argument("--agent-module", required=True)
+    parser.add_argument("--threshold", type=float, default=0.80)
+    parser.add_argument("--baseline", help="path to baseline results JSON")
+    parser.add_argument("--max-regression", type=float, default=0.05,
+                        help="max allowed score drop vs baseline")
+    args = parser.parse_args()
+
+    # Import agent dynamically
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("agent", args.agent_module)
+    agent_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(agent_module)
+
+    suite = RegressionSuite(args.suite, pass_threshold=args.threshold)
+    report = suite.run(
+        agent_fn=agent_module.run,
+        eval_fns=[eval_json_valid, eval_no_pii_leaked],
+        model=agent_module.MODEL,
+    )
+
+    print(json.dumps({
+        "pass_rate": report["pass_rate"],
+        "avg_score": report["avg_score"],
+        "passed": report["passed"],
+        "total": report["total"],
+    }, indent=2))
+
+    # Absolute threshold check
+    if report["pass_rate"] < args.threshold:
+        print(f"FAIL: pass rate {report['pass_rate']:.2%} below threshold {args.threshold:.2%}")
+        sys.exit(1)
+
+    # Regression check against baseline
+    if args.baseline and Path(args.baseline).exists():
+        baseline = json.loads(Path(args.baseline).read_text())
+        drop = baseline["avg_score"] - report["avg_score"]
+        if drop > args.max_regression:
+            print(f"FAIL: avg score dropped {drop:.3f} vs baseline (max allowed: {args.max_regression})")
+            sys.exit(1)
+
+    print("PASS")
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+
+  <div class="callout">
+    <p><strong>The baseline pattern:</strong> Commit a <code>eval_baseline.json</code> alongside your code. On each CI run, compare the new results against the baseline. If avg_score drops more than 5%, the build fails. This catches silent regressions that don't break the absolute threshold.</p>
+  </div>
+
+  <h2>What to Actually Measure</h2>
+  <p>Teams overthink eval dimensions at first, then settle on a small set that covers the failure modes that actually matter for their use case. The useful starting set for most production agents:</p>
+
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>Eval Method</th>
+        <th>When It Matters</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Correctness / Accuracy</strong></td>
+        <td>Reference match or LLM judge</td>
+        <td>Any agent that returns facts, answers questions, or makes recommendations</td>
+      </tr>
+      <tr>
+        <td><strong>Format compliance</strong></td>
+        <td>Rule-based (JSON schema, regex)</td>
+        <td>Agents with structured output contracts — always run first</td>
+      </tr>
+      <tr>
+        <td><strong>Safety / PII</strong></td>
+        <td>Rule-based + classifier</td>
+        <td>Any agent handling user data or generating public-facing content</td>
+      </tr>
+      <tr>
+        <td><strong>Faithfulness</strong></td>
+        <td>LLM judge (RAGAS-style)</td>
+        <td>RAG pipelines — did the model stay grounded in retrieved context?</td>
+      </tr>
+      <tr>
+        <td><strong>Helpfulness</strong></td>
+        <td>LLM judge</td>
+        <td>Conversational agents — is the response actually useful?</td>
+      </tr>
+      <tr>
+        <td><strong>Latency</strong></td>
+        <td>Timing (p50, p95)</td>
+        <td>All agents — track alongside quality to catch the quality/speed tradeoff</td>
+      </tr>
+      <tr>
+        <td><strong>Cost per call</strong></td>
+        <td>Token counting + pricing table</td>
+        <td>All agents — prompt changes that improve quality but double cost need visibility</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Managing the Eval Dataset</h2>
+  <p>The eval dataset is a first-class engineering artifact. Version it in source control, review additions in pull requests, and treat contamination (eval cases leaking into training or few-shot examples) as a critical bug.</p>
+  <p>Practical dataset management principles:</p>
+  <ul>
+    <li><strong>Source production failures first</strong> — when something breaks in prod, the fix includes adding the failing case to the eval suite</li>
+    <li><strong>Keep cases independent</strong> — each case should be evaluable standalone, no dependencies on case ordering or shared state</li>
+    <li><strong>Tag cases by failure mode</strong> — add metadata like <code>"category": "edge_case"</code>, <code>"source": "user_complaint_2026-03"</code> so you can slice results and understand where regressions are concentrated</li>
+    <li><strong>Refresh periodically</strong> — remove cases that haven't failed in 12+ months; they're not earning their eval budget</li>
+    <li><strong>Balance the suite</strong> — if 80% of your cases are one type, a regression in another type won't move the aggregate score enough to trigger an alert</li>
+  </ul>
+
+  <h2>Eval Tooling Landscape</h2>
+  <p>The ecosystem has matured quickly. Most teams don't build the whole stack from scratch:</p>
+  <ul>
+    <li><strong>Braintrust</strong> — end-to-end eval platform with dataset management, LLM-as-judge, and CI integration; the closest to a complete solution for production teams</li>
+    <li><strong>LangSmith</strong> — eval + tracing together if you're in the LangChain ecosystem; good for teams that want one tool for both</li>
+    <li><strong>RAGAS</strong> — open-source library specifically for RAG eval metrics; easy to integrate into any pipeline</li>
+    <li><strong>Promptfoo</strong> — CLI-first, good for prompt regression testing and red-teaming; low setup cost</li>
+    <li><strong>Inspect AI</strong> — UK AI Safety Institute's open-source eval framework; rigorous, academic-leaning, good for capability evals</li>
+    <li><strong>Custom + Anthropic SDK</strong> — for teams with specific rubrics or proprietary domains; worth it when off-the-shelf rubrics don't fit your use case well</li>
+  </ul>
+
+  <div class="callout cyan">
+    <p><strong>Start cheap, scale up:</strong> Begin with rule-based evals and a small LLM judge suite using <code>claude-haiku-4-5-20251001</code> for the judge. Once your suite is stable and your eval cases are representative, upgrade the judge model for higher-stakes evals. You can run a surprisingly effective eval pipeline for &lt;$5/day at this scale.</p>
+  </div>
+
+  <h2>The Eval Flywheel</h2>
+  <p>The teams with the best AI quality aren't the ones who built the most sophisticated eval infrastructure on day one. They built a basic eval suite, ran it consistently, and used the results to guide every prompt change and model upgrade. That creates a compounding advantage: each production incident funds another eval case, which catches the next regression before it ships.</p>
+  <p>The flywheel: instrument → catch regressions → add cases → instrument better. The teams that skip evals break that loop and end up doing incident response instead of systematic improvement.</p>
+
+  <div class="cta-box">
+    <h3>Make your AI agent visible to the next generation of AI search</h3>
+    <p>CEO (Claw Engine Optimization) helps AI-powered products get discovered, cited, and recommended by LLMs, agents, and AI search. Start with a free visibility audit.</p>
+    <a href="/#pricing" class="cta-btn">Get a free CEO audit</a>
+  </div>
+</div>
+
+<footer>
+  <p>
+    <a href="/">CEO / OpenClaw</a> &middot;
+    <a href="/blog/">Blog</a> &middot;
+    <a href="/#pricing">Pricing</a>
+  </p>
+  <p style="margin-top:8px">© 2026 OpenClaw. Built for the agentic web.</p>
+</footer>
+</body>
+</html>
