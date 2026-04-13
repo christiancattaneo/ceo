@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deploying LLM Applications to Production: Railway, Fly.io, and Cloud Run | CEO Blog</title>
+  <meta name="description" content="How to deploy Python LLM applications to production — Dockerizing FastAPI with Claude, environment variable management for API keys, Railway vs. Fly.io vs. Cloud Run trade-offs, health checks, zero-downtime deploys, and production monitoring patterns.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/deploying-llm-apps-production.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a4a;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --purple: #7c3aed; --violet: #8b5cf6; --cyan: #06b6d4;
+      --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+    .kw { color: #ff79c6; } .fn { color: #50fa7b; } .st { color: #f1fa8c; }
+    .cm { color: #6272a4; } .cl { color: #8be9fd; } .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; } .op { color: #ff79c6; }
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav><a href="/">Home</a><a href="/blog/">Blog</a></nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Deploying LLM Applications to Production</h1>
+  <p>Docker + FastAPI + Claude, API key management, Railway vs. Fly.io vs. Cloud Run trade-offs, health checks, zero-downtime deploys, and production monitoring — a complete deployment playbook.</p>
+  <div class="hero-meta">Apr 13, 2026 &nbsp;·&nbsp; 12 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>Getting a Claude-powered app working locally is the easy part. Deploying it reliably — with secrets managed properly, health checks that actually reflect LLM availability, zero-downtime rollouts, and observability on response latency — takes more thought. This guide covers the full path from Dockerfile to production.</p>
+
+  <h2>The Production-Ready FastAPI App</h2>
+
+  <p>Start with a well-structured app before packaging it. Key production requirements: async client, startup validation, graceful shutdown, and health endpoint that checks the real dependency (the Anthropic API).</p>
+
+  <pre><code><span class="cm"># main.py</span>
+<span class="kw">from</span> contextlib <span class="kw">import</span> asynccontextmanager
+<span class="kw">from</span> fastapi <span class="kw">import</span> <span class="cl">FastAPI</span>, <span class="cl">HTTPException</span>
+<span class="kw">from</span> fastapi.responses <span class="kw">import</span> <span class="cl">StreamingResponse</span>
+<span class="kw">from</span> pydantic <span class="kw">import</span> <span class="cl">BaseModel</span>
+<span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">AsyncAnthropic</span>
+<span class="kw">import</span> os, logging
+
+logger = logging.getLogger(<span class="st">"app"</span>)
+
+<span class="cm"># Module-level client — one instance, reused across requests</span>
+_client: <span class="cl">AsyncAnthropic</span> | <span class="kw">None</span> = <span class="kw">None</span>
+
+
+<span class="dc">@asynccontextmanager</span>
+<span class="kw">async def</span> <span class="fn">lifespan</span>(app: <span class="cl">FastAPI</span>):
+    <span class="kw">global</span> _client
+    api_key = os.environ.get(<span class="st">"ANTHROPIC_API_KEY"</span>)
+    <span class="kw">if not</span> api_key:
+        <span class="kw">raise</span> <span class="cl">RuntimeError</span>(<span class="st">"ANTHROPIC_API_KEY not set — refusing to start"</span>)
+    _client = <span class="cl">AsyncAnthropic</span>(api_key=api_key)
+    logger.info(<span class="st">"Anthropic client initialized"</span>)
+    <span class="kw">yield</span>
+    <span class="cm"># Graceful shutdown — close any open connections</span>
+    <span class="kw">await</span> _client.close()
+    logger.info(<span class="st">"Anthropic client closed"</span>)
+
+
+app = <span class="cl">FastAPI</span>(title=<span class="st">"LLM API"</span>, lifespan=lifespan)
+
+
+<span class="dc">@app.get</span>(<span class="st">"/health"</span>)
+<span class="kw">async def</span> <span class="fn">health</span>():
+    <span class="st">"""Deep health check — verifies API key is valid."""</span>
+    <span class="kw">try</span>:
+        <span class="cm"># Cheapest possible real call to verify key works</span>
+        <span class="kw">await</span> _client.messages.create(
+            model=<span class="st">"claude-haiku-4-5-20251001"</span>,
+            max_tokens=<span class="nm">1</span>,
+            messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"hi"</span>}],
+        )
+        <span class="kw">return</span> {<span class="st">"status"</span>: <span class="st">"ok"</span>, <span class="st">"anthropic"</span>: <span class="st">"reachable"</span>}
+    <span class="kw">except Exception as</span> e:
+        <span class="kw">raise</span> <span class="cl">HTTPException</span>(status_code=<span class="nm">503</span>, detail=<span class="st">f"Anthropic unreachable: {e}"</span>)
+
+
+<span class="kw">class</span> <span class="cl">ChatRequest</span>(<span class="cl">BaseModel</span>):
+    message: str
+    stream: bool = <span class="kw">False</span>
+
+
+<span class="dc">@app.post</span>(<span class="st">"/chat"</span>)
+<span class="kw">async def</span> <span class="fn">chat</span>(req: <span class="cl">ChatRequest</span>):
+    <span class="kw">if</span> req.stream:
+        <span class="kw">async def</span> <span class="fn">generate</span>():
+            <span class="kw">async with</span> _client.messages.stream(
+                model=<span class="st">"claude-sonnet-4-6"</span>, max_tokens=<span class="nm">2048</span>,
+                messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: req.message}],
+            ) <span class="kw">as</span> s:
+                <span class="kw">async for</span> text <span class="kw">in</span> s.text_stream:
+                    <span class="kw">yield</span> <span class="st">f"data: {text}\n\n"</span>
+            <span class="kw">yield</span> <span class="st">"data: [DONE]\n\n"</span>
+        <span class="kw">return</span> <span class="cl">StreamingResponse</span>(generate(), media_type=<span class="st">"text/event-stream"</span>)
+
+    msg = <span class="kw">await</span> _client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>, max_tokens=<span class="nm">2048</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: req.message}],
+    )
+    <span class="kw">return</span> {<span class="st">"response"</span>: msg.content[<span class="nm">0</span>].text}
+</code></pre>
+
+  <h2>Dockerfile for LLM Apps</h2>
+
+  <p>A production Dockerfile for Python LLM services — multi-stage for minimal image size, non-root user for security, explicit health check baked in:</p>
+
+  <pre><code><span class="cm"># Dockerfile</span>
+<span class="kw">FROM</span> python:3.12-slim <span class="kw">AS</span> builder
+<span class="kw">WORKDIR</span> /app
+
+<span class="cm"># Install dependencies in isolation</span>
+<span class="kw">COPY</span> requirements.txt .
+<span class="kw">RUN</span> pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+<span class="cm"># ---- Runtime stage ----</span>
+<span class="kw">FROM</span> python:3.12-slim
+<span class="kw">WORKDIR</span> /app
+
+<span class="cm"># Non-root user — required by many cloud platforms</span>
+<span class="kw">RUN</span> useradd -m -u 1000 appuser
+
+<span class="kw">COPY</span> --from=builder /install /usr/local
+<span class="kw">COPY</span> . .
+
+<span class="kw">RUN</span> chown -R appuser:appuser /app
+<span class="kw">USER</span> appuser
+
+<span class="cm"># Health check — platform uses this for readiness</span>
+<span class="kw">HEALTHCHECK</span> --interval=30s --timeout=10s --start-period=15s --retries=3 \
+  <span class="kw">CMD</span> curl -f http://localhost:8000/health || exit 1
+
+<span class="kw">EXPOSE</span> 8000
+
+<span class="cm"># Use uvicorn with 2 workers; tune to your instance size</span>
+<span class="kw">CMD</span> ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", \
+     "--workers", "2", "--timeout-keep-alive", "75"]
+</code></pre>
+
+  <pre><code><span class="cm"># requirements.txt</span>
+anthropic>=0.40.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.0.0
+</code></pre>
+
+  <div class="callout yellow">
+    <strong>API Key in Docker</strong>
+    Never bake <code>ANTHROPIC_API_KEY</code> into your image with <code>ENV</code> or <code>ARG</code>. The key ends up in the image layer history and any registry it's pushed to. Pass it at runtime via environment variable injection from your platform's secrets manager.
+  </div>
+
+  <h2>Platform Comparison</h2>
+
+  <table>
+    <thead>
+      <tr><th>Platform</th><th>Best For</th><th>Cold Start</th><th>Free Tier</th><th>Secrets</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Railway</strong></td>
+        <td>Fastest path to production — push and go</td>
+        <td>~2–5s (keeps warm if traffic)</td>
+        <td>$5/mo credit</td>
+        <td>Dashboard env vars; reference with <code>${{SECRET}}</code></td>
+      </tr>
+      <tr>
+        <td><strong>Fly.io</strong></td>
+        <td>Global edge, persistent volumes, machines API</td>
+        <td>~1–3s (configurable always-on)</td>
+        <td>3 shared VMs + 3GB storage</td>
+        <td><code>fly secrets set ANTHROPIC_API_KEY=...</code></td>
+      </tr>
+      <tr>
+        <td><strong>Cloud Run</strong></td>
+        <td>GCP integration, scale-to-zero, pay-per-request</td>
+        <td>~3–8s (use min-instances=1 for LLM)</td>
+        <td>2M requests/mo</td>
+        <td>Secret Manager integration; mount as env var</td>
+      </tr>
+      <tr>
+        <td><strong>Render</strong></td>
+        <td>Simple web services, free PostgreSQL</td>
+        <td>~30s on free tier (spins down)</td>
+        <td>750 hrs/mo free</td>
+        <td>Dashboard env groups</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout purple">
+    <strong>LLM-Specific Recommendation</strong>
+    For Claude-backed APIs: use <strong>Railway</strong> for MVPs (zero config), <strong>Fly.io</strong> for global latency requirements, <strong>Cloud Run</strong> for GCP-native stacks. All three support the 75-second keepalive needed for long LLM responses. Avoid platforms with hard 30-second response timeouts (Vercel Hobby, Netlify Functions) — Claude can easily exceed those.
+  </div>
+
+  <h2>Deploying to Railway</h2>
+
+  <pre><code><span class="cm"># railway.toml — place in project root</span>
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "uvicorn main:app --host 0.0.0.0 --port $PORT --workers 2"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+</code></pre>
+
+  <pre><code><span class="cm"># CLI deploy</span>
+railway login
+railway init          <span class="cm"># link to project</span>
+railway secrets set ANTHROPIC_API_KEY=sk-ant-...
+railway up            <span class="cm"># build + deploy</span>
+railway logs          <span class="cm"># tail logs</span>
+</code></pre>
+
+  <h2>Deploying to Fly.io</h2>
+
+  <pre><code><span class="cm"># fly.toml</span>
+app = "my-llm-api"
+primary_region = "dfw"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = false   <span class="cm"># keep warm — avoids cold start on LLM calls</span>
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 50
+    soft_limit = 25
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+</code></pre>
+
+  <pre><code><span class="cm"># CLI deploy</span>
+fly launch --no-deploy     <span class="cm"># creates fly.toml without deploying</span>
+fly secrets set ANTHROPIC_API_KEY=sk-ant-...
+fly deploy                 <span class="cm"># build image, push to Fly registry, deploy</span>
+fly logs                   <span class="cm"># tail logs</span>
+fly status                 <span class="cm"># health + machine status</span>
+</code></pre>
+
+  <h2>Deploying to Cloud Run</h2>
+
+  <pre><code><span class="cm"># Build and push to Artifact Registry</span>
+PROJECT=my-gcp-project
+REGION=us-central1
+IMAGE=$REGION-docker.pkg.dev/$PROJECT/llm/api:latest
+
+docker build -t $IMAGE .
+docker push $IMAGE
+
+<span class="cm"># Store API key in Secret Manager</span>
+echo -n "sk-ant-..." | gcloud secrets create anthropic-key --data-file=-
+
+<span class="cm"># Deploy with secret injected as env var</span>
+gcloud run deploy llm-api \
+  --image $IMAGE \
+  --region $REGION \
+  --platform managed \
+  --allow-unauthenticated \
+  --min-instances 1 \        <span class="cm"># keep warm for LLM latency</span>
+  --max-instances 10 \
+  --timeout 300 \            <span class="cm"># 5 min — enough for long generations</span>
+  --memory 512Mi \
+  --set-secrets ANTHROPIC_API_KEY=anthropic-key:latest
+</code></pre>
+
+  <h2>Zero-Downtime Deploys</h2>
+
+  <p>All three platforms support rolling deploys — new containers receive traffic only after passing the health check. Key settings to verify:</p>
+
+  <ul>
+    <li><strong>Health check path</strong>: use <code>/health</code> (your deep check), not <code>/</code></li>
+    <li><strong>Start period</strong>: give the container 15–30s before the first health probe — FastAPI + Anthropic client initialization takes a few seconds</li>
+    <li><strong>Drain timeout</strong>: allow 30–60s for in-flight requests to complete before terminating the old container</li>
+    <li><strong>Min instances</strong>: at least 1 always-on instance — eliminates cold start latency for the first request after a deploy</li>
+  </ul>
+
+  <h2>Production Monitoring Patterns</h2>
+
+  <pre><code><span class="cm"># middleware.py — structured logging + latency tracking</span>
+<span class="kw">import</span> time, json, logging
+<span class="kw">from</span> fastapi <span class="kw">import</span> <span class="cl">Request</span>
+<span class="kw">from</span> starlette.middleware.base <span class="kw">import</span> <span class="cl">BaseHTTPMiddleware</span>
+
+logger = logging.getLogger(<span class="st">"access"</span>)
+
+
+<span class="kw">class</span> <span class="cl">ObservabilityMiddleware</span>(<span class="cl">BaseHTTPMiddleware</span>):
+    <span class="kw">async def</span> <span class="fn">dispatch</span>(self, request: <span class="cl">Request</span>, call_next):
+        start = time.monotonic()
+        response = <span class="kw">await</span> call_next(request)
+        latency_ms = (time.monotonic() - start) * <span class="nm">1000</span>
+
+        logger.info(json.dumps({
+            <span class="st">"path"</span>: request.url.path,
+            <span class="st">"method"</span>: request.method,
+            <span class="st">"status"</span>: response.status_code,
+            <span class="st">"latency_ms"</span>: round(latency_ms, <span class="nm">1</span>),
+        }))
+        <span class="kw">return</span> response
+
+
+<span class="cm"># Register in main.py</span>
+app.add_middleware(<span class="cl">ObservabilityMiddleware</span>)
+</code></pre>
+
+  <div class="callout green">
+    <strong>Key Metrics to Track</strong>
+    For Claude-backed APIs: <strong>p50/p95/p99 response latency</strong> (LLM calls are bimodal — most are fast, outliers are slow), <strong>error rate by type</strong> (rate limit vs. timeout vs. API error), and <strong>token usage per request</strong> (feeds directly into cost tracking). All three platforms export logs to your observability stack of choice.
+  </div>
+
+  <h2>Secrets Management Summary</h2>
+
+  <table>
+    <thead>
+      <tr><th>Platform</th><th>Set Secret</th><th>Access in App</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Railway</td><td>Dashboard → Variables or <code>railway secrets set</code></td><td><code>os.environ["ANTHROPIC_API_KEY"]</code></td></tr>
+      <tr><td>Fly.io</td><td><code>fly secrets set KEY=value</code></td><td><code>os.environ["ANTHROPIC_API_KEY"]</code></td></tr>
+      <tr><td>Cloud Run</td><td>GCP Secret Manager + <code>--set-secrets</code></td><td><code>os.environ["ANTHROPIC_API_KEY"]</code></td></tr>
+      <tr><td>Local dev</td><td><code>.env</code> file (never commit) + <code>python-dotenv</code></td><td><code>load_dotenv(); os.environ[...]</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Summary</h2>
+
+  <ul>
+    <li><strong>Structure your app</strong> for production from day one: lifespan hooks, module-level async client, deep <code>/health</code> endpoint</li>
+    <li><strong>Dockerfile</strong>: multi-stage, non-root user, baked-in HEALTHCHECK, <code>--timeout-keep-alive 75</code> for long LLM responses</li>
+    <li><strong>Never bake secrets into images</strong> — inject at runtime via platform secrets</li>
+    <li><strong>Railway</strong> for fastest time-to-deploy, <strong>Fly.io</strong> for global edge, <strong>Cloud Run</strong> for GCP-native</li>
+    <li><strong>min-instances=1</strong> eliminates cold starts — critical for LLM APIs where latency perception starts before the model even generates a token</li>
+    <li><strong>Structured JSON logs</strong> with latency, status, and path let any observability tool (Datadog, Grafana, Axiom) give you p95 latency without custom instrumentation</li>
+  </ul>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO &mdash; <a href="/blog/">Blog</a></p>
+</footer>
+
+</body>
+</html>
