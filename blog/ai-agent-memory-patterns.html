@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Memory Patterns: Episodic, Semantic, and Procedural Memory for LLMs — CEO Blog</title>
+  <meta name="description" content="How to implement memory for production AI agents — in-context vs. external memory, episodic memory with vector retrieval, semantic memory stores, procedural memory for learned behaviors, memory decay and eviction strategies, and the MemoryManager pattern.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="AI agent memory, LLM memory patterns, episodic memory AI, semantic memory agents, vector memory retrieval, agent state management, long-term memory LLM, AI memory architecture, agent context management">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/ai-agent-memory-patterns.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/ai-agent-memory-patterns.html">
+  <meta property="og:title" content="AI Agent Memory Patterns: Episodic, Semantic, and Procedural Memory for LLMs">
+  <meta property="og:description" content="In-context vs. external memory, episodic memory with vector retrieval, semantic memory stores, procedural memory for learned behaviors, memory decay, and the MemoryManager pattern.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-13T00:00:00Z">
+  <meta property="article:section" content="AI Infrastructure">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="AI Agent Memory Patterns: Episodic, Semantic, and Procedural Memory for LLMs">
+  <meta name="twitter:description" content="In-context vs. external memory, episodic memory with vector retrieval, semantic memory stores, procedural memory for learned behaviors, and memory eviction strategies.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "AI Agent Memory Patterns: Episodic, Semantic, and Procedural Memory for LLMs",
+    "description": "How to implement memory for production AI agents — in-context vs. external memory, episodic memory with vector retrieval, semantic memory stores, procedural memory for learned behaviors, memory decay and eviction, and the MemoryManager pattern.",
+    "datePublished": "2026-04-13",
+    "dateModified": "2026-04-13",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/ai-agent-memory-patterns.html" },
+    "keywords": ["AI agent memory", "episodic memory", "semantic memory", "procedural memory", "vector retrieval", "LLM context management"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .metrics-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .metrics-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .metrics-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .metrics-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Infrastructure</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">12 min read</span>
+  </div>
+
+  <h1>AI Agent Memory Patterns: Episodic, Semantic, and Procedural Memory for LLMs</h1>
+  <p class="article-lead">An LLM with no memory is stateless by design — every call starts fresh. That's fine for a one-shot summarizer, but it's wrong for any agent that needs to know what happened in a prior session, what the user told it last week, or how to handle a class of problem it's seen before. Implementing memory for agents is a distinct engineering problem, and getting it wrong produces agents that are expensive, inconsistent, and frustrating to use.</p>
+
+  <h2>The Memory Taxonomy</h2>
+  <p>Cognitive science distinguishes three types of long-term memory that map cleanly onto the problems production AI agents face:</p>
+
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Memory Type</th>
+        <th>What It Stores</th>
+        <th>Agent Analogue</th>
+        <th>Primary Storage</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Episodic</strong></td>
+        <td>Specific past events — "what happened when"</td>
+        <td>Conversation history, past interactions, user actions</td>
+        <td>Vector DB (by embedding) or key-value store</td>
+      </tr>
+      <tr>
+        <td><strong>Semantic</strong></td>
+        <td>General facts about the world and the user</td>
+        <td>User preferences, domain knowledge, entity attributes</td>
+        <td>Structured DB + vector search</td>
+      </tr>
+      <tr>
+        <td><strong>Procedural</strong></td>
+        <td>How to do things — learned skills and workflows</td>
+        <td>Few-shot examples, tool usage patterns, learned heuristics</td>
+        <td>Prompt store, fine-tuned model, example DB</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Most production agents need all three. An agent that can recall past conversations (episodic) but doesn't remember that the user prefers concise answers (semantic) will consistently frustrate. An agent with rich episodic and semantic memory but no procedural memory will make the same mistakes repeatedly.</p>
+
+  <h2>In-Context vs. External Memory</h2>
+  <p>The simplest memory implementation is the conversation history in the context window. Append every message, pass the full history with each call, done. This works until it doesn't: at scale, it's expensive, slow, and eventually impossible as the window fills.</p>
+
+<pre><code>from dataclasses import dataclass, field
+from typing import Literal
+import time
+
+
+MessageRole = Literal["user", "assistant", "system"]
+
+
+@dataclass
+class Message:
+    role: MessageRole
+    content: str
+    timestamp: float = field(default_factory=time.time)
+    tokens: int = 0
+
+
+class InContextMemory:
+    """Naive: keep everything in the context window."""
+
+    def __init__(self, max_tokens: int = 16_000):
+        self.messages: list[Message] = []
+        self.max_tokens = max_tokens
+
+    def add(self, role: MessageRole, content: str, tokens: int = 0) -> None:
+        self.messages.append(Message(role=role, content=content, tokens=tokens))
+        self._evict_if_needed()
+
+    def _evict_if_needed(self) -> None:
+        total = sum(m.tokens for m in self.messages)
+        while total > self.max_tokens and len(self.messages) > 1:
+            # Drop oldest non-system message
+            for i, m in enumerate(self.messages):
+                if m.role != "system":
+                    removed = self.messages.pop(i)
+                    total -= removed.tokens
+                    break
+
+    def as_api_messages(self) -> list[dict]:
+        return [{"role": m.role, "content": m.content} for m in self.messages]</code></pre>
+
+  <p>In-context memory has a hard ceiling. The real solution is external memory with selective retrieval — pull only what's relevant to the current turn, not everything that ever happened.</p>
+
+  <h2>Episodic Memory: Storing and Retrieving Past Events</h2>
+  <p>Episodic memory stores specific interactions as retrievable records. Each record is embedded and stored in a vector database. At query time, you compute the embedding of the current context and retrieve the K most similar past episodes to inject into the context window.</p>
+
+<pre><code>import anthropic
+import numpy as np
+from dataclasses import dataclass, field
+from typing import Any
+import json
+import time
+import hashlib
+
+
+@dataclass
+class Episode:
+    id: str
+    session_id: str
+    user_id: str
+    content: str                    # what was said/done
+    summary: str                    # compressed version for retrieval
+    embedding: list[float]
+    metadata: dict[str, Any]
+    created_at: float = field(default_factory=time.time)
+    importance: float = 1.0         # 0-1, used for weighted retrieval
+
+
+def episode_id(user_id: str, content: str) -> str:
+    return hashlib.sha256(f"{user_id}:{content}:{time.time()}".encode()).hexdigest()[:16]
+
+
+class EpisodicMemoryStore:
+    def __init__(self, client: anthropic.Anthropic, embedding_model: str = "voyage-3"):
+        self.client = client
+        self.embedding_model = embedding_model
+        self.episodes: list[Episode] = []   # replace with vector DB in production
+
+    def embed(self, text: str) -> list[float]:
+        # Pseudocode — substitute your embedding provider (Voyage, OpenAI, Cohere, etc.)
+        response = self.client.beta.messages  # placeholder
+        # return voyage_client.embed([text]).embeddings[0]
+        return [0.0] * 1024   # stub
+
+    def store(
+        self,
+        user_id: str,
+        session_id: str,
+        content: str,
+        metadata: dict | None = None,
+        importance: float = 1.0,
+    ) -> Episode:
+        summary = self._summarize(content)
+        embedding = self.embed(summary)
+        ep = Episode(
+            id=episode_id(user_id, content),
+            session_id=session_id,
+            user_id=user_id,
+            content=content,
+            summary=summary,
+            embedding=embedding,
+            metadata=metadata or {},
+            importance=importance,
+        )
+        self.episodes.append(ep)
+        return ep
+
+    def _summarize(self, content: str) -> str:
+        if len(content) < 200:
+            return content
+        result = self.client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=100,
+            messages=[{
+                "role": "user",
+                "content": f"Summarize in 1-2 sentences for memory retrieval:\n\n{content}"
+            }],
+        )
+        return result.content[0].text
+
+    def retrieve(
+        self,
+        query: str,
+        user_id: str,
+        k: int = 5,
+        min_importance: float = 0.0,
+    ) -> list[Episode]:
+        query_emb = np.array(self.embed(query))
+        scored = []
+        for ep in self.episodes:
+            if ep.user_id != user_id:
+                continue
+            if ep.importance < min_importance:
+                continue
+            ep_emb = np.array(ep.embedding)
+            # Cosine similarity weighted by importance
+            sim = float(np.dot(query_emb, ep_emb) /
+                        (np.linalg.norm(query_emb) * np.linalg.norm(ep_emb) + 1e-8))
+            scored.append((sim * ep.importance, ep))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [ep for _, ep in scored[:k]]
+
+    def format_for_context(self, episodes: list[Episode]) -> str:
+        if not episodes:
+            return ""
+        lines = ["Relevant past context:"]
+        for ep in episodes:
+            age_days = (time.time() - ep.created_at) / 86400
+            lines.append(f"- [{age_days:.0f}d ago] {ep.summary}")
+        return "\n".join(lines)</code></pre>
+
+  <div class="callout cyan">
+    <p><strong>What to store:</strong> Not every message deserves to be an episode. Store turning points: decisions the user made, preferences stated, problems solved, and failures. A good heuristic: if you'd want to know this in the next conversation, store it. Use the <code>importance</code> field to weight retrieval — user-stated preferences score higher than routine exchanges.</p>
+  </div>
+
+  <h2>Semantic Memory: Facts About Users and the World</h2>
+  <p>Semantic memory stores structured facts independently of when they were learned. User preferences, attributes, and domain knowledge live here. Unlike episodic memory, semantic memory should be deduplicated and updated in place — you don't want five conflicting records about a user's timezone.</p>
+
+<pre><code>from dataclasses import dataclass
+from enum import Enum
+import time
+
+
+class MemoryCategory(str, Enum):
+    PREFERENCE = "preference"
+    FACT = "fact"
+    GOAL = "goal"
+    CONSTRAINT = "constraint"
+
+
+@dataclass
+class SemanticFact:
+    key: str                        # e.g., "user.timezone", "user.prefers_concise"
+    value: Any
+    category: MemoryCategory
+    confidence: float = 1.0         # 0-1
+    source: str = "explicit"        # "explicit" | "inferred"
+    updated_at: float = field(default_factory=time.time)
+    ttl_seconds: float | None = None  # None = permanent
+
+
+class SemanticMemoryStore:
+    def __init__(self):
+        self._store: dict[str, dict[str, SemanticFact]] = {}  # user_id → key → fact
+
+    def set(
+        self,
+        user_id: str,
+        key: str,
+        value: Any,
+        category: MemoryCategory,
+        confidence: float = 1.0,
+        source: str = "explicit",
+        ttl_seconds: float | None = None,
+    ) -> SemanticFact:
+        fact = SemanticFact(
+            key=key, value=value, category=category,
+            confidence=confidence, source=source, ttl_seconds=ttl_seconds,
+        )
+        if user_id not in self._store:
+            self._store[user_id] = {}
+        self._store[user_id][key] = fact
+        return fact
+
+    def get(self, user_id: str, key: str) -> SemanticFact | None:
+        fact = self._store.get(user_id, {}).get(key)
+        if fact is None:
+            return None
+        if fact.ttl_seconds is not None:
+            if time.time() - fact.updated_at > fact.ttl_seconds:
+                del self._store[user_id][key]
+                return None
+        return fact
+
+    def get_all(self, user_id: str, category: MemoryCategory | None = None) -> list[SemanticFact]:
+        facts = list(self._store.get(user_id, {}).values())
+        now = time.time()
+        valid = [f for f in facts if f.ttl_seconds is None or now - f.updated_at <= f.ttl_seconds]
+        if category:
+            valid = [f for f in valid if f.category == category]
+        return valid
+
+    def format_for_context(self, user_id: str) -> str:
+        preferences = self.get_all(user_id, MemoryCategory.PREFERENCE)
+        facts = self.get_all(user_id, MemoryCategory.FACT)
+        constraints = self.get_all(user_id, MemoryCategory.CONSTRAINT)
+        lines = []
+        if preferences:
+            lines.append("User preferences: " + "; ".join(f"{p.key}={p.value}" for p in preferences))
+        if facts:
+            lines.append("Known facts: " + "; ".join(f"{f.key}={f.value}" for f in facts))
+        if constraints:
+            lines.append("Constraints: " + "; ".join(f"{c.key}={c.value}" for c in constraints))
+        return "\n".join(lines)</code></pre>
+
+  <h3>Extracting Semantic Facts from Conversations</h3>
+  <p>You can run a lightweight extraction pass after each conversation turn to identify facts worth storing. This creates a feedback loop: conversations generate episodic memories, which are distilled into semantic facts over time.</p>
+
+<pre><code>EXTRACT_FACTS_PROMPT = """Analyze this conversation turn and extract any persistent facts about the user.
+
+USER MESSAGE: {message}
+ASSISTANT RESPONSE: {response}
+
+Return a JSON array of facts to remember, or [] if none. Each fact:
+{{
+  "key": "user.<attribute>",
+  "value": <value>,
+  "category": "preference|fact|goal|constraint",
+  "confidence": <0.0 to 1.0>,
+  "source": "explicit"
+}}
+
+Only extract facts the user explicitly stated or clearly implied. Do not infer preferences from a single message."""
+
+
+def extract_semantic_facts(
+    client: anthropic.Anthropic,
+    user_message: str,
+    assistant_response: str,
+) -> list[dict]:
+    result = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=512,
+        messages=[{
+            "role": "user",
+            "content": EXTRACT_FACTS_PROMPT.format(
+                message=user_message,
+                response=assistant_response,
+            )
+        }],
+    )
+    import json
+    try:
+        return json.loads(result.content[0].text)
+    except (json.JSONDecodeError, TypeError):
+        return []</code></pre>
+
+  <h2>Procedural Memory: Learned Behaviors</h2>
+  <p>Procedural memory stores how to do things — not facts, but patterns of successful action. For LLM agents, this maps to few-shot examples that encode what good responses look like for a given input type, and heuristics extracted from past successes and failures.</p>
+
+<pre><code>@dataclass
+class ProceduralExample:
+    task_type: str              # e.g., "summarize_meeting", "debug_python"
+    input_pattern: str          # describes input characteristics
+    input_example: str          # concrete input example
+    output_example: str         # concrete good output
+    embedding: list[float]
+    outcome: str = "success"    # "success" | "failure"
+    score: float = 1.0          # quality score from eval or user feedback
+    created_at: float = field(default_factory=time.time)
+
+
+class ProceduralMemoryStore:
+    def __init__(self):
+        self.examples: list[ProceduralExample] = []
+
+    def store_example(
+        self,
+        task_type: str,
+        input_example: str,
+        output_example: str,
+        embedding: list[float],
+        score: float = 1.0,
+        outcome: str = "success",
+    ) -> ProceduralExample:
+        ex = ProceduralExample(
+            task_type=task_type,
+            input_pattern=task_type,
+            input_example=input_example,
+            output_example=output_example,
+            embedding=embedding,
+            outcome=outcome,
+            score=score,
+        )
+        self.examples.append(ex)
+        return ex
+
+    def retrieve_few_shot(
+        self,
+        query_embedding: list[float],
+        task_type: str | None = None,
+        k: int = 3,
+        min_score: float = 0.7,
+    ) -> list[ProceduralExample]:
+        q = np.array(query_embedding)
+        candidates = [
+            e for e in self.examples
+            if e.outcome == "success"
+            and e.score >= min_score
+            and (task_type is None or e.task_type == task_type)
+        ]
+        scored = []
+        for ex in candidates:
+            e = np.array(ex.embedding)
+            sim = float(np.dot(q, e) / (np.linalg.norm(q) * np.linalg.norm(e) + 1e-8))
+            scored.append((sim * ex.score, ex))
+        scored.sort(reverse=True)
+        return [ex for _, ex in scored[:k]]
+
+    def format_few_shot(self, examples: list[ProceduralExample]) -> str:
+        if not examples:
+            return ""
+        parts = ["Here are examples of good responses for similar requests:"]
+        for i, ex in enumerate(examples, 1):
+            parts.append(f"\nExample {i}:")
+            parts.append(f"Input: {ex.input_example}")
+            parts.append(f"Output: {ex.output_example}")
+        return "\n".join(parts)</code></pre>
+
+  <h2>The MemoryManager: Composing All Three</h2>
+  <p>In production you want a single interface that handles all memory types, assembles the right context for each turn, and enforces a token budget across memory sources.</p>
+
+<pre><code>@dataclass
+class MemoryContext:
+    episodic: str       # relevant past episodes
+    semantic: str       # user facts and preferences
+    procedural: str     # relevant few-shot examples
+    total_tokens: int   # estimated token cost
+
+    def as_system_addendum(self) -> str:
+        parts = []
+        if self.semantic:
+            parts.append(self.semantic)
+        if self.episodic:
+            parts.append(self.episodic)
+        if self.procedural:
+            parts.append(self.procedural)
+        return "\n\n".join(parts) if parts else ""
+
+
+class MemoryManager:
+    def __init__(
+        self,
+        client: anthropic.Anthropic,
+        episodic: EpisodicMemoryStore,
+        semantic: SemanticMemoryStore,
+        procedural: ProceduralMemoryStore,
+        token_budget: int = 2000,
+    ):
+        self.client = client
+        self.episodic = episodic
+        self.semantic = semantic
+        self.procedural = procedural
+        self.token_budget = token_budget
+
+    def retrieve(
+        self,
+        user_id: str,
+        session_id: str,
+        current_message: str,
+        task_type: str | None = None,
+    ) -> MemoryContext:
+        # Semantic: always include (small, structured)
+        semantic_text = self.semantic.format_for_context(user_id)
+        semantic_tokens = len(semantic_text.split()) * 1.3
+
+        remaining = self.token_budget - semantic_tokens
+
+        # Episodic: fill remaining budget (most recent wins)
+        query_emb = self.episodic.embed(current_message)
+        episodes = self.episodic.retrieve(current_message, user_id, k=8)
+        episodic_text = self.episodic.format_for_context(episodes)
+        episodic_tokens = len(episodic_text.split()) * 1.3
+        remaining -= episodic_tokens
+
+        # Procedural: only if budget remains
+        procedural_text = ""
+        if remaining > 200 and task_type:
+            examples = self.procedural.retrieve_few_shot(query_emb, task_type, k=2)
+            procedural_text = self.procedural.format_few_shot(examples)
+
+        return MemoryContext(
+            episodic=episodic_text,
+            semantic=semantic_text,
+            procedural=procedural_text,
+            total_tokens=int(self.token_budget - remaining),
+        )
+
+    def after_turn(
+        self,
+        user_id: str,
+        session_id: str,
+        user_message: str,
+        assistant_response: str,
+    ) -> None:
+        """Run after each turn to update memory stores."""
+        # Store episode
+        self.episodic.store(
+            user_id=user_id,
+            session_id=session_id,
+            content=f"User: {user_message}\nAssistant: {assistant_response}",
+        )
+        # Extract semantic facts
+        facts = extract_semantic_facts(self.client, user_message, assistant_response)
+        for fact in facts:
+            self.semantic.set(
+                user_id=user_id,
+                key=fact["key"],
+                value=fact["value"],
+                category=MemoryCategory(fact["category"]),
+                confidence=fact.get("confidence", 0.8),
+                source=fact.get("source", "explicit"),
+            )</code></pre>
+
+  <h2>Memory Decay and Eviction</h2>
+  <p>Memory that never decays grows without bound and eventually degrades retrieval quality — old, irrelevant episodes drown out recent relevant ones. Three patterns for managing this:</p>
+
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Strategy</th>
+        <th>Mechanism</th>
+        <th>Use When</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>TTL expiry</strong></td>
+        <td>Set <code>ttl_seconds</code> on semantic facts; evict on read</td>
+        <td>Preferences that change (e.g., "working on project X") — days to weeks</td>
+      </tr>
+      <tr>
+        <td><strong>Importance decay</strong></td>
+        <td>Multiply importance by 0.99 per day; cull below threshold</td>
+        <td>Episodic memories — recency matters, old episodes fade</td>
+      </tr>
+      <tr>
+        <td><strong>Consolidation</strong></td>
+        <td>Nightly job: cluster similar episodes, replace cluster with summary</td>
+        <td>High-volume users with thousands of episodes — compress to themes</td>
+      </tr>
+    </tbody>
+  </table>
+
+<pre><code>def apply_time_decay(episodes: list[Episode], half_life_days: float = 30.0) -> None:
+    """Decay importance of episodes based on age. Modifies in place."""
+    now = time.time()
+    half_life_s = half_life_days * 86400
+    for ep in episodes:
+        age_s = now - ep.created_at
+        ep.importance *= (0.5 ** (age_s / half_life_s))
+
+
+def consolidate_episodes(
+    client: anthropic.Anthropic,
+    episodes: list[Episode],
+    min_cluster_size: int = 5,
+) -> list[Episode]:
+    """Replace dense clusters of similar episodes with summaries."""
+    # Group by rough similarity (simplified — use proper clustering in production)
+    if len(episodes) < min_cluster_size:
+        return episodes
+
+    combined = "\n".join(ep.summary for ep in episodes)
+    result = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=200,
+        messages=[{
+            "role": "user",
+            "content": f"Synthesize these {len(episodes)} memories into one summary:\n{combined}"
+        }],
+    )
+    consolidated = Episode(
+        id=episode_id(episodes[0].user_id, "consolidated"),
+        session_id="consolidated",
+        user_id=episodes[0].user_id,
+        content=combined,
+        summary=result.content[0].text,
+        embedding=episodes[0].embedding,  # Use centroid in production
+        metadata={"consolidated_from": len(episodes)},
+        importance=max(ep.importance for ep in episodes),
+    )
+    return [consolidated]</code></pre>
+
+  <div class="callout">
+    <p><strong>Memory vs. state:</strong> Don't conflate memory with session state. Session state (current task, tool call results, in-progress work) belongs in the context window and should be discarded at session end. Memory is what persists <em>across</em> sessions — things worth knowing next time. Mixing them leads to bloated memory stores full of transient data.</p>
+  </div>
+
+  <h2>Storage Backend Selection</h2>
+  <p>The choice of storage backend matters at scale:</p>
+  <ul>
+    <li><strong>Episodic memory:</strong> Pinecone, Weaviate, Qdrant, or pgvector (PostgreSQL). For most teams, pgvector is the right starting point — no additional infrastructure, SQL for metadata filtering, vector search for retrieval.</li>
+    <li><strong>Semantic memory:</strong> PostgreSQL or Redis with JSON support. Structured data with known keys; vector search is rarely needed for well-keyed facts.</li>
+    <li><strong>Procedural memory:</strong> Same vector DB as episodic, different collection/namespace. Few-shot examples benefit from embedding-based retrieval over task type.</li>
+  </ul>
+  <p>The right architecture for most teams starting out: pgvector for episodic and procedural, PostgreSQL row store for semantic. Migrate to a dedicated vector DB when you hit millions of episodes or need sub-10ms retrieval at scale.</p>
+
+  <div class="cta-box">
+    <h3>Make your AI agent visible to the next generation of AI search</h3>
+    <p>CEO (Claw Engine Optimization) helps AI-powered products get discovered, cited, and recommended by LLMs, agents, and AI search. Start with a free visibility audit.</p>
+    <a href="/#pricing" class="cta-btn">Get a free CEO audit</a>
+  </div>
+</div>
+
+<footer>
+  <p>
+    <a href="/">CEO / OpenClaw</a> &middot;
+    <a href="/blog/">Blog</a> &middot;
+    <a href="/#pricing">Pricing</a>
+  </p>
+  <p style="margin-top:8px">© 2026 OpenClaw. Built for the agentic web.</p>
+</footer>
+</body>
+</html>
