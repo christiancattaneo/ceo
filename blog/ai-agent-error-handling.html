@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Error Handling: Retries, Fallbacks, and Graceful Degradation — CEO Blog</title>
+  <meta name="description" content="How to build resilient AI agents — exponential backoff for rate limits, circuit breakers for LLM outages, fallback model chains, partial failure recovery, error classification, and the patterns that keep agents working when APIs fail.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <meta name="author" content="CEO / OpenClaw">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="keywords" content="AI agent error handling, LLM retry logic, circuit breaker AI, fallback model, rate limit handling, LLM resilience, agent fault tolerance, graceful degradation AI, LLM error recovery">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/ai-agent-error-handling.html">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ceo-plum-ten.vercel.app/blog/ai-agent-error-handling.html">
+  <meta property="og:title" content="AI Agent Error Handling: Retries, Fallbacks, and Graceful Degradation">
+  <meta property="og:description" content="Exponential backoff for rate limits, circuit breakers for LLM outages, fallback model chains, partial failure recovery, and error classification for production AI agents.">
+  <meta property="og:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+  <meta property="og:site_name" content="CEO / OpenClaw">
+  <meta property="article:published_time" content="2026-04-13T00:00:00Z">
+  <meta property="article:section" content="AI Infrastructure">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@openclawai">
+  <meta name="twitter:title" content="AI Agent Error Handling: Retries, Fallbacks, and Graceful Degradation">
+  <meta name="twitter:description" content="Exponential backoff, circuit breakers, fallback model chains, and the patterns that keep AI agents working when APIs fail.">
+  <meta name="twitter:image" content="https://ceo-plum-ten.vercel.app/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "AI Agent Error Handling: Retries, Fallbacks, and Graceful Degradation",
+    "description": "How to build resilient AI agents — exponential backoff, circuit breakers, fallback model chains, partial failure recovery, error classification, and graceful degradation patterns.",
+    "datePublished": "2026-04-13",
+    "dateModified": "2026-04-13",
+    "author": { "@type": "Organization", "name": "CEO Team", "url": "https://ceo-plum-ten.vercel.app" },
+    "publisher": { "@type": "Organization", "name": "CEO / OpenClaw", "url": "https://ceo-plum-ten.vercel.app" },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ceo-plum-ten.vercel.app/blog/ai-agent-error-handling.html" },
+    "keywords": ["AI agent error handling", "LLM retry logic", "circuit breaker", "fallback model", "rate limit handling", "graceful degradation"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#0a0a0f;--surface:#13131a;--border:rgba(124,58,237,0.15);--accent:#7c3aed;--accent-light:#a78bfa;--cyan:#06b6d4;--text:#e8e8f0;--text-secondary:#8888aa;--code-bg:#1a1a28; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.7;font-size:17px}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px}
+    .nav-logo{color:var(--text);text-decoration:none;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:var(--accent-light)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .article-wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px}
+    .article-meta{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .article-tag{background:rgba(124,58,237,0.15);color:var(--accent-light);border:1px solid rgba(124,58,237,0.3);padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+    .article-date,.article-read{color:var(--text-secondary);font-size:0.875rem}
+    .article-read::before{content:"·";margin-right:12px}
+    h1{font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:800;line-height:1.2;margin-bottom:20px;letter-spacing:-0.02em}
+    .article-lead{font-size:1.2rem;color:var(--text-secondary);line-height:1.65;margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:48px}
+    h2{font-size:1.5rem;font-weight:700;margin:52px 0 16px;letter-spacing:-0.01em;color:var(--text)}
+    h3{font-size:1.15rem;font-weight:600;margin:36px 0 12px;color:var(--accent-light)}
+    p{margin-bottom:20px;color:var(--text)}
+    a{color:var(--accent-light);text-decoration:underline;text-underline-offset:3px}
+    a:hover{color:var(--cyan)}
+    ul,ol{padding-left:24px;margin-bottom:20px}li{margin-bottom:8px}
+    strong{color:var(--text);font-weight:600}
+    code{font-family:'JetBrains Mono',monospace;font-size:0.875em;background:var(--code-bg);padding:2px 7px;border-radius:5px;color:var(--cyan)}
+    pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;overflow-x:auto;margin:28px 0}
+    pre code{background:none;padding:0;font-size:0.85rem;color:var(--text)}
+    .callout{border-left:3px solid var(--accent);background:rgba(124,58,237,0.07);border-radius:0 8px 8px 0;padding:16px 20px;margin:28px 0}
+    .callout.cyan{border-color:var(--cyan);background:rgba(6,182,212,0.07)}
+    .callout.warning{border-color:#f59e0b;background:rgba(245,158,11,0.07)}
+    .callout p{margin-bottom:0;color:var(--text)}
+    .metrics-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:0.9rem}
+    .metrics-table th{background:rgba(124,58,237,0.12);color:var(--accent-light);font-weight:600;text-align:left;padding:12px 16px;border:1px solid var(--border)}
+    .metrics-table td{padding:12px 16px;border:1px solid var(--border);color:var(--text);vertical-align:top}
+    .metrics-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:0.9rem;margin-bottom:36px;transition:color 0.2s}
+    .back-link:hover{color:var(--text)}
+    .cta-box{background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:36px;text-align:center;margin-top:60px}
+    .cta-box h3{color:var(--text);font-size:1.3rem;margin-bottom:10px}
+    .cta-box p{color:var(--text-secondary);margin-bottom:24px}
+    .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:opacity 0.2s}
+    .cta-btn:hover{opacity:0.85;color:#fff}
+    footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--text-secondary);font-size:0.875rem}
+    footer a{color:var(--text-secondary);text-decoration:none}
+    footer a:hover{color:var(--text)}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      CEO
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+  <a href="/blog/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    All articles
+  </a>
+
+  <div class="article-meta">
+    <span class="article-tag">AI Infrastructure</span>
+    <span class="article-date">April 2026</span>
+    <span class="article-read">10 min read</span>
+  </div>
+
+  <h1>AI Agent Error Handling: Retries, Fallbacks, and Graceful Degradation</h1>
+  <p class="article-lead">LLM APIs fail. Rate limits trigger at inopportune moments. Models return malformed output. Upstream services go down mid-session. An AI agent that treats any of these as unrecoverable crashes is an agent your users will stop trusting. Production resilience isn't about preventing failures — it's about handling them so gracefully that users barely notice.</p>
+
+  <h2>Error Classification: Know What You're Dealing With</h2>
+  <p>Not all errors deserve the same response. Retrying a <code>400 Bad Request</code> is pointless; retrying a <code>529 Overloaded</code> is correct. Before writing any retry logic, classify your error space.</p>
+
+<pre><code>from enum import Enum
+from dataclasses import dataclass
+import anthropic
+
+
+class ErrorCategory(str, Enum):
+    RETRYABLE_TRANSIENT = "retryable_transient"   # 429, 529, 503, network timeout
+    RETRYABLE_WITH_CHANGE = "retryable_with_change"  # 400 invalid request (fixable)
+    PERMANENT = "permanent"                          # 401, 403, 404
+    CONTENT_POLICY = "content_policy"               # content filtered
+    QUALITY = "quality"                              # valid response, wrong format/content
+
+
+@dataclass
+class ClassifiedError:
+    original: Exception
+    category: ErrorCategory
+    status_code: int | None
+    retryable: bool
+    message: str
+
+
+def classify_error(exc: Exception) -> ClassifiedError:
+    if isinstance(exc, anthropic.RateLimitError):
+        return ClassifiedError(exc, ErrorCategory.RETRYABLE_TRANSIENT,
+                               429, True, "Rate limit — back off and retry")
+
+    if isinstance(exc, anthropic.APIStatusError):
+        code = exc.status_code
+        if code in (500, 503, 529):
+            return ClassifiedError(exc, ErrorCategory.RETRYABLE_TRANSIENT,
+                                   code, True, f"Server error {code}")
+        if code == 400:
+            return ClassifiedError(exc, ErrorCategory.RETRYABLE_WITH_CHANGE,
+                                   400, True, "Bad request — check prompt length/format")
+        if code in (401, 403):
+            return ClassifiedError(exc, ErrorCategory.PERMANENT,
+                                   code, False, "Auth error — do not retry")
+        return ClassifiedError(exc, ErrorCategory.PERMANENT,
+                               code, False, f"Unretryable HTTP {code}")
+
+    if isinstance(exc, (TimeoutError, ConnectionError)):
+        return ClassifiedError(exc, ErrorCategory.RETRYABLE_TRANSIENT,
+                               None, True, "Network error")
+
+    return ClassifiedError(exc, ErrorCategory.PERMANENT,
+                           None, False, f"Unknown: {type(exc).__name__}")</code></pre>
+
+  <h2>Exponential Backoff with Jitter</h2>
+  <p>The correct retry pattern for transient errors is exponential backoff with jitter. Plain exponential backoff synchronizes retries across concurrent callers, causing thundering herd on recovery. Jitter desynchronizes them.</p>
+
+<pre><code>import time
+import random
+import asyncio
+from typing import TypeVar, Callable, Any
+
+T = TypeVar("T")
+
+
+def exponential_backoff(
+    attempt: int,
+    base_delay: float = 1.0,
+    max_delay: float = 60.0,
+    jitter: bool = True,
+) -> float:
+    """
+    Returns delay in seconds for a given retry attempt (0-indexed).
+    attempt=0 → ~1s, attempt=1 → ~2s, attempt=2 → ~4s, etc.
+    Full jitter: delay = random(0, min(max_delay, base * 2^attempt))
+    """
+    delay = min(max_delay, base_delay * (2 ** attempt))
+    if jitter:
+        delay = random.uniform(0, delay)
+    return delay
+
+
+def parse_retry_after(exc: anthropic.RateLimitError) -> float | None:
+    """Extract Retry-After header value if present."""
+    headers = getattr(exc, "response", None)
+    if headers is None:
+        return None
+    retry_after = getattr(headers, "headers", {}).get("retry-after")
+    if retry_after:
+        try:
+            return float(retry_after)
+        except ValueError:
+            return None
+    return None
+
+
+async def retry_with_backoff(
+    fn: Callable[..., Any],
+    *args,
+    max_attempts: int = 4,
+    retryable_categories: set[ErrorCategory] | None = None,
+    **kwargs,
+) -> Any:
+    if retryable_categories is None:
+        retryable_categories = {ErrorCategory.RETRYABLE_TRANSIENT}
+
+    last_error = None
+    for attempt in range(max_attempts):
+        try:
+            return await fn(*args, **kwargs)
+        except Exception as exc:
+            classified = classify_error(exc)
+            last_error = classified
+
+            if not classified.retryable or classified.category not in retryable_categories:
+                raise
+
+            if attempt == max_attempts - 1:
+                raise
+
+            # Respect Retry-After header for rate limits
+            if isinstance(exc, anthropic.RateLimitError):
+                retry_after = parse_retry_after(exc)
+                delay = retry_after if retry_after else exponential_backoff(attempt)
+            else:
+                delay = exponential_backoff(attempt)
+
+            await asyncio.sleep(delay)
+
+    raise last_error.original</code></pre>
+
+  <div class="callout warning">
+    <p><strong>Don't retry 400s blindly.</strong> A <code>400 Bad Request</code> from Anthropic usually means your prompt exceeded the context limit or contained malformed content. Retrying without fixing the underlying issue just burns time and rate limit quota. Classify first, fix the payload, then retry once.</p>
+  </div>
+
+  <h2>Circuit Breaker Pattern</h2>
+  <p>Exponential backoff handles short-lived spikes. When an API is degraded for minutes or hours, a circuit breaker prevents your application from hammering a dead endpoint and accumulating latency and errors. The circuit opens after a failure threshold, stays open for a cooldown period, then enters a half-open state to test recovery.</p>
+
+<pre><code>import time
+from dataclasses import dataclass, field
+from enum import Enum
+from threading import Lock
+
+
+class CircuitState(str, Enum):
+    CLOSED = "closed"       # Normal operation
+    OPEN = "open"           # Failing — reject calls immediately
+    HALF_OPEN = "half_open" # Testing recovery — allow one probe call
+
+
+@dataclass
+class CircuitBreaker:
+    name: str
+    failure_threshold: int = 5        # failures before opening
+    success_threshold: int = 2        # successes in half-open to close
+    timeout_seconds: float = 60.0     # how long to stay open
+    _state: CircuitState = field(default=CircuitState.CLOSED, init=False)
+    _failure_count: int = field(default=0, init=False)
+    _success_count: int = field(default=0, init=False)
+    _last_failure_time: float = field(default=0.0, init=False)
+    _lock: Lock = field(default_factory=Lock, init=False)
+
+    @property
+    def state(self) -> CircuitState:
+        with self._lock:
+            if self._state == CircuitState.OPEN:
+                if time.time() - self._last_failure_time >= self.timeout_seconds:
+                    self._state = CircuitState.HALF_OPEN
+                    self._success_count = 0
+            return self._state
+
+    def call_succeeded(self) -> None:
+        with self._lock:
+            if self._state == CircuitState.HALF_OPEN:
+                self._success_count += 1
+                if self._success_count >= self.success_threshold:
+                    self._state = CircuitState.CLOSED
+                    self._failure_count = 0
+            elif self._state == CircuitState.CLOSED:
+                self._failure_count = max(0, self._failure_count - 1)
+
+    def call_failed(self) -> None:
+        with self._lock:
+            self._failure_count += 1
+            self._last_failure_time = time.time()
+            if (self._state in (CircuitState.CLOSED, CircuitState.HALF_OPEN)
+                    and self._failure_count >= self.failure_threshold):
+                self._state = CircuitState.OPEN
+
+    def allow_request(self) -> bool:
+        state = self.state   # triggers timeout check
+        return state != CircuitState.OPEN
+
+    def __repr__(self) -> str:
+        return f"CircuitBreaker({self.name}, state={self.state}, failures={self._failure_count})"
+
+
+class CircuitBreakerOpen(Exception):
+    pass
+
+
+# Usage with an LLM client
+class ResilientLLMClient:
+    def __init__(self, client: anthropic.Anthropic):
+        self.client = client
+        self.circuit = CircuitBreaker(
+            name="anthropic-api",
+            failure_threshold=5,
+            timeout_seconds=30.0,
+        )
+
+    async def call(self, **kwargs) -> anthropic.types.Message:
+        if not self.circuit.allow_request():
+            raise CircuitBreakerOpen(
+                f"Circuit open — API degraded. Retry after {self.circuit.timeout_seconds}s"
+            )
+        try:
+            result = self.client.messages.create(**kwargs)
+            self.circuit.call_succeeded()
+            return result
+        except (anthropic.APIStatusError, TimeoutError) as exc:
+            classified = classify_error(exc)
+            if classified.category == ErrorCategory.RETRYABLE_TRANSIENT:
+                self.circuit.call_failed()
+            raise</code></pre>
+
+  <h2>Fallback Model Chains</h2>
+  <p>When your primary model is unavailable, falling back to a smaller model beats returning an error. The fallback chain degrades gracefully: Opus → Sonnet → Haiku → cached response → static fallback. Each tier sacrifices some quality to maintain availability.</p>
+
+<pre><code>from dataclasses import dataclass
+from typing import Callable
+
+
+@dataclass
+class FallbackTier:
+    model: str
+    max_tokens: int
+    label: str
+    condition: Callable[[Exception], bool]  # when to try this tier
+
+
+FALLBACK_CHAIN: list[FallbackTier] = [
+    FallbackTier(
+        model="claude-opus-4-6",
+        max_tokens=4096,
+        label="primary",
+        condition=lambda e: False,   # never triggered as fallback (it IS primary)
+    ),
+    FallbackTier(
+        model="claude-sonnet-4-6",
+        max_tokens=2048,
+        label="fallback-sonnet",
+        condition=lambda e: isinstance(e, (anthropic.APIStatusError, CircuitBreakerOpen)),
+    ),
+    FallbackTier(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=1024,
+        label="fallback-haiku",
+        condition=lambda e: True,   # last model resort — always try
+    ),
+]
+
+
+async def call_with_fallback(
+    client: anthropic.Anthropic,
+    messages: list[dict],
+    system: str,
+    primary_model: str = "claude-opus-4-6",
+    task_label: str = "agent",
+) -> tuple[str, str]:
+    """
+    Returns (response_text, model_used).
+    Tries primary model, then falls through the chain on failure.
+    """
+    models_to_try = [primary_model] + [
+        t.model for t in FALLBACK_CHAIN
+        if t.model != primary_model
+    ]
+
+    last_exc = None
+    for model in models_to_try:
+        try:
+            result = client.messages.create(
+                model=model,
+                max_tokens=2048,
+                system=system,
+                messages=messages,
+            )
+            if model != primary_model:
+                # Log degradation event for observability
+                print(f"[FALLBACK] {task_label} served by {model} (primary: {primary_model})")
+            return result.content[0].text, model
+        except Exception as exc:
+            classified = classify_error(exc)
+            last_exc = exc
+            if not classified.retryable:
+                break   # permanent error — don't try further models
+            # Transient: try next tier
+            continue
+
+    raise last_exc</code></pre>
+
+  <h2>Output Validation and Recovery</h2>
+  <p>Retries handle API failures. But what about valid API responses with invalid content — wrong JSON format, missing required fields, or outputs that fail your quality checks? These need a different recovery path.</p>
+
+<pre><code>import json
+from typing import Any
+
+
+class OutputValidationError(Exception):
+    def __init__(self, message: str, raw_output: str):
+        super().__init__(message)
+        self.raw_output = raw_output
+
+
+def extract_json_from_response(text: str) -> Any:
+    """
+    Try to parse JSON from LLM output even when the model adds prose around it.
+    Attempts: direct parse → markdown code block → regex extraction.
+    """
+    # 1. Direct parse
+    try:
+        return json.loads(text.strip())
+    except json.JSONDecodeError:
+        pass
+
+    # 2. Extract from markdown code block
+    import re
+    code_block = re.search(r'```(?:json)?\s*([\s\S]+?)\s*```', text)
+    if code_block:
+        try:
+            return json.loads(code_block.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    # 3. Find the first {...} or [...] block
+    json_block = re.search(r'(\{[\s\S]+\}|\[[\s\S]+\])', text)
+    if json_block:
+        try:
+            return json.loads(json_block.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    raise OutputValidationError("No valid JSON found in response", text)
+
+
+async def call_with_output_retry(
+    client: anthropic.Anthropic,
+    messages: list[dict],
+    system: str,
+    validator: Callable[[Any], bool],
+    model: str = "claude-sonnet-4-6",
+    max_format_retries: int = 2,
+) -> Any:
+    """
+    Retry with escalating format instructions when output doesn't validate.
+    """
+    repair_instructions = [
+        "Return ONLY valid JSON. No prose, no markdown, no explanation.",
+        "You must output ONLY a raw JSON object. Nothing else. Start with { or [.",
+    ]
+
+    current_messages = list(messages)
+    for attempt in range(max_format_retries + 1):
+        result = client.messages.create(
+            model=model,
+            max_tokens=1024,
+            system=system,
+            messages=current_messages,
+        )
+        raw = result.content[0].text
+        try:
+            parsed = extract_json_from_response(raw)
+            if validator(parsed):
+                return parsed
+            # Valid JSON but failed validation — escalate
+            raise OutputValidationError("Output failed validation", raw)
+        except (OutputValidationError, json.JSONDecodeError) as exc:
+            if attempt >= max_format_retries:
+                raise
+            repair = repair_instructions[min(attempt, len(repair_instructions) - 1)]
+            current_messages = current_messages + [
+                {"role": "assistant", "content": raw},
+                {"role": "user", "content": f"That response wasn't valid. {repair}"},
+            ]
+    raise OutputValidationError("Max format retries exceeded", raw)</code></pre>
+
+  <h2>Partial Failure Handling in Multi-Step Agents</h2>
+  <p>Multi-step agents face a harder problem: one step in a 10-step chain fails. You don't want to restart from scratch. The solution is checkpointing — save progress after each successful step, resume from the last checkpoint on failure.</p>
+
+<pre><code>import json
+from dataclasses import dataclass, field, asdict
+from pathlib import Path
+from typing import Any
+
+
+@dataclass
+class AgentCheckpoint:
+    session_id: str
+    completed_steps: list[str] = field(default_factory=list)
+    step_results: dict[str, Any] = field(default_factory=dict)
+    failed_step: str | None = None
+    error_message: str | None = None
+
+    def save(self, path: str) -> None:
+        Path(path).write_text(json.dumps(asdict(self), indent=2))
+
+    @classmethod
+    def load(cls, path: str) -> "AgentCheckpoint":
+        data = json.loads(Path(path).read_text())
+        return cls(**data)
+
+    def mark_complete(self, step: str, result: Any) -> None:
+        self.completed_steps.append(step)
+        self.step_results[step] = result
+        self.failed_step = None
+        self.error_message = None
+
+    def mark_failed(self, step: str, error: str) -> None:
+        self.failed_step = step
+        self.error_message = error
+
+
+PIPELINE_STEPS = [
+    "extract_intent",
+    "retrieve_context",
+    "generate_draft",
+    "validate_output",
+    "format_response",
+]
+
+
+async def run_pipeline_with_checkpointing(
+    client: anthropic.Anthropic,
+    session_id: str,
+    user_input: str,
+    checkpoint_path: str,
+) -> dict:
+    # Load existing checkpoint or start fresh
+    cp_file = Path(checkpoint_path)
+    if cp_file.exists():
+        checkpoint = AgentCheckpoint.load(checkpoint_path)
+        print(f"Resuming from checkpoint: {len(checkpoint.completed_steps)} steps done")
+    else:
+        checkpoint = AgentCheckpoint(session_id=session_id)
+
+    results = dict(checkpoint.step_results)
+
+    for step in PIPELINE_STEPS:
+        if step in checkpoint.completed_steps:
+            continue  # Already done — skip
+
+        try:
+            # Dispatch to step handler (pseudocode)
+            result = await execute_step(client, step, user_input, results)
+            results[step] = result
+            checkpoint.mark_complete(step, result)
+            checkpoint.save(checkpoint_path)
+        except Exception as exc:
+            checkpoint.mark_failed(step, str(exc))
+            checkpoint.save(checkpoint_path)
+            raise RuntimeError(f"Pipeline failed at step '{step}': {exc}") from exc
+
+    # Clean up checkpoint on success
+    cp_file.unlink(missing_ok=True)
+    return results</code></pre>
+
+  <h2>Graceful Degradation Responses</h2>
+  <p>When all recovery options are exhausted, the agent should degrade gracefully rather than surfacing a raw exception to the user. The goal: communicate clearly, preserve trust, and give the user a path forward.</p>
+
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Failure Mode</th>
+        <th>Poor Response</th>
+        <th>Graceful Response</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Rate limit, all retries exhausted</td>
+        <td>"RateLimitError: You exceeded your quota"</td>
+        <td>"I'm handling a lot of requests right now. I'll have your response ready in about 30 seconds — no need to resend."</td>
+      </tr>
+      <tr>
+        <td>API outage</td>
+        <td>"500 Internal Server Error"</td>
+        <td>"I'm experiencing a temporary technical issue. Your question has been saved and I'll respond as soon as service is restored."</td>
+      </tr>
+      <tr>
+        <td>Context too long</td>
+        <td>"context_length_exceeded: maximum 200k tokens"</td>
+        <td>"This conversation has gotten quite long. Let me summarize what we've covered so far and continue from there."</td>
+      </tr>
+      <tr>
+        <td>Content filtered</td>
+        <td>"content_policy_violation"</td>
+        <td>"I'm not able to help with that specific request, but I can assist with [related acceptable alternative]."</td>
+      </tr>
+      <tr>
+        <td>Output validation failed after retries</td>
+        <td>Crash / empty response</td>
+        <td>Return partial result with caveat: "Here's what I found, though my response may be less complete than usual."</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><strong>Log everything, surface nothing:</strong> Raw exception messages, stack traces, and API error codes should never reach the user. Log them with full context for debugging, then present a clean, human-readable fallback. The user's trust in your agent depends on it feeling intentional and controlled — even when things go wrong internally.</p>
+  </div>
+
+  <div class="cta-box">
+    <h3>Make your AI agent visible to the next generation of AI search</h3>
+    <p>CEO (Claw Engine Optimization) helps AI-powered products get discovered, cited, and recommended by LLMs, agents, and AI search. Start with a free visibility audit.</p>
+    <a href="/#pricing" class="cta-btn">Get a free CEO audit</a>
+  </div>
+</div>
+
+<footer>
+  <p>
+    <a href="/">CEO / OpenClaw</a> &middot;
+    <a href="/blog/">Blog</a> &middot;
+    <a href="/#pricing">Pricing</a>
+  </p>
+  <p style="margin-top:8px">© 2026 OpenClaw. Built for the agentic web.</p>
+</footer>
+</body>
+</html>
