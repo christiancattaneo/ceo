@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Async Python Patterns for LLM Applications | CEO Blog</title>
+  <meta name="description" content="Practical async Python patterns for LLM apps — asyncio fundamentals, concurrent API calls with semaphores, streaming responses, async queues for agent pipelines, and timeout/cancellation patterns with full code examples.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/async-python-llm-patterns.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --border: #2a2a4a;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --purple: #7c3aed;
+      --violet: #8b5cf6;
+      --cyan: #06b6d4;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+
+    .kw { color: #ff79c6; }
+    .fn { color: #50fa7b; }
+    .st { color: #f1fa8c; }
+    .cm { color: #6272a4; }
+    .cl { color: #8be9fd; }
+    .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; }
+
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/blog/">Blog</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Async Python Patterns for LLM Applications</h1>
+  <p>Concurrent API calls, streaming responses, async agent pipelines, semaphore-based rate limiting, and timeout handling — with full working code.</p>
+  <div class="hero-meta">Apr 13, 2026 &nbsp;·&nbsp; 12 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>LLM API calls are slow by the standards of most I/O — a typical Claude response takes 1–10 seconds. Run them synchronously and you serialize all that latency. Run them with <code>asyncio</code> and you can fire dozens concurrently, stream tokens to the user as they arrive, and build agent pipelines that process work in parallel.</p>
+
+  <p>This post covers the async patterns that actually matter for production LLM apps: concurrent calls with proper rate-limit backpressure, streaming with <code>async for</code>, async queues for agent task distribution, and cancellation/timeout handling that won't leak resources.</p>
+
+  <h2>asyncio Fundamentals for LLM Work</h2>
+
+  <p>Before the patterns: the three primitives you'll use constantly.</p>
+
+  <pre><code><span class="kw">import</span> asyncio
+<span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">AsyncAnthropic</span>
+
+client = <span class="cl">AsyncAnthropic</span>()  <span class="cm"># async client — not the sync Anthropic()</span>
+
+
+<span class="cm"># 1. Basic async call</span>
+<span class="kw">async def</span> <span class="fn">single_call</span>(prompt: str) -> str:
+    msg = <span class="kw">await</span> client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">1024</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}],
+    )
+    <span class="kw">return</span> msg.content[<span class="nm">0</span>].text
+
+
+<span class="cm"># 2. gather — run N coroutines concurrently, collect all results</span>
+<span class="kw">async def</span> <span class="fn">parallel_calls</span>(prompts: list[str]) -> list[str]:
+    tasks = [single_call(p) <span class="kw">for</span> p <span class="kw">in</span> prompts]
+    <span class="kw">return</span> <span class="kw">await</span> asyncio.gather(*tasks)
+
+
+<span class="cm"># 3. TaskGroup (Python 3.11+) — structured concurrency with automatic cleanup</span>
+<span class="kw">async def</span> <span class="fn">parallel_with_taskgroup</span>(prompts: list[str]) -> list[str]:
+    results = [<span class="kw">None</span>] * len(prompts)
+    <span class="kw">async with</span> asyncio.<span class="cl">TaskGroup</span>() <span class="kw">as</span> tg:
+        <span class="kw">for</span> i, prompt <span class="kw">in</span> enumerate(prompts):
+            <span class="kw">async def</span> <span class="fn">_run</span>(idx=i, p=prompt):
+                results[idx] = <span class="kw">await</span> single_call(p)
+            tg.create_task(_run())
+    <span class="kw">return</span> results
+</code></pre>
+
+  <div class="callout purple">
+    <strong>gather vs TaskGroup</strong>
+    <code>gather</code> is simpler but if one task raises, others keep running (unless <code>return_exceptions=False</code>). <code>TaskGroup</code> cancels all sibling tasks on the first exception — safer for production pipelines where a partial result is useless.
+  </div>
+
+  <h2>Semaphore-Based Rate Limiting</h2>
+
+  <p>Firing 50 concurrent Claude calls will hit rate limits. A semaphore bounds concurrency to a safe number while keeping everything async:</p>
+
+  <pre><code><span class="kw">import</span> asyncio, time
+<span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">AsyncAnthropic</span>
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="cl">RateLimitedClient</span>:
+    <span class="st">"""Async Claude client with concurrency + token-rate limits."""</span>
+    max_concurrent: int = <span class="nm">5</span>
+    requests_per_minute: int = <span class="nm">50</span>
+
+    <span class="kw">def</span> <span class="fn">__post_init__</span>(self):
+        self._client = <span class="cl">AsyncAnthropic</span>()
+        self._sem = asyncio.<span class="cl">Semaphore</span>(self.max_concurrent)
+        self._request_times: list[float] = []
+
+    <span class="kw">async def</span> <span class="fn">_wait_for_rate_limit</span>(self):
+        <span class="st">"""Sliding window rate limiter."""</span>
+        now = time.monotonic()
+        window = <span class="nm">60.0</span>
+        <span class="cm"># Drop timestamps outside the window</span>
+        self._request_times = [t <span class="kw">for</span> t <span class="kw">in</span> self._request_times <span class="kw">if</span> now - t < window]
+
+        <span class="kw">if</span> len(self._request_times) >= self.requests_per_minute:
+            oldest = self._request_times[<span class="nm">0</span>]
+            sleep_for = window - (now - oldest) + <span class="nm">0.1</span>
+            <span class="kw">if</span> sleep_for > <span class="nm">0</span>:
+                <span class="kw">await</span> asyncio.sleep(sleep_for)
+
+        self._request_times.append(time.monotonic())
+
+    <span class="kw">async def</span> <span class="fn">call</span>(self, prompt: str, model: str = <span class="st">"claude-sonnet-4-6"</span>, max_tokens: int = <span class="nm">1024</span>) -> str:
+        <span class="kw">async with</span> self._sem:  <span class="cm"># blocks when max_concurrent is reached</span>
+            <span class="kw">await</span> self._wait_for_rate_limit()
+            msg = <span class="kw">await</span> self._client.messages.create(
+                model=model,
+                max_tokens=max_tokens,
+                messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}],
+            )
+            <span class="kw">return</span> msg.content[<span class="nm">0</span>].text
+
+    <span class="kw">async def</span> <span class="fn">batch</span>(self, prompts: list[str], **kwargs) -> list[str]:
+        <span class="st">"""Process all prompts concurrently, respecting rate limits."""</span>
+        tasks = [self.call(p, **kwargs) <span class="kw">for</span> p <span class="kw">in</span> prompts]
+        <span class="kw">return</span> <span class="kw">await</span> asyncio.gather(*tasks, return_exceptions=<span class="kw">True</span>)
+
+
+<span class="cm"># Process 20 prompts concurrently, max 5 at a time, max 50/min</span>
+<span class="kw">async def</span> <span class="fn">main</span>():
+    client = <span class="cl">RateLimitedClient</span>(max_concurrent=<span class="nm">5</span>, requests_per_minute=<span class="nm">50</span>)
+    prompts = [<span class="st">f"Summarize topic {i} in one sentence."</span> <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">20</span>)]
+    results = <span class="kw">await</span> client.batch(prompts)
+    <span class="kw">for</span> r <span class="kw">in</span> results:
+        <span class="kw">if</span> isinstance(r, <span class="cl">Exception</span>):
+            print(<span class="st">f"Error: {r}"</span>)
+        <span class="kw">else</span>:
+            print(r)
+</code></pre>
+
+  <h2>Streaming Responses</h2>
+
+  <p>Streaming lets you display tokens to users as they arrive instead of waiting for the full response. The Anthropic async client supports streaming via an async context manager:</p>
+
+  <pre><code><span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">AsyncAnthropic</span>
+
+client = <span class="cl">AsyncAnthropic</span>()
+
+
+<span class="kw">async def</span> <span class="fn">stream_to_stdout</span>(prompt: str) -> str:
+    <span class="st">"""Stream tokens to stdout and return the full response."""</span>
+    full_text = <span class="st">""</span>
+    <span class="kw">async with</span> client.messages.stream(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">2048</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}],
+    ) <span class="kw">as</span> stream:
+        <span class="kw">async for</span> text <span class="kw">in</span> stream.text_stream:
+            print(text, end=<span class="st">""</span>, flush=<span class="kw">True</span>)
+            full_text += text
+    print()  <span class="cm"># newline after stream</span>
+    <span class="kw">return</span> full_text
+
+
+<span class="cm"># FastAPI streaming endpoint</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> <span class="cl">FastAPI</span>
+<span class="kw">from</span> fastapi.responses <span class="kw">import</span> <span class="cl">StreamingResponse</span>
+
+app = <span class="cl">FastAPI</span>()
+
+<span class="dc">@app.post</span>(<span class="st">"/chat"</span>)
+<span class="kw">async def</span> <span class="fn">chat</span>(body: dict):
+    prompt = body.get(<span class="st">"prompt"</span>, <span class="st">""</span>)
+
+    <span class="kw">async def</span> <span class="fn">token_generator</span>():
+        <span class="kw">async with</span> client.messages.stream(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=<span class="nm">2048</span>,
+            messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}],
+        ) <span class="kw">as</span> stream:
+            <span class="kw">async for</span> text <span class="kw">in</span> stream.text_stream:
+                <span class="cm"># Server-Sent Events format</span>
+                <span class="kw">yield</span> <span class="st">f"data: {text}\n\n"</span>
+        <span class="kw">yield</span> <span class="st">"data: [DONE]\n\n"</span>
+
+    <span class="kw">return</span> <span class="cl">StreamingResponse</span>(token_generator(), media_type=<span class="st">"text/event-stream"</span>)
+</code></pre>
+
+  <div class="callout cyan">
+    <strong>Streaming + Tool Use</strong>
+    Streaming works with tool-calling models. Listen for <code>stream.current_message_snapshot</code> events to detect when the model starts a tool call mid-stream. The Anthropic SDK exposes these as typed event objects — check for <code>content_block_start</code> events with <code>type == "tool_use"</code>.
+  </div>
+
+  <h2>Async Queue-Based Agent Pipelines</h2>
+
+  <p>When you have a pipeline where one LLM call feeds the next, or where multiple worker agents pull from a shared task queue, <code>asyncio.Queue</code> gives you a clean coordination primitive:</p>
+
+  <pre><code><span class="kw">import</span> asyncio
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="cl">Any</span>
+<span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">AsyncAnthropic</span>
+
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="cl">Task</span>:
+    task_id: str
+    prompt: str
+    metadata: dict = None
+
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="cl">Result</span>:
+    task_id: str
+    output: str
+    error: <span class="cl">Exception</span> | <span class="kw">None</span> = <span class="kw">None</span>
+
+
+<span class="kw">async def</span> <span class="fn">worker</span>(
+    worker_id: int,
+    task_queue: asyncio.<span class="cl">Queue</span>[<span class="cl">Task</span> | <span class="kw">None</span>],
+    result_queue: asyncio.<span class="cl">Queue</span>[<span class="cl">Result</span>],
+    client: <span class="cl">AsyncAnthropic</span>,
+):
+    <span class="st">"""Pull tasks from queue, call Claude, push results."""</span>
+    <span class="kw">while True</span>:
+        task = <span class="kw">await</span> task_queue.get()
+        <span class="kw">if</span> task <span class="kw">is None</span>:  <span class="cm"># sentinel — this worker should stop</span>
+            task_queue.task_done()
+            <span class="kw">break</span>
+
+        <span class="kw">try</span>:
+            msg = <span class="kw">await</span> client.messages.create(
+                model=<span class="st">"claude-haiku-4-5-20251001"</span>,  <span class="cm"># fast/cheap for workers</span>
+                max_tokens=<span class="nm">512</span>,
+                messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: task.prompt}],
+            )
+            result = <span class="cl">Result</span>(task_id=task.task_id, output=msg.content[<span class="nm">0</span>].text)
+        <span class="kw">except Exception as</span> e:
+            result = <span class="cl">Result</span>(task_id=task.task_id, output=<span class="st">""</span>, error=e)
+        <span class="kw">finally</span>:
+            task_queue.task_done()
+
+        <span class="kw">await</span> result_queue.put(result)
+
+
+<span class="kw">async def</span> <span class="fn">run_pipeline</span>(tasks: list[<span class="cl">Task</span>], num_workers: int = <span class="nm">4</span>) -> list[<span class="cl">Result</span>]:
+    client = <span class="cl">AsyncAnthropic</span>()
+    task_q: asyncio.<span class="cl">Queue</span> = asyncio.<span class="cl">Queue</span>()
+    result_q: asyncio.<span class="cl">Queue</span> = asyncio.<span class="cl">Queue</span>()
+
+    <span class="cm"># Enqueue all tasks</span>
+    <span class="kw">for</span> task <span class="kw">in</span> tasks:
+        <span class="kw">await</span> task_q.put(task)
+
+    <span class="cm"># Send one sentinel per worker to signal shutdown</span>
+    <span class="kw">for</span> _ <span class="kw">in</span> range(num_workers):
+        <span class="kw">await</span> task_q.put(<span class="kw">None</span>)
+
+    <span class="cm"># Spawn workers</span>
+    worker_tasks = [
+        asyncio.create_task(worker(i, task_q, result_q, client))
+        <span class="kw">for</span> i <span class="kw">in</span> range(num_workers)
+    ]
+
+    <span class="cm"># Wait for all workers to finish</span>
+    <span class="kw">await</span> asyncio.gather(*worker_tasks)
+
+    <span class="cm"># Collect results</span>
+    results = []
+    <span class="kw">while not</span> result_q.empty():
+        results.append(<span class="kw">await</span> result_q.get())
+
+    <span class="kw">return</span> results
+</code></pre>
+
+  <h2>Timeout and Cancellation</h2>
+
+  <p>LLM calls can hang. Always wrap long-running calls in a timeout, and understand how cancellation propagates through your async call stack:</p>
+
+  <pre><code><span class="kw">import</span> asyncio
+<span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">AsyncAnthropic</span>
+
+client = <span class="cl">AsyncAnthropic</span>()
+
+
+<span class="kw">async def</span> <span class="fn">call_with_timeout</span>(
+    prompt: str,
+    timeout_seconds: float = <span class="nm">30.0</span>,
+    fallback: str = <span class="st">"[Response timed out]"</span>,
+) -> str:
+    <span class="kw">try</span>:
+        <span class="kw">return await</span> asyncio.wait_for(
+            client.messages.create(
+                model=<span class="st">"claude-sonnet-4-6"</span>,
+                max_tokens=<span class="nm">1024</span>,
+                messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}],
+            ),
+            timeout=timeout_seconds,
+        )
+    <span class="kw">except</span> asyncio.<span class="cl">TimeoutError</span>:
+        <span class="kw">return</span> fallback
+    <span class="kw">except</span> asyncio.<span class="cl">CancelledError</span>:
+        <span class="cm"># Task was cancelled by a parent — re-raise to propagate correctly</span>
+        <span class="kw">raise</span>
+
+
+<span class="cm"># Python 3.11+ — asyncio.timeout() context manager (preferred)</span>
+<span class="kw">async def</span> <span class="fn">call_with_deadline</span>(prompt: str, deadline_seconds: float = <span class="nm">30.0</span>) -> str:
+    <span class="kw">try</span>:
+        <span class="kw">async with</span> asyncio.timeout(deadline_seconds):
+            msg = <span class="kw">await</span> client.messages.create(
+                model=<span class="st">"claude-sonnet-4-6"</span>,
+                max_tokens=<span class="nm">1024</span>,
+                messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}],
+            )
+            <span class="kw">return</span> msg.content[<span class="nm">0</span>].text
+    <span class="kw">except</span> <span class="cl">TimeoutError</span>:
+        <span class="kw">return</span> <span class="st">"[Deadline exceeded]"</span>
+
+
+<span class="cm"># Cancellable long-running agent — can be cancelled from outside</span>
+<span class="kw">class</span> <span class="cl">CancellableAgent</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self._task: asyncio.<span class="cl">Task</span> | <span class="kw">None</span> = <span class="kw">None</span>
+
+    <span class="kw">async def</span> <span class="fn">run</span>(self, steps: list[str]) -> list[str]:
+        <span class="st">"""Run a multi-step pipeline. Can be cancelled mid-flight."""</span>
+        results = []
+        <span class="kw">for</span> step <span class="kw">in</span> steps:
+            <span class="kw">try</span>:
+                result = <span class="kw">await</span> call_with_deadline(step)
+                results.append(result)
+            <span class="kw">except</span> asyncio.<span class="cl">CancelledError</span>:
+                <span class="cm"># Clean up any open connections here if needed</span>
+                <span class="kw">raise</span>  <span class="cm"># must re-raise CancelledError — never swallow it</span>
+        <span class="kw">return</span> results
+
+    <span class="kw">def</span> <span class="fn">start</span>(self, steps: list[str]) -> asyncio.<span class="cl">Task</span>:
+        self._task = asyncio.create_task(self.run(steps))
+        <span class="kw">return</span> self._task
+
+    <span class="kw">def</span> <span class="fn">cancel</span>(self):
+        <span class="kw">if</span> self._task <span class="kw">and not</span> self._task.done():
+            self._task.cancel()
+</code></pre>
+
+  <div class="callout yellow">
+    <strong>Never Swallow CancelledError</strong>
+    <code>asyncio.CancelledError</code> is how Python's event loop signals a task to stop. If you catch it and don't re-raise, the task appears stuck — it won't cancel and its parent awaiter will hang. Always re-raise after cleanup.
+  </div>
+
+  <h2>Async-Safe State Management</h2>
+
+  <p>Multiple concurrent coroutines mutating shared state is a race condition waiting to happen. Use <code>asyncio.Lock</code> to protect shared resources:</p>
+
+  <pre><code><span class="kw">import</span> asyncio
+<span class="kw">from</span> collections <span class="kw">import</span> defaultdict
+
+
+<span class="kw">class</span> <span class="cl">ConversationStore</span>:
+    <span class="st">"""Thread-safe (async-safe) in-memory conversation history."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self._histories: dict[str, list] = defaultdict(list)
+        self._locks: dict[str, asyncio.<span class="cl">Lock</span>] = defaultdict(asyncio.<span class="cl">Lock</span>)
+
+    <span class="kw">async def</span> <span class="fn">append</span>(self, session_id: str, role: str, content: str):
+        <span class="kw">async with</span> self._locks[session_id]:
+            self._histories[session_id].append({<span class="st">"role"</span>: role, <span class="st">"content"</span>: content})
+
+    <span class="kw">async def</span> <span class="fn">get</span>(self, session_id: str) -> list:
+        <span class="kw">async with</span> self._locks[session_id]:
+            <span class="kw">return</span> list(self._histories[session_id])  <span class="cm"># return copy</span>
+
+    <span class="kw">async def</span> <span class="fn">chat</span>(self, session_id: str, user_message: str) -> str:
+        <span class="kw">await</span> self.append(session_id, <span class="st">"user"</span>, user_message)
+        history = <span class="kw">await</span> self.get(session_id)
+
+        msg = <span class="kw">await</span> client.messages.create(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=<span class="nm">1024</span>,
+            messages=history,
+        )
+        response_text = msg.content[<span class="nm">0</span>].text
+        <span class="kw">await</span> self.append(session_id, <span class="st">"assistant"</span>, response_text)
+        <span class="kw">return</span> response_text
+</code></pre>
+
+  <h2>When to Use sync vs. async</h2>
+
+  <table>
+    <thead>
+      <tr><th>Scenario</th><th>Use</th><th>Reason</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Single call in a script</td>
+        <td>Sync <code>Anthropic()</code></td>
+        <td>asyncio overhead not worth it for one call</td>
+      </tr>
+      <tr>
+        <td>Batch of 5+ calls</td>
+        <td>Async <code>AsyncAnthropic()</code> + gather</td>
+        <td>Concurrent execution cuts wall time dramatically</td>
+      </tr>
+      <tr>
+        <td>FastAPI / Starlette endpoint</td>
+        <td>Async — always</td>
+        <td>Sync calls block the event loop and starve other requests</td>
+      </tr>
+      <tr>
+        <td>Streaming to browser</td>
+        <td>Async + StreamingResponse</td>
+        <td>Sync streaming blocks server; async streams tokens per chunk</td>
+      </tr>
+      <tr>
+        <td>Celery / background workers</td>
+        <td>Sync in worker + <code>asyncio.run()</code> if needed</td>
+        <td>Celery workers are synchronous by default; wrap async in run()</td>
+      </tr>
+      <tr>
+        <td>Multi-agent pipelines</td>
+        <td>Async queues + TaskGroup</td>
+        <td>Queue decouples producers from consumers; TaskGroup cleans up on failure</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Summary</h2>
+
+  <p>The async patterns for LLM apps reduce to a short list:</p>
+  <ul>
+    <li><strong><code>AsyncAnthropic()</code> + gather</strong> for parallel batches</li>
+    <li><strong>Semaphore + sliding window</strong> for rate-limit-safe concurrency</li>
+    <li><strong><code>messages.stream()</code> + async for</strong> for token-by-token streaming</li>
+    <li><strong><code>asyncio.Queue</code> + worker pool</strong> for agent task distribution</li>
+    <li><strong><code>asyncio.timeout()</code></strong> for deadline enforcement — always re-raise <code>CancelledError</code></li>
+    <li><strong><code>asyncio.Lock</code> per session</strong> for safe concurrent state mutation</li>
+  </ul>
+
+  <p>Apply these consistently and LLM latency stops being a bottleneck — it becomes a scheduling problem you've already solved.</p>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO &mdash; <a href="/blog/">Blog</a></p>
+</footer>
+
+</body>
+</html>
