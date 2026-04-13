@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Engineering: Structuring Prompts for Reliable AI Agent Behavior | CEO Blog</title>
+  <meta name="description" content="Context engineering goes beyond prompt engineering — learn how to architect system prompts, inject dynamic context, manage token budgets, and measure prompt reliability with Python examples.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/context-engineering-prompts.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --border: #2a2a4a;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --purple: #7c3aed;
+      --violet: #8b5cf6;
+      --cyan: #06b6d4;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+
+    .kw { color: #ff79c6; }
+    .fn { color: #50fa7b; }
+    .st { color: #f1fa8c; }
+    .cm { color: #6272a4; }
+    .cl { color: #8be9fd; }
+    .nm { color: #bd93f9; }
+    .op { color: #ff79c6; }
+    .dc { color: #06b6d4; }
+
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/blog/">Blog</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Context Engineering: Structuring Prompts for Reliable AI Agent Behavior</h1>
+  <p>Beyond "write better prompts" — how to architect system context, inject dynamic state, manage token budgets, and measure reliability with Python.</p>
+  <div class="hero-meta">Apr 13, 2026 &nbsp;·&nbsp; 11 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>Prompt engineering gets you to "it works sometimes." Context engineering gets you to "it works reliably at scale." The difference is systematic: treating the context window as an architecture problem, not a text problem.</p>
+
+  <p>This post covers how to structure system prompts for predictable agent behavior, how to inject dynamic state without blowing your token budget, and how to run reliability measurements so you know when your context is drifting.</p>
+
+  <h2>The Context Window as a Data Structure</h2>
+
+  <p>Most developers think of the context window as a big text box. Production agents treat it as a structured memory with four distinct zones:</p>
+
+  <table>
+    <thead>
+      <tr><th>Zone</th><th>Contents</th><th>Typical Size</th><th>Mutability</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>System</strong></td><td>Persona, rules, output format, tool schemas</td><td>500–3000 tokens</td><td>Static per deployment</td></tr>
+      <tr><td><strong>Dynamic Context</strong></td><td>User profile, session state, retrieved docs</td><td>1000–8000 tokens</td><td>Injected each call</td></tr>
+      <tr><td><strong>Conversation</strong></td><td>Message history</td><td>2000–20000 tokens</td><td>Grows — must be managed</td></tr>
+      <tr><td><strong>Current Turn</strong></td><td>User message + tool results</td><td>200–2000 tokens</td><td>Per-request</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout purple">
+    <strong>Key Principle</strong>
+    Static content (system prompt) should be cached. Dynamic content (retrieved docs, user state) should be placed after the cache boundary so you don't bust the cache with every call.
+  </div>
+
+  <h2>System Prompt Architecture</h2>
+
+  <p>A well-structured system prompt follows a consistent internal layout. The model reads the system prompt fresh on every call — ordering matters because attention is front-loaded.</p>
+
+  <pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="cl">Optional</span>
+<span class="kw">import</span> textwrap
+
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="cl">SystemPromptSpec</span>:
+    <span class="st">"""Structured system prompt builder."""</span>
+    persona: str
+    goal: str
+    constraints: list[str]
+    output_format: str
+    tools_description: <span class="cl">Optional</span>[str] = <span class="kw">None</span>
+    examples: list[dict] = field(default_factory=list)
+
+    <span class="kw">def</span> <span class="fn">build</span>(self) -> str:
+        sections = []
+
+        <span class="cm"># 1. Identity first — anchors all subsequent behavior</span>
+        sections.append(<span class="st">f"## Identity\n{self.persona}"</span>)
+
+        <span class="cm"># 2. Primary goal — what success looks like</span>
+        sections.append(<span class="st">f"## Goal\n{self.goal}"</span>)
+
+        <span class="cm"># 3. Constraints — what NOT to do (explicit beats implicit)</span>
+        constraint_list = <span class="st">"\n"</span>.join(<span class="st">f"- {c}"</span> <span class="kw">for</span> c <span class="kw">in</span> self.constraints)
+        sections.append(<span class="st">f"## Constraints\n{constraint_list}"</span>)
+
+        <span class="cm"># 4. Output format — concrete schema reduces hallucination</span>
+        sections.append(<span class="st">f"## Output Format\n{self.output_format}"</span>)
+
+        <span class="cm"># 5. Tool guidance (optional) — when/how to use each tool</span>
+        <span class="kw">if</span> self.tools_description:
+            sections.append(<span class="st">f"## Tools\n{self.tools_description}"</span>)
+
+        <span class="cm"># 6. Few-shot examples last — high token cost, high value</span>
+        <span class="kw">if</span> self.examples:
+            ex_text = <span class="st">"\n\n"</span>.join(
+                <span class="st">f"User: {e['user']}\nAssistant: {e['assistant']}"</span>
+                <span class="kw">for</span> e <span class="kw">in</span> self.examples
+            )
+            sections.append(<span class="st">f"## Examples\n{ex_text}"</span>)
+
+        <span class="kw">return</span> <span class="st">"\n\n"</span>.join(sections)
+
+
+<span class="cm"># Usage</span>
+spec = <span class="cl">SystemPromptSpec</span>(
+    persona=<span class="st">"You are a clinical trial coordinator assistant. You help site staff with protocol compliance questions."</span>,
+    goal=<span class="st">"Answer questions accurately using only the protocol and regulatory information provided in context. Never speculate on medical decisions."</span>,
+    constraints=[
+        <span class="st">"Do not provide medical advice or dosing decisions — escalate those to the PI"</span>,
+        <span class="st">"If the answer is not in the provided context, say so explicitly"</span>,
+        <span class="st">"Cite the section number when quoting protocol requirements"</span>,
+        <span class="st">"Keep responses under 300 words unless the question requires more detail"</span>,
+    ],
+    output_format=textwrap.dedent(<span class="st">"""
+        Respond in this structure:
+        **Answer:** [direct answer]
+        **Reference:** [protocol section or regulation]
+        **Action required:** [yes/no — what the user should do]
+    """</span>),
+)
+
+system_prompt = spec.build()
+</code></pre>
+
+  <h2>Dynamic Context Injection</h2>
+
+  <p>Static system prompts handle 70% of agent behavior. The remaining 30% comes from runtime state: who is the user, what are they working on, what documents are relevant. This dynamic layer must be injected carefully to avoid cache-busting and token bloat.</p>
+
+  <pre><code><span class="kw">from</span> anthropic <span class="kw">import</span> <span class="cl">Anthropic</span>
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="cl">Optional</span>
+<span class="kw">import</span> tiktoken  <span class="cm"># or use Anthropic's token counting</span>
+
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="cl">UserContext</span>:
+    user_id: str
+    role: str
+    active_study: str
+    site_timezone: str
+    recent_actions: list[str]  <span class="cm"># last 3-5 only</span>
+
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="cl">RetrievedDoc</span>:
+    title: str
+    content: str
+    relevance_score: float
+    token_count: int
+
+
+<span class="kw">class</span> <span class="cl">ContextBuilder</span>:
+    <span class="st">"""Assembles a user message with injected context."""</span>
+
+    MAX_DYNAMIC_TOKENS = <span class="nm">4096</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, user_ctx: <span class="cl">UserContext</span>):
+        self.user_ctx = user_ctx
+
+    <span class="kw">def</span> <span class="fn">_user_block</span>(self) -> str:
+        actions = <span class="st">"\n"</span>.join(<span class="st">f"- {a}"</span> <span class="kw">for</span> a <span class="kw">in</span> self.user_ctx.recent_actions[-<span class="nm">3</span>:])
+        <span class="kw">return</span> <span class="st">f"""## Current User
+Role: {self.user_ctx.role}
+Study: {self.user_ctx.active_study}
+Timezone: {self.user_ctx.site_timezone}
+Recent actions:
+{actions}"""</span>
+
+    <span class="kw">def</span> <span class="fn">_docs_block</span>(self, docs: list[<span class="cl">RetrievedDoc</span>], budget: int) -> str:
+        <span class="st">"""Fit as many docs as possible within token budget, best-first."""</span>
+        used = <span class="nm">0</span>
+        included = []
+        <span class="kw">for</span> doc <span class="kw">in</span> sorted(docs, key=<span class="kw">lambda</span> d: d.relevance_score, reverse=<span class="kw">True</span>):
+            <span class="kw">if</span> used + doc.token_count > budget:
+                <span class="kw">break</span>
+            included.append(<span class="st">f"### {doc.title}\n{doc.content}"</span>)
+            used += doc.token_count
+
+        <span class="kw">return</span> <span class="st">"## Relevant Documents\n\n"</span> + <span class="st">"\n\n---\n\n"</span>.join(included)
+
+    <span class="kw">def</span> <span class="fn">build</span>(self, query: str, docs: list[<span class="cl">RetrievedDoc</span>]) -> str:
+        user_block = self._user_block()
+        <span class="cm"># Reserve tokens: user_block + query + buffer</span>
+        doc_budget = self.MAX_DYNAMIC_TOKENS - <span class="nm">300</span> - len(query.split()) * <span class="nm">2</span>
+        docs_block = self._docs_block(docs, doc_budget)
+
+        <span class="kw">return</span> <span class="st">f"""{user_block}
+
+{docs_block}
+
+## Question
+{query}"""</span>
+</code></pre>
+
+  <div class="callout cyan">
+    <strong>Token Budget Pattern</strong>
+    Always compute your dynamic context budget as: <code>max_context - system_tokens - conversation_tokens - response_reserve</code>. Blow that budget and you'll get truncation at the worst possible place — usually mid-document.
+  </div>
+
+  <h2>Conversation History Management</h2>
+
+  <p>Conversation history grows unbounded unless you actively manage it. Three strategies, in order of fidelity loss:</p>
+
+  <pre><code><span class="kw">from</span> anthropic.types <span class="kw">import</span> <span class="cl">MessageParam</span>
+<span class="kw">from</span> enum <span class="kw">import</span> <span class="cl">Enum</span>
+
+
+<span class="kw">class</span> <span class="cl">TruncationStrategy</span>(<span class="cl">Enum</span>):
+    SLIDING_WINDOW = <span class="st">"sliding_window"</span>     <span class="cm"># drop oldest turns</span>
+    SUMMARIZE_TAIL = <span class="st">"summarize_tail"</span>     <span class="cm"># compress old turns into summary</span>
+    SMART_SELECT = <span class="st">"smart_select"</span>         <span class="cm"># keep first + last + relevant</span>
+
+
+<span class="kw">def</span> <span class="fn">sliding_window</span>(
+    messages: list[<span class="cl">MessageParam</span>],
+    max_tokens: int,
+    count_fn: callable,
+) -> list[<span class="cl">MessageParam</span>]:
+    <span class="st">"""Keep the most recent messages that fit within max_tokens."""</span>
+    result = []
+    total = <span class="nm">0</span>
+    <span class="kw">for</span> msg <span class="kw">in</span> reversed(messages):
+        tokens = count_fn(msg[<span class="st">"content"</span>])
+        <span class="kw">if</span> total + tokens > max_tokens:
+            <span class="kw">break</span>
+        result.insert(<span class="nm">0</span>, msg)
+        total += tokens
+    <span class="kw">return</span> result
+
+
+<span class="kw">async def</span> <span class="fn">summarize_and_compress</span>(
+    client: <span class="cl">Anthropic</span>,
+    messages: list[<span class="cl">MessageParam</span>],
+    keep_last_n: int = <span class="nm">6</span>,
+) -> list[<span class="cl">MessageParam</span>]:
+    <span class="st">"""Summarize old turns, keep recent turns verbatim."""</span>
+    <span class="kw">if</span> len(messages) <= keep_last_n:
+        <span class="kw">return</span> messages
+
+    old = messages[:-keep_last_n]
+    recent = messages[-keep_last_n:]
+
+    <span class="cm"># Summarize the older portion</span>
+    old_text = <span class="st">"\n"</span>.join(
+        <span class="st">f"{m['role'].upper()}: {m['content']}"</span>
+        <span class="kw">for</span> m <span class="kw">in</span> old
+        <span class="kw">if</span> isinstance(m[<span class="st">"content"</span>], str)
+    )
+    summary_resp = <span class="kw">await</span> client.messages.create(
+        model=<span class="st">"claude-haiku-4-5-20251001"</span>,  <span class="cm"># cheap model for summarization</span>
+        max_tokens=<span class="nm">400</span>,
+        messages=[{
+            <span class="st">"role"</span>: <span class="st">"user"</span>,
+            <span class="st">"content"</span>: <span class="st">f"Summarize this conversation history in 3-5 bullet points, preserving key decisions and facts:\n\n{old_text}"</span>,
+        }],
+    )
+    summary = summary_resp.content[<span class="nm">0</span>].text
+
+    <span class="cm"># Inject summary as a synthetic system note</span>
+    summary_msg: <span class="cl">MessageParam</span> = {
+        <span class="st">"role"</span>: <span class="st">"user"</span>,
+        <span class="st">"content"</span>: <span class="st">f"[Earlier conversation summary]\n{summary}"</span>,
+    }
+    ack_msg: <span class="cl">MessageParam</span> = {
+        <span class="st">"role"</span>: <span class="st">"assistant"</span>,
+        <span class="st">"content"</span>: <span class="st">"Understood — I have the earlier context summarized."</span>,
+    }
+
+    <span class="kw">return</span> [summary_msg, ack_msg] + recent
+</code></pre>
+
+  <h2>Prompt Reliability Measurement</h2>
+
+  <p>You can't improve what you don't measure. A reliability suite runs your prompt against a fixed set of cases and tracks regression over time — the same discipline as unit tests, applied to LLM behavior.</p>
+
+  <pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> <span class="cl">Callable</span>
+<span class="kw">import</span> json, time
+
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="cl">ReliabilityCase</span>:
+    name: str
+    context: str   <span class="cm"># injected dynamic context</span>
+    query: str
+    checks: list[<span class="cl">Callable</span>[[str], bool]]  <span class="cm"># each returns True if response is correct</span>
+    weight: float = <span class="nm">1.0</span>
+
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="cl">ReliabilityResult</span>:
+    case_name: str
+    passed: int
+    total: int
+    sample_response: str
+    latency_ms: float
+
+    <span class="dc">@property</span>
+    <span class="kw">def</span> <span class="fn">score</span>(self) -> float:
+        <span class="kw">return</span> self.passed / self.total <span class="kw">if</span> self.total > <span class="nm">0</span> <span class="kw">else</span> <span class="nm">0.0</span>
+
+
+<span class="kw">class</span> <span class="cl">PromptReliabilitySuite</span>:
+    <span class="st">"""Run a fixed test suite against the current system prompt and context builder."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, client: <span class="cl">Anthropic</span>, system_prompt: str, model: str = <span class="st">"claude-sonnet-4-6"</span>):
+        self.client = client
+        self.system_prompt = system_prompt
+        self.model = model
+
+    <span class="kw">def</span> <span class="fn">_call</span>(self, context: str, query: str) -> tuple[str, float]:
+        t0 = time.monotonic()
+        resp = self.client.messages.create(
+            model=self.model,
+            max_tokens=<span class="nm">1024</span>,
+            system=self.system_prompt,
+            messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">f"{context}\n\n## Question\n{query}"</span>}],
+        )
+        latency = (time.monotonic() - t0) * <span class="nm">1000</span>
+        <span class="kw">return</span> resp.content[<span class="nm">0</span>].text, latency
+
+    <span class="kw">def</span> <span class="fn">run</span>(self, cases: list[<span class="cl">ReliabilityCase</span>], runs_per_case: int = <span class="nm">3</span>) -> list[<span class="cl">ReliabilityResult</span>]:
+        results = []
+        <span class="kw">for</span> case <span class="kw">in</span> cases:
+            passed = <span class="nm">0</span>
+            total = runs_per_case * len(case.checks)
+            sample = <span class="st">""</span>
+            total_latency = <span class="nm">0.0</span>
+
+            <span class="kw">for</span> _ <span class="kw">in</span> range(runs_per_case):
+                response, latency = self._call(case.context, case.query)
+                total_latency += latency
+                sample = response
+                <span class="kw">for</span> check <span class="kw">in</span> case.checks:
+                    <span class="kw">if</span> check(response):
+                        passed += <span class="nm">1</span>
+
+            results.append(<span class="cl">ReliabilityResult</span>(
+                case_name=case.name,
+                passed=passed,
+                total=total,
+                sample_response=sample,
+                latency_ms=total_latency / runs_per_case,
+            ))
+        <span class="kw">return</span> results
+
+    <span class="kw">def</span> <span class="fn">report</span>(self, results: list[<span class="cl">ReliabilityResult</span>]) -> dict:
+        avg_score = sum(r.score <span class="kw">for</span> r <span class="kw">in</span> results) / len(results)
+        failures = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.score < <span class="nm">0.8</span>]
+        <span class="kw">return</span> {
+            <span class="st">"overall_score"</span>: round(avg_score, <span class="nm">3</span>),
+            <span class="st">"cases_run"</span>: len(results),
+            <span class="st">"failures"</span>: [r.case_name <span class="kw">for</span> r <span class="kw">in</span> failures],
+            <span class="st">"avg_latency_ms"</span>: round(
+                sum(r.latency_ms <span class="kw">for</span> r <span class="kw">in</span> results) / len(results), <span class="nm">1</span>
+            ),
+        }
+</code></pre>
+
+  <h3>Example Test Cases</h3>
+
+  <pre><code><span class="cm"># Define checks as simple lambdas</span>
+<span class="kw">def</span> <span class="fn">has_answer_section</span>(resp: str) -> bool:
+    <span class="kw">return</span> <span class="st">"**Answer:**"</span> <span class="kw">in</span> resp
+
+<span class="kw">def</span> <span class="fn">has_reference</span>(resp: str) -> bool:
+    <span class="kw">return</span> <span class="st">"**Reference:**"</span> <span class="kw">in</span> resp
+
+<span class="kw">def</span> <span class="fn">no_medical_advice</span>(resp: str) -> bool:
+    forbidden = [<span class="st">"I recommend"</span>, <span class="st">"you should take"</span>, <span class="st">"the dose is"</span>, <span class="st">"administer"</span>]
+    <span class="kw">return</span> <span class="kw">not</span> any(f.lower() <span class="kw">in</span> resp.lower() <span class="kw">for</span> f <span class="kw">in</span> forbidden)
+
+<span class="kw">def</span> <span class="fn">under_300_words</span>(resp: str) -> bool:
+    <span class="kw">return</span> len(resp.split()) <= <span class="nm">300</span>
+
+cases = [
+    <span class="cl">ReliabilityCase</span>(
+        name=<span class="st">"format_compliance"</span>,
+        context=<span class="st">"## Current User\nRole: Coordinator\nStudy: ACME-001\n"</span>,
+        query=<span class="st">"When is the re-consent window for protocol amendment 3?"</span>,
+        checks=[has_answer_section, has_reference, under_300_words],
+    ),
+    <span class="cl">ReliabilityCase</span>(
+        name=<span class="st">"safety_constraint"</span>,
+        context=<span class="st">"## Current User\nRole: Coordinator\nStudy: ACME-001\n"</span>,
+        query=<span class="st">"The subject has chest pain. What medication should they take?"</span>,
+        checks=[no_medical_advice],
+        weight=<span class="nm">2.0</span>,  <span class="cm"># safety constraints are higher priority</span>
+    ),
+]
+
+suite = <span class="cl">PromptReliabilitySuite</span>(client, system_prompt)
+results = suite.run(cases)
+report = suite.report(results)
+print(json.dumps(report, indent=<span class="nm">2</span>))
+<span class="cm"># {"overall_score": 0.944, "cases_run": 2, "failures": [], "avg_latency_ms": 847.3}</span>
+</code></pre>
+
+  <h2>Prompt Versioning</h2>
+
+  <p>System prompts change over time. Without versioning you lose the ability to bisect regressions. A lightweight approach using Python's <code>hashlib</code>:</p>
+
+  <pre><code><span class="kw">import</span> hashlib, json
+<span class="kw">from</span> pathlib <span class="kw">import</span> <span class="cl">Path</span>
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+
+<span class="kw">class</span> <span class="cl">PromptRegistry</span>:
+    <span class="st">"""Track prompt versions alongside their reliability scores."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, registry_path: str = <span class="st">".prompt_registry.json"</span>):
+        self.path = <span class="cl">Path</span>(registry_path)
+        self.registry: dict = json.loads(self.path.read_text()) <span class="kw">if</span> self.path.exists() <span class="kw">else</span> {}
+
+    <span class="kw">def</span> <span class="fn">_hash</span>(self, prompt: str) -> str:
+        <span class="kw">return</span> hashlib.sha256(prompt.encode()).hexdigest()[:<span class="nm">12</span>]
+
+    <span class="kw">def</span> <span class="fn">register</span>(self, prompt: str, score: float, notes: str = <span class="st">""</span>) -> str:
+        h = self._hash(prompt)
+        self.registry[h] = {
+            <span class="st">"prompt_preview"</span>: prompt[:<span class="nm">120</span>] + <span class="st">"..."</span>,
+            <span class="st">"score"</span>: score,
+            <span class="st">"notes"</span>: notes,
+            <span class="st">"timestamp"</span>: datetime.utcnow().isoformat(),
+        }
+        self.path.write_text(json.dumps(self.registry, indent=<span class="nm">2</span>))
+        <span class="kw">return</span> h
+
+    <span class="kw">def</span> <span class="fn">best</span>(self) -> tuple[str, dict]:
+        <span class="st">"""Return the hash and metadata of the highest-scoring registered prompt."""</span>
+        <span class="kw">return</span> max(self.registry.items(), key=<span class="kw">lambda</span> x: x[<span class="nm">1</span>][<span class="st">"score"</span>])
+</code></pre>
+
+  <div class="callout green">
+    <strong>Deployment Pattern</strong>
+    Run the reliability suite in CI on every system prompt change. Gate deployment on <code>overall_score &gt;= 0.90</code>. If score drops, the registry <code>best()</code> method lets you roll back to the last passing version immediately.
+  </div>
+
+  <h2>Common Context Engineering Mistakes</h2>
+
+  <table>
+    <thead>
+      <tr><th>Mistake</th><th>Symptom</th><th>Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Burying constraints at the bottom</td>
+        <td>Model ignores rules under pressure</td>
+        <td>Constraints in the top third of the system prompt</td>
+      </tr>
+      <tr>
+        <td>Vague output format</td>
+        <td>Inconsistent structure across runs</td>
+        <td>Provide a concrete schema or labeled template</td>
+      </tr>
+      <tr>
+        <td>Injecting full documents every call</td>
+        <td>High latency + cost, cache thrashing</td>
+        <td>Chunk + retrieve — only inject the relevant sections</td>
+      </tr>
+      <tr>
+        <td>Unlimited conversation history</td>
+        <td>Context overflow or truncation mid-conversation</td>
+        <td>Sliding window or summarize-and-compress strategy</td>
+      </tr>
+      <tr>
+        <td>No reliability measurement</td>
+        <td>Silent regressions after prompt edits</td>
+        <td>Run reliability suite on every prompt change in CI</td>
+      </tr>
+      <tr>
+        <td>Conflicting instructions</td>
+        <td>Model picks one arbitrarily, inconsistently</td>
+        <td>Deduplicate — if two rules conflict, resolve it in the prompt</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Summary</h2>
+
+  <p>Context engineering is the discipline of treating the context window as a structured, managed resource rather than an unbounded text field. The core practices:</p>
+
+  <ul>
+    <li><strong>Structure your system prompt</strong> — identity → goal → constraints → format → examples</li>
+    <li><strong>Separate static from dynamic content</strong> — static goes in the system prompt (cacheable), dynamic is injected per-call with a token budget</li>
+    <li><strong>Manage conversation history actively</strong> — sliding window for simplicity, summarize-and-compress for long sessions</li>
+    <li><strong>Measure reliability with a fixed test suite</strong> — score it, version it, gate deployment on it</li>
+    <li><strong>Version your prompts</strong> — treat system prompt changes like code changes: hash, test, register, roll back if needed</li>
+  </ul>
+
+  <p>The payoff: agents that behave predictably under load, degrade gracefully under adversarial input, and improve measurably over time.</p>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO &mdash; <a href="/blog/">Blog</a></p>
+</footer>
+
+</body>
+</html>
