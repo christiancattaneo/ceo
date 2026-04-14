@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Agent Orchestration Patterns in Python | CEO Blog</title>
+  <meta name="description" content="Practical Python patterns for orchestrating multi-agent Claude systems — orchestrator/worker, fan-out/gather, routing agents, handoffs with shared state, and failure recovery in production.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/multi-agent-orchestration-python.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a4a;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --purple: #7c3aed; --violet: #8b5cf6; --cyan: #06b6d4;
+      --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+    .kw { color: #ff79c6; } .fn { color: #50fa7b; } .st { color: #f1fa8c; }
+    .cm { color: #6272a4; } .cl { color: #8be9fd; } .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; }
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav><a href="/">Home</a><a href="/blog/">Blog</a></nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Multi-Agent Orchestration Patterns in Python</h1>
+  <p>Practical patterns for coordinating fleets of Claude agents — orchestrator/worker decomposition, fan-out/gather, routing by capability, stateful handoffs, and failure recovery that actually holds up in production.</p>
+  <div class="hero-meta">Apr 14, 2026 &nbsp;·&nbsp; 13 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>A single Claude call handles a lot. But some tasks are inherently parallel, exceed a single context window, or need specialized handling that one generalist prompt can't deliver reliably. That's where multi-agent systems earn their keep.</p>
+
+  <p>The flip side: multi-agent architectures introduce coordination overhead, partial failure modes, and state management problems that don't exist in single-agent flows. The patterns below address each of these without adding unnecessary complexity.</p>
+
+  <h2>1. The Orchestrator / Worker Pattern</h2>
+
+  <p>The most common structure: one orchestrator agent that plans and delegates, plus N worker agents that execute specific subtasks. The orchestrator never does domain work — its only job is decomposition and synthesis.</p>
+
+<pre><code><span class="kw">import</span> asyncio
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> Any
+<span class="kw">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">SubTask</span>:
+    id: str
+    description: str
+    worker_role: str
+    result: str | <span class="kw">None</span> = <span class="kw">None</span>
+
+<span class="kw">async def</span> <span class="fn">orchestrate</span>(goal: str) -> str:
+    <span class="cm"># Step 1: orchestrator decomposes the goal into subtasks</span>
+    plan_response = client.messages.create(
+        model=<span class="st">"claude-opus-4-6"</span>,
+        max_tokens=<span class="nm">1024</span>,
+        system=<span class="st">"""You are an orchestrator. Given a goal, output a JSON array of subtasks.
+Each subtask: {"id": "t1", "description": "...", "worker_role": "researcher|writer|analyst"}
+Output only valid JSON."""</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: goal}]
+    )
+
+    <span class="kw">import</span> json
+    subtasks_raw = json.loads(plan_response.content[<span class="nm">0</span>].text)
+    subtasks = [SubTask(**t) <span class="kw">for</span> t <span class="kw">in</span> subtasks_raw]
+
+    <span class="cm"># Step 2: run workers in parallel</span>
+    <span class="kw">await</span> asyncio.gather(*[run_worker(task) <span class="kw">for</span> task <span class="kw">in</span> subtasks])
+
+    <span class="cm"># Step 3: orchestrator synthesizes results</span>
+    results_block = <span class="st">"\n\n"</span>.join(
+        <span class="st">f"[</span>{t.id}<span class="st">] </span>{t.worker_role}<span class="st">: </span>{t.result}"
+        <span class="kw">for</span> t <span class="kw">in</span> subtasks
+    )
+    synthesis = client.messages.create(
+        model=<span class="st">"claude-opus-4-6"</span>,
+        max_tokens=<span class="nm">2048</span>,
+        system=<span class="st">"Synthesize the subtask results into a coherent final answer."</span>,
+        messages=[{
+            <span class="st">"role"</span>: <span class="st">"user"</span>,
+            <span class="st">"content"</span>: <span class="st">f"Goal: </span>{goal}<span class="st">\n\nSubtask results:\n</span>{results_block}"
+        }]
+    )
+    <span class="kw">return</span> synthesis.content[<span class="nm">0</span>].text
+
+<span class="kw">async def</span> <span class="fn">run_worker</span>(task: SubTask) -> <span class="kw">None</span>:
+    role_prompts = {
+        <span class="st">"researcher"</span>: <span class="st">"You are a thorough researcher. Gather facts and cite key points."</span>,
+        <span class="st">"writer"</span>: <span class="st">"You are a precise technical writer. Produce clear, structured prose."</span>,
+        <span class="st">"analyst"</span>: <span class="st">"You are a data analyst. Identify patterns and draw conclusions."</span>,
+    }
+    system = role_prompts.get(task.worker_role, <span class="st">"Complete the task thoroughly."</span>)
+
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,  <span class="cm"># workers use cheaper model</span>
+        max_tokens=<span class="nm">1024</span>,
+        system=system,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: task.description}]
+    )
+    task.result = response.content[<span class="nm">0</span>].text</code></pre>
+
+  <div class="callout yellow">
+    <strong>Model tier strategy</strong>
+    Use Opus for the orchestrator (planning and synthesis require deeper reasoning) and Sonnet for workers (faster, cheaper, sufficient for bounded tasks). This split typically cuts cost by 60–70% versus running everything on Opus.
+  </div>
+
+  <h2>2. Fan-Out / Gather with asyncio.TaskGroup</h2>
+
+  <p>When tasks are fully independent and you need structured cancellation on any failure, <code>asyncio.TaskGroup</code> (Python 3.11+) beats <code>gather()</code>. If one worker raises, all siblings are cancelled automatically.</p>
+
+<pre><code><span class="kw">from</span> typing <span class="kw">import</span> TypeVar
+<span class="kw">import</span> asyncio
+
+T = TypeVar(<span class="st">"T"</span>)
+
+<span class="kw">async def</span> <span class="fn">fan_out</span>(items: list[str], process_fn) -> list[Any]:
+    <span class="cm">"""Run process_fn over all items in parallel; cancel all on first failure."""</span>
+    results: list[Any] = [<span class="kw">None</span>] * len(items)
+
+    <span class="kw">async with</span> asyncio.TaskGroup() <span class="kw">as</span> tg:
+        <span class="kw">for</span> i, item <span class="kw">in</span> enumerate(items):
+            <span class="kw">async def</span> <span class="fn">_task</span>(idx=i, val=item):
+                results[idx] = <span class="kw">await</span> process_fn(val)
+            tg.create_task(_task())
+
+    <span class="kw">return</span> results
+
+<span class="cm"># Usage: analyze 5 documents in parallel</span>
+<span class="kw">async def</span> <span class="fn">analyze_document</span>(doc: str) -> dict:
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">512</span>,
+        system=<span class="st">"Extract: {topics: [], sentiment: '', key_claim: ''} as JSON."</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: doc}]
+    )
+    <span class="kw">import</span> json
+    <span class="kw">return</span> json.loads(response.content[<span class="nm">0</span>].text)
+
+<span class="kw">async def</span> <span class="fn">analyze_corpus</span>(docs: list[str]) -> list[dict]:
+    <span class="kw">return await</span> fan_out(docs, analyze_document)</code></pre>
+
+  <div class="callout cyan">
+    <strong>TaskGroup vs gather</strong>
+    <code>asyncio.gather(return_exceptions=True)</code> lets all tasks finish even when some fail. <code>TaskGroup</code> cancels siblings on first exception. Use TaskGroup when partial results are useless (batch analysis), gather when you want best-effort (parallel enrichment where some can fail gracefully).
+  </div>
+
+  <h2>3. Routing Agent — Dynamic Dispatch</h2>
+
+  <p>A routing agent classifies incoming requests and dispatches them to the right specialist. The router itself is a Claude call that returns a routing decision — simpler and more flexible than hard-coded rules.</p>
+
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+<span class="kw">from</span> enum <span class="kw">import</span> Enum
+<span class="kw">import</span> json
+
+<span class="kw">class</span> <span class="cl">AgentType</span>(str, Enum):
+    CODE_REVIEW = <span class="st">"code_review"</span>
+    DATA_ANALYSIS = <span class="st">"data_analysis"</span>
+    DOCUMENT_QA = <span class="st">"document_qa"</span>
+    GENERAL = <span class="st">"general"</span>
+
+<span class="kw">class</span> <span class="cl">RoutingDecision</span>(BaseModel):
+    agent: AgentType
+    confidence: float
+    reason: str
+
+AGENT_SYSTEMS = {
+    AgentType.CODE_REVIEW: <span class="st">"""You are a senior engineer. Review code for correctness,
+security, and style. Be specific about line numbers and suggest fixes."""</span>,
+
+    AgentType.DATA_ANALYSIS: <span class="st">"""You are a data analyst. Identify patterns, outliers,
+and actionable insights. Use precise numerical language."""</span>,
+
+    AgentType.DOCUMENT_QA: <span class="st">"""You are a document analyst. Answer questions strictly
+from the provided context. Quote relevant passages."""</span>,
+
+    AgentType.GENERAL: <span class="st">"""You are a helpful assistant. Answer clearly and concisely."""</span>,
+}
+
+<span class="kw">def</span> <span class="fn">route_request</span>(user_input: str) -> AgentType:
+    response = client.messages.create(
+        model=<span class="st">"claude-haiku-4-5-20251001"</span>,  <span class="cm"># Haiku is fast + cheap for routing</span>
+        max_tokens=<span class="nm">128</span>,
+        system=<span class="st">"""Classify the request. Output JSON: {"agent": "code_review|data_analysis|document_qa|general", "confidence": 0.0-1.0, "reason": "one line"}.
+Output only JSON."""</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: user_input}]
+    )
+    decision = RoutingDecision.model_validate_json(response.content[<span class="nm">0</span>].text)
+    <span class="kw">return</span> decision.agent
+
+<span class="kw">def</span> <span class="fn">dispatch</span>(user_input: str, context: str = <span class="st">""</span>) -> str:
+    agent_type = route_request(user_input)
+    system = AGENT_SYSTEMS[agent_type]
+
+    content = user_input
+    <span class="kw">if</span> context:
+        content = <span class="st">f"Context:\n</span>{context}<span class="st">\n\nQuestion: </span>{user_input}"
+
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">2048</span>,
+        system=system,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: content}]
+    )
+    <span class="kw">return</span> response.content[<span class="nm">0</span>].text</code></pre>
+
+  <h2>4. Stateful Handoffs — Shared AgentContext</h2>
+
+  <p>When agents need to hand off work mid-stream — passing partial results and accumulated context — you need a shared state object that travels with the task. Avoid global state; pass context explicitly.</p>
+
+<pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> Any
+<span class="kw">import</span> time, uuid
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">AgentContext</span>:
+    task_id: str = field(default_factory=<span class="kw">lambda</span>: str(uuid.uuid4())[:8])
+    original_goal: str = <span class="st">""</span>
+    history: list[dict] = field(default_factory=list)
+    artifacts: dict[str, Any] = field(default_factory=dict)
+    current_agent: str = <span class="st">""</span>
+    created_at: float = field(default_factory=time.time)
+
+    <span class="kw">def</span> <span class="fn">add_message</span>(self, role: str, content: str) -> <span class="kw">None</span>:
+        self.history.append({
+            <span class="st">"role"</span>: role,
+            <span class="st">"content"</span>: content,
+            <span class="st">"agent"</span>: self.current_agent,
+            <span class="st">"ts"</span>: time.time()
+        })
+
+    <span class="kw">def</span> <span class="fn">handoff</span>(self, next_agent: str, note: str = <span class="st">""</span>) -> <span class="kw">None</span>:
+        <span class="kw">if</span> note:
+            self.artifacts[<span class="st">f"handoff_</span>{self.current_agent}<span class="st">_to_</span>{next_agent}"</span>] = note
+        self.current_agent = next_agent
+
+<span class="kw">def</span> <span class="fn">research_agent</span>(ctx: AgentContext) -> AgentContext:
+    ctx.current_agent = <span class="st">"researcher"</span>
+    ctx.add_message(<span class="st">"user"</span>, ctx.original_goal)
+
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">1024</span>,
+        system=<span class="st">"Research the topic thoroughly. Gather key facts and data points."</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: ctx.original_goal}]
+    )
+    research = response.content[<span class="nm">0</span>].text
+    ctx.add_message(<span class="st">"assistant"</span>, research)
+    ctx.artifacts[<span class="st">"research"</span>] = research
+    ctx.handoff(<span class="st">"writer"</span>, note=<span class="st">"Research complete, ready for drafting."</span>)
+    <span class="kw">return</span> ctx
+
+<span class="kw">def</span> <span class="fn">writer_agent</span>(ctx: AgentContext) -> AgentContext:
+    ctx.current_agent = <span class="st">"writer"</span>
+    research = ctx.artifacts.get(<span class="st">"research"</span>, <span class="st">""</span>)
+
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">2048</span>,
+        system=<span class="st">"Turn research into a well-structured draft. Use headers and clear paragraphs."</span>,
+        messages=[{
+            <span class="st">"role"</span>: <span class="st">"user"</span>,
+            <span class="st">"content"</span>: <span class="st">f"Research:\n</span>{research}<span class="st">\n\nWrite a draft about: </span>{ctx.original_goal}"
+        }]
+    )
+    draft = response.content[<span class="nm">0</span>].text
+    ctx.artifacts[<span class="st">"draft"</span>] = draft
+    ctx.handoff(<span class="st">"reviewer"</span>, note=<span class="st">"Draft complete, needs review."</span>)
+    <span class="kw">return</span> ctx
+
+<span class="kw">def</span> <span class="fn">run_pipeline</span>(goal: str) -> str:
+    ctx = AgentContext(original_goal=goal)
+    ctx = research_agent(ctx)
+    ctx = writer_agent(ctx)
+    <span class="kw">return</span> ctx.artifacts.get(<span class="st">"draft"</span>, <span class="st">""</span>)</code></pre>
+
+  <div class="callout purple">
+    <strong>Why explicit context over global state</strong>
+    Passing <code>AgentContext</code> through each function makes every agent's inputs and outputs explicit. You can serialize the context to Redis for resumability, replay it in tests, and audit the full decision chain per task — none of which is possible with shared globals.
+  </div>
+
+  <h2>5. Retry and Partial Failure Recovery</h2>
+
+  <p>In a fan-out of 20 worker calls, 1–2 will fail. Stopping the whole pipeline for a transient API error is wrong. The right pattern: retry workers independently with exponential backoff, then decide at the orchestrator level whether partial results are acceptable.</p>
+
+<pre><code><span class="kw">import</span> asyncio, logging
+<span class="kw">from</span> anthropic <span class="kw">import</span> APIStatusError, APITimeoutError
+
+logger = logging.getLogger(__name__)
+
+<span class="kw">async def</span> <span class="fn">worker_with_retry</span>(
+    task: str,
+    *,
+    max_attempts: int = <span class="nm">3</span>,
+    base_delay: float = <span class="nm">1.0</span>,
+) -> str | <span class="kw">None</span>:
+    <span class="kw">for</span> attempt <span class="kw">in</span> range(max_attempts):
+        <span class="kw">try</span>:
+            response = client.messages.create(
+                model=<span class="st">"claude-sonnet-4-6"</span>,
+                max_tokens=<span class="nm">512</span>,
+                messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: task}]
+            )
+            <span class="kw">return</span> response.content[<span class="nm">0</span>].text
+
+        <span class="kw">except</span> (APIStatusError, APITimeoutError) <span class="kw">as</span> e:
+            <span class="kw">if</span> attempt == max_attempts - <span class="nm">1</span>:
+                logger.error(<span class="st">f"Worker failed after </span>{max_attempts}<span class="st"> attempts: </span>{e}"</span>)
+                <span class="kw">return None</span>
+            delay = base_delay * (<span class="nm">2</span> ** attempt)
+            logger.warning(<span class="st">f"Attempt </span>{attempt + 1}<span class="st"> failed, retrying in </span>{delay:<span class="nm">.1f</span>}s"</span>)
+            <span class="kw">await</span> asyncio.sleep(delay)
+
+<span class="kw">async def</span> <span class="fn">tolerant_fan_out</span>(
+    tasks: list[str],
+    *,
+    min_success_ratio: float = <span class="nm">0.8</span>,
+) -> list[str]:
+    <span class="cm">"""Run all tasks; raise if fewer than min_success_ratio complete."""</span>
+    results = <span class="kw">await</span> asyncio.gather(
+        *[worker_with_retry(t) <span class="kw">for</span> t <span class="kw">in</span> tasks],
+        return_exceptions=<span class="kw">True</span>
+    )
+
+    successes = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if isinstance</span>(r, str)]
+    ratio = len(successes) / len(tasks)
+
+    <span class="kw">if</span> ratio < min_success_ratio:
+        failed = len(tasks) - len(successes)
+        <span class="kw">raise</span> RuntimeError(
+            <span class="st">f"Too many worker failures: </span>{failed}<span class="st">/</span>{len(tasks)}<span class="st"> failed (threshold: </span>{min_success_ratio:.0%}<span class="st">)"</span>
+        )
+
+    <span class="kw">return</span> successes</code></pre>
+
+  <h2>6. Agentic Loop — Self-Directed Tool Use</h2>
+
+  <p>Some tasks require an agent to decide dynamically which tools to call and in what order. Claude's native tool use supports this via a while loop that continues until the model returns a non-tool-use stop reason.</p>
+
+<pre><code><span class="kw">from</span> anthropic.types <span class="kw">import</span> ToolUseBlock, TextBlock
+
+TOOLS = [
+    {
+        <span class="st">"name"</span>: <span class="st">"search_web"</span>,
+        <span class="st">"description"</span>: <span class="st">"Search the web for current information."</span>,
+        <span class="st">"input_schema"</span>: {
+            <span class="st">"type"</span>: <span class="st">"object"</span>,
+            <span class="st">"properties"</span>: {<span class="st">"query"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>}},
+            <span class="st">"required"</span>: [<span class="st">"query"</span>]
+        }
+    },
+    {
+        <span class="st">"name"</span>: <span class="st">"run_python"</span>,
+        <span class="st">"description"</span>: <span class="st">"Execute Python code and return stdout."</span>,
+        <span class="st">"input_schema"</span>: {
+            <span class="st">"type"</span>: <span class="st">"object"</span>,
+            <span class="st">"properties"</span>: {<span class="st">"code"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>}},
+            <span class="st">"required"</span>: [<span class="st">"code"</span>]
+        }
+    }
+]
+
+<span class="kw">def</span> <span class="fn">execute_tool</span>(name: str, inputs: dict) -> str:
+    <span class="cm"># Replace with real implementations</span>
+    <span class="kw">if</span> name == <span class="st">"search_web"</span>:
+        <span class="kw">return</span> <span class="st">f"[search results for: </span>{inputs['query']}<span class="st">]"</span>
+    <span class="kw">if</span> name == <span class="st">"run_python"</span>:
+        <span class="kw">import</span> io, contextlib
+        buf = io.StringIO()
+        <span class="kw">with</span> contextlib.redirect_stdout(buf):
+            exec(inputs[<span class="st">"code"</span>], {})  <span class="cm"># sandbox in production!</span>
+        <span class="kw">return</span> buf.getvalue()
+    <span class="kw">return</span> <span class="st">"unknown tool"</span>
+
+<span class="kw">def</span> <span class="fn">agentic_loop</span>(goal: str, max_turns: int = <span class="nm">10</span>) -> str:
+    messages = [{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: goal}]
+
+    <span class="kw">for</span> _ <span class="kw">in</span> range(max_turns):
+        response = client.messages.create(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=<span class="nm">4096</span>,
+            tools=TOOLS,
+            messages=messages
+        )
+
+        <span class="kw">if</span> response.stop_reason == <span class="st">"end_turn"</span>:
+            <span class="kw">return</span> next(
+                (b.text <span class="kw">for</span> b <span class="kw">in</span> response.content <span class="kw">if isinstance</span>(b, TextBlock)),
+                <span class="st">""</span>
+            )
+
+        <span class="cm"># Append assistant's tool_use blocks</span>
+        messages.append({<span class="st">"role"</span>: <span class="st">"assistant"</span>, <span class="st">"content"</span>: response.content})
+
+        <span class="cm"># Execute each tool and collect results</span>
+        tool_results = []
+        <span class="kw">for</span> block <span class="kw">in</span> response.content:
+            <span class="kw">if isinstance</span>(block, ToolUseBlock):
+                result = execute_tool(block.name, block.input)
+                tool_results.append({
+                    <span class="st">"type"</span>: <span class="st">"tool_result"</span>,
+                    <span class="st">"tool_use_id"</span>: block.id,
+                    <span class="st">"content"</span>: result
+                })
+
+        messages.append({<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: tool_results})
+
+    <span class="kw">raise</span> RuntimeError(<span class="st">f"Agent did not complete within </span>{max_turns}<span class="st"> turns"</span>)</code></pre>
+
+  <div class="callout yellow">
+    <strong>Always set max_turns</strong>
+    An agentic loop without a turn limit is a liability. Set <code>max_turns</code> conservatively (8–12 for most tasks) and log when it fires. If you're hitting the limit regularly, the task is too large for one agent — break it into subtasks handled by the orchestrator/worker pattern instead.
+  </div>
+
+  <h2>Pattern Comparison</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Pattern</th>
+        <th>When to use</th>
+        <th>Complexity</th>
+        <th>Cost profile</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Orchestrator / Worker</td>
+        <td>Task decomposes into independent subtasks with a final synthesis step</td>
+        <td>Medium</td>
+        <td>1 Opus + N Sonnet calls</td>
+      </tr>
+      <tr>
+        <td>Fan-Out / Gather</td>
+        <td>Same operation over many items in parallel (batch analysis, enrichment)</td>
+        <td>Low</td>
+        <td>N Sonnet calls</td>
+      </tr>
+      <tr>
+        <td>Routing Agent</td>
+        <td>Request type is unknown at design time; dispatch to specialists</td>
+        <td>Low</td>
+        <td>1 Haiku + 1 Sonnet/Opus</td>
+      </tr>
+      <tr>
+        <td>Stateful Handoff</td>
+        <td>Sequential pipeline where each stage depends on prior output</td>
+        <td>Medium</td>
+        <td>N sequential Sonnet calls</td>
+      </tr>
+      <tr>
+        <td>Agentic Loop</td>
+        <td>Task requires dynamic tool selection across an unknown number of steps</td>
+        <td>High</td>
+        <td>Variable; set turn limit</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Production Checklist</h2>
+
+  <ul>
+    <li>Orchestrator uses Opus; workers use Sonnet or Haiku depending on task difficulty</li>
+    <li>All fan-outs have a <code>min_success_ratio</code> threshold — decide upfront what partial completion means</li>
+    <li>Every agentic loop has a <code>max_turns</code> guard and logs when it fires</li>
+    <li>State is passed explicitly as a dataclass or dict — no module-level globals</li>
+    <li>Worker failures retry with exponential backoff before propagating</li>
+    <li>Routing decisions are logged for audit — store <code>agent_type</code> and <code>confidence</code> with the request</li>
+    <li>Use <code>asyncio.TaskGroup</code> when partial results are worthless; <code>gather(return_exceptions=True)</code> when best-effort is fine</li>
+    <li>Context objects are serializable — enables resumability and replay in tests</li>
+    <li>Token budgets per worker are explicit — <code>max_tokens</code> set conservatively per role</li>
+    <li>Integration tests run the full pipeline end-to-end against the real API, not mocks</li>
+  </ul>
+
+  <div class="callout green">
+    <strong>Start simple</strong>
+    Most production use cases start with fan-out/gather or a single stateful handoff pipeline. Reach for the full orchestrator/worker pattern only when task decomposition is genuinely dynamic. Premature orchestration adds latency and cost without adding reliability.
+  </div>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO Editorial &nbsp;·&nbsp; <a href="/blog/">All articles</a></p>
+</footer>
+
+</body>
+</html>
