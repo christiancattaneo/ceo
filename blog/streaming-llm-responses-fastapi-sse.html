@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streaming LLM Responses: Server-Sent Events with FastAPI and Claude | CEO Blog</title>
+  <meta name="description" content="Complete implementation of streaming Claude responses via Server-Sent Events in FastAPI — streaming API usage, SSE endpoint design, client-side consumption, error recovery, streaming with tool use, and backpressure handling.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/streaming-llm-responses-fastapi-sse.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a4a;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --purple: #7c3aed; --violet: #8b5cf6; --cyan: #06b6d4;
+      --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+    .kw { color: #ff79c6; } .fn { color: #50fa7b; } .st { color: #f1fa8c; }
+    .cm { color: #6272a4; } .cl { color: #8be9fd; } .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; }
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav><a href="/">Home</a><a href="/blog/">Blog</a></nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Streaming LLM Responses: Server-Sent Events with FastAPI and Claude</h1>
+  <p>A complete implementation of token-by-token streaming — Claude's streaming API, FastAPI SSE endpoints, JavaScript client consumption, error recovery mid-stream, streaming with tool use, and backpressure handling for slow clients.</p>
+  <div class="hero-meta">Apr 14, 2026 &nbsp;·&nbsp; 13 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>Streaming transforms the user experience of LLM applications. Instead of a blank screen for 5–10 seconds followed by a wall of text, users see tokens appearing in real time — the same feel as ChatGPT and Claude.ai. The implementation is straightforward once you understand the event loop, but there are several production pitfalls that only become apparent under load.</p>
+
+  <p>This guide covers the full stack: Claude's streaming API, a FastAPI SSE endpoint, a JavaScript client, error recovery, and streaming with tool use.</p>
+
+  <h2>1. Claude's Streaming API</h2>
+
+  <p>The Anthropic Python SDK supports streaming via a context manager. Instead of waiting for the full response, you iterate over a stream of typed events — <code>text_delta</code> for content chunks, <code>message_delta</code> for usage and stop reason, and <code>content_block_start/stop</code> for structure.</p>
+
+<pre><code><span class="kw">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="kw">def</span> <span class="fn">stream_to_stdout</span>(prompt: str) -> str:
+    <span class="st">"""Basic streaming — prints tokens as they arrive, returns full text."""</span>
+    full_text = <span class="st">""</span>
+
+    <span class="kw">with</span> client.messages.stream(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">1024</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+    ) <span class="kw">as</span> stream:
+        <span class="kw">for</span> text <span class="kw">in</span> stream.text_stream:
+            print(text, end=<span class="st">""</span>, flush=<span class="kw">True</span>)
+            full_text += text
+
+    print()  <span class="cm"># newline after stream</span>
+    <span class="kw">return</span> full_text
+
+<span class="cm"># Access the final message (includes usage stats) after the stream</span>
+<span class="kw">def</span> <span class="fn">stream_with_usage</span>(prompt: str) -> tuple[str, dict]:
+    <span class="kw">with</span> client.messages.stream(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">1024</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+    ) <span class="kw">as</span> stream:
+        full_text = stream.get_final_text()
+        final_msg = stream.get_final_message()
+
+    usage = {
+        <span class="st">"input_tokens"</span>: final_msg.usage.input_tokens,
+        <span class="st">"output_tokens"</span>: final_msg.usage.output_tokens,
+    }
+    <span class="kw">return</span> full_text, usage</code></pre>
+
+  <h2>2. FastAPI SSE Endpoint</h2>
+
+  <p>Server-Sent Events (SSE) is the right transport for streaming LLM output to browsers. It's simpler than WebSockets (unidirectional, HTTP-native), works through proxies, and has native browser support via <code>EventSource</code>. FastAPI's <code>StreamingResponse</code> handles the wire format.</p>
+
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, Request
+<span class="kw">from</span> fastapi.responses <span class="kw">import</span> StreamingResponse
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+<span class="kw">import</span> asyncio, json, anthropic
+
+app = FastAPI()
+client = anthropic.Anthropic()
+
+<span class="kw">class</span> <span class="cl">ChatRequest</span>(BaseModel):
+    message: str
+    conversation_id: str = <span class="st">""</span>
+
+<span class="kw">async def</span> <span class="fn">sse_generator</span>(prompt: str, request: Request):
+    <span class="st">"""Yields SSE-formatted chunks from Claude's stream."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> client.messages.stream(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=<span class="nm">2048</span>,
+            messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+        ) <span class="kw">as</span> stream:
+            <span class="kw">for</span> text <span class="kw">in</span> stream.text_stream:
+                <span class="cm"># Check if client disconnected between chunks</span>
+                <span class="kw">if await</span> request.is_disconnected():
+                    <span class="kw">break</span>
+
+                <span class="cm"># SSE format: "data: {json}\n\n"</span>
+                payload = json.dumps({<span class="st">"type"</span>: <span class="st">"delta"</span>, <span class="st">"text"</span>: text})
+                <span class="kw">yield</span> <span class="st">f"data: </span>{payload}<span class="st">\n\n"</span>
+
+                <span class="cm"># Yield control to event loop between chunks</span>
+                <span class="kw">await</span> asyncio.sleep(<span class="nm">0</span>)
+
+        <span class="cm"># Send done event with usage</span>
+        final = stream.get_final_message()
+        done_payload = json.dumps({
+            <span class="st">"type"</span>: <span class="st">"done"</span>,
+            <span class="st">"input_tokens"</span>: final.usage.input_tokens,
+            <span class="st">"output_tokens"</span>: final.usage.output_tokens,
+        })
+        <span class="kw">yield</span> <span class="st">f"data: </span>{done_payload}<span class="st">\n\n"</span>
+
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        error_payload = json.dumps({<span class="st">"type"</span>: <span class="st">"error"</span>, <span class="st">"message"</span>: str(e)})
+        <span class="kw">yield</span> <span class="st">f"data: </span>{error_payload}<span class="st">\n\n"</span>
+
+<span class="kw">@app.post</span>(<span class="st">"/chat/stream"</span>)
+<span class="kw">async def</span> <span class="fn">chat_stream</span>(body: ChatRequest, request: Request):
+    <span class="kw">return</span> StreamingResponse(
+        sse_generator(body.message, request),
+        media_type=<span class="st">"text/event-stream"</span>,
+        headers={
+            <span class="st">"Cache-Control"</span>: <span class="st">"no-cache"</span>,
+            <span class="st">"X-Accel-Buffering"</span>: <span class="st">"no"</span>,  <span class="cm"># disable nginx buffering</span>
+        }
+    )</code></pre>
+
+  <div class="callout yellow">
+    <strong>X-Accel-Buffering: no</strong>
+    Without this header, nginx (and many reverse proxies) buffer the SSE stream and deliver it in chunks — destroying the real-time effect. Always set <code>X-Accel-Buffering: no</code> on SSE responses. The equivalent for Caddy is <code>flush_interval -1</code> in your Caddyfile.
+  </div>
+
+  <h2>3. JavaScript Client</h2>
+
+  <p>The browser's native <code>EventSource</code> API handles reconnection automatically but only supports GET requests. For POST (needed to send message payloads), use <code>fetch</code> with a <code>ReadableStream</code> reader instead.</p>
+
+<pre><code><span class="cm">// JavaScript SSE client for POST endpoints</span>
+<span class="kw">async function</span> <span class="fn">streamChat</span>(message, onChunk, onDone, onError) {
+  <span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="st">"/chat/stream"</span>, {
+    method: <span class="st">"POST"</span>,
+    headers: { <span class="st">"Content-Type"</span>: <span class="st">"application/json"</span> },
+    body: JSON.stringify({ message }),
+  });
+
+  <span class="kw">if</span> (!response.ok) {
+    onError(<span class="kw">new</span> Error(<span class="st">`HTTP </span>${response.status}<span class="st">`</span>));
+    <span class="kw">return</span>;
+  }
+
+  <span class="kw">const</span> reader = response.body.getReader();
+  <span class="kw">const</span> decoder = <span class="kw">new</span> TextDecoder();
+  <span class="kw">let</span> buffer = <span class="st">""</span>;
+
+  <span class="kw">while</span> (<span class="kw">true</span>) {
+    <span class="kw">const</span> { done, value } = <span class="kw">await</span> reader.read();
+    <span class="kw">if</span> (done) <span class="kw">break</span>;
+
+    buffer += decoder.decode(value, { stream: <span class="kw">true</span> });
+
+    <span class="cm">// SSE lines end with \n\n — process complete events</span>
+    <span class="kw">const</span> events = buffer.split(<span class="st">"\n\n"</span>);
+    buffer = events.pop(); <span class="cm">// last item may be incomplete</span>
+
+    <span class="kw">for</span> (<span class="kw">const</span> event <span class="kw">of</span> events) {
+      <span class="kw">if</span> (!event.startsWith(<span class="st">"data: "</span>)) <span class="kw">continue</span>;
+      <span class="kw">const</span> data = JSON.parse(event.slice(<span class="nm">6</span>));
+
+      <span class="kw">if</span> (data.type === <span class="st">"delta"</span>) onChunk(data.text);
+      <span class="kw">else if</span> (data.type === <span class="st">"done"</span>) onDone(data);
+      <span class="kw">else if</span> (data.type === <span class="st">"error"</span>) onError(<span class="kw">new</span> Error(data.message));
+    }
+  }
+}
+
+<span class="cm">// Usage with a chat textarea</span>
+streamChat(
+  userMessage,
+  (chunk) => { outputEl.textContent += chunk; },
+  (stats) => { console.log(<span class="st">`Tokens: </span>${stats.output_tokens}<span class="st">`</span>); },
+  (err) => { console.error(<span class="st">"Stream error:"</span>, err); }
+);</code></pre>
+
+  <h2>4. Error Recovery Mid-Stream</h2>
+
+  <p>The stream can fail mid-response — a network blip, a rate limit hit, or a server restart. A robust client retries from where it left off using a cursor (character offset) sent with each chunk.</p>
+
+<pre><code><span class="cm"># Server: include cursor in each delta event</span>
+<span class="kw">async def</span> <span class="fn">resumable_sse_generator</span>(prompt: str, start_offset: int = <span class="nm">0</span>):
+    cursor = <span class="nm">0</span>
+    full_text = <span class="st">""</span>
+
+    <span class="kw">with</span> client.messages.stream(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">2048</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+    ) <span class="kw">as</span> stream:
+        <span class="kw">for</span> text <span class="kw">in</span> stream.text_stream:
+            full_text += text
+            cursor = len(full_text)
+
+            <span class="cm"># Skip chunks the client already received</span>
+            <span class="kw">if</span> cursor <= start_offset:
+                <span class="kw">continue</span>
+
+            payload = json.dumps({
+                <span class="st">"type"</span>: <span class="st">"delta"</span>,
+                <span class="st">"text"</span>: text,
+                <span class="st">"cursor"</span>: cursor
+            })
+            <span class="kw">yield</span> <span class="st">f"data: </span>{payload}<span class="st">\n\n"</span>
+            <span class="kw">await</span> asyncio.sleep(<span class="nm">0</span>)
+
+<span class="kw">@app.post</span>(<span class="st">"/chat/stream"</span>)
+<span class="kw">async def</span> <span class="fn">resumable_stream</span>(body: ChatRequest, offset: int = <span class="nm">0</span>):
+    <span class="kw">return</span> StreamingResponse(
+        resumable_sse_generator(body.message, start_offset=offset),
+        media_type=<span class="st">"text/event-stream"</span>,
+        headers={<span class="st">"Cache-Control"</span>: <span class="st">"no-cache"</span>, <span class="st">"X-Accel-Buffering"</span>: <span class="st">"no"</span>}
+    )</code></pre>
+
+  <div class="callout purple">
+    <strong>True resumability requires server-side storage</strong>
+    The resumable pattern above only works if the same server instance handles the retry (no load balancer). For true resumability across restarts, store the accumulated text in Redis keyed by <code>conversation_id</code>, and replay from the stored cursor on reconnect. This is overkill for most apps — simple client-side retry with visual feedback ("Reconnecting…") handles the common case.
+  </div>
+
+  <h2>5. Streaming with Tool Use</h2>
+
+  <p>Streaming and tool use interact in a specific way: tool call inputs stream as JSON fragments (not yet parseable), then a <code>tool_use</code> block completes, then the response pauses while you execute the tool, then streaming resumes with the tool result incorporated.</p>
+
+<pre><code><span class="kw">from</span> anthropic.types <span class="kw">import</span> ToolUseBlock
+<span class="kw">import</span> json
+
+<span class="kw">async def</span> <span class="fn">streaming_tool_loop</span>(prompt: str):
+    messages = [{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+
+    <span class="kw">while True</span>:
+        tool_calls = []
+        text_chunks = []
+
+        <span class="kw">with</span> client.messages.stream(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=<span class="nm">2048</span>,
+            tools=TOOLS,
+            messages=messages,
+        ) <span class="kw">as</span> stream:
+            <span class="cm"># Stream text tokens to the client in real time</span>
+            <span class="kw">for</span> event <span class="kw">in</span> stream:
+                <span class="kw">if</span> event.type == <span class="st">"content_block_delta"</span>:
+                    <span class="kw">if</span> event.delta.type == <span class="st">"text_delta"</span>:
+                        text = event.delta.text
+                        text_chunks.append(text)
+                        <span class="kw">yield</span> <span class="st">f"data: </span>{json.dumps({'type': 'delta', 'text': text})}<span class="st">\n\n"</span>
+
+            final = stream.get_final_message()
+
+        <span class="cm"># Check if we need to execute tools</span>
+        tool_calls = [b <span class="kw">for</span> b <span class="kw">in</span> final.content <span class="kw">if isinstance</span>(b, ToolUseBlock)]
+
+        <span class="kw">if not</span> tool_calls:
+            <span class="kw">break</span>  <span class="cm"># no tools → done</span>
+
+        <span class="cm"># Signal tool execution to client</span>
+        <span class="kw">yield</span> <span class="st">f"data: </span>{json.dumps({'type': 'tool_start', 'tools': [t.name for t in tool_calls]})}<span class="st">\n\n"</span>
+
+        messages.append({<span class="st">"role"</span>: <span class="st">"assistant"</span>, <span class="st">"content"</span>: final.content})
+        tool_results = []
+        <span class="kw">for</span> tc <span class="kw">in</span> tool_calls:
+            result = execute_tool(tc.name, tc.input)
+            tool_results.append({
+                <span class="st">"type"</span>: <span class="st">"tool_result"</span>,
+                <span class="st">"tool_use_id"</span>: tc.id,
+                <span class="st">"content"</span>: result
+            })
+        messages.append({<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: tool_results})
+
+        <span class="cm"># Signal tool complete; next loop iteration streams the follow-up response</span>
+        <span class="kw">yield</span> <span class="st">f"data: </span>{json.dumps({'type': 'tool_done'})}<span class="st">\n\n"</span>
+
+    <span class="kw">yield</span> <span class="st">f"data: </span>{json.dumps({'type': 'done'})}<span class="st">\n\n"</span></code></pre>
+
+  <h2>6. Backpressure and Slow Clients</h2>
+
+  <p>If a client reads slowly — a mobile device on a poor connection — the server can accumulate an unbounded buffer of unsent SSE chunks. Bound this with a queue and a timeout.</p>
+
+<pre><code><span class="kw">import</span> asyncio
+
+<span class="kw">async def</span> <span class="fn">backpressure_generator</span>(prompt: str, request: Request):
+    queue: asyncio.Queue[str | <span class="kw">None</span>] = asyncio.Queue(maxsize=<span class="nm">50</span>)
+
+    <span class="kw">async def</span> <span class="fn">producer</span>():
+        <span class="st">"""Run the Claude stream and push chunks to the queue."""</span>
+        <span class="kw">with</span> client.messages.stream(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=<span class="nm">2048</span>,
+            messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+        ) <span class="kw">as</span> stream:
+            <span class="kw">for</span> text <span class="kw">in</span> stream.text_stream:
+                <span class="kw">try</span>:
+                    <span class="cm"># Block if queue is full — applies backpressure on the producer</span>
+                    <span class="kw">await</span> asyncio.wait_for(queue.put(text), timeout=<span class="nm">10.0</span>)
+                <span class="kw">except</span> asyncio.TimeoutError:
+                    <span class="kw">break</span>  <span class="cm"># client too slow; abandon stream</span>
+        <span class="kw">await</span> queue.put(<span class="kw">None</span>)  <span class="cm"># sentinel</span>
+
+    asyncio.create_task(producer())
+
+    <span class="kw">while True</span>:
+        <span class="kw">if await</span> request.is_disconnected():
+            <span class="kw">break</span>
+        chunk = <span class="kw">await</span> asyncio.wait_for(queue.get(), timeout=<span class="nm">30.0</span>)
+        <span class="kw">if</span> chunk <span class="kw">is None</span>:
+            <span class="kw">break</span>
+        <span class="kw">yield</span> <span class="st">f"data: </span>{json.dumps({'type': 'delta', 'text': chunk})}<span class="st">\n\n"</span></code></pre>
+
+  <h2>Production Checklist</h2>
+
+  <ul>
+    <li>SSE responses set <code>Cache-Control: no-cache</code> and <code>X-Accel-Buffering: no</code></li>
+    <li>Client checks <code>request.is_disconnected()</code> between chunks to abort orphaned streams</li>
+    <li>Error events use a distinct <code>type: "error"</code> payload — never silently drop errors</li>
+    <li>Stream generator yields <code>await asyncio.sleep(0)</code> between chunks to release the event loop</li>
+    <li>Tool execution during streaming signals the client with <code>tool_start</code> / <code>tool_done</code> events</li>
+    <li>Queue-based backpressure limits memory growth when clients read slowly</li>
+    <li>Usage stats (<code>input_tokens</code>, <code>output_tokens</code>) sent in the <code>done</code> event for cost tracking</li>
+    <li>JavaScript client buffers partial SSE lines — splits on <code>\n\n</code>, not on individual chunks</li>
+    <li>Load balancer / reverse proxy configured for long-lived connections (timeout ≥ 120s)</li>
+    <li>Integration test verifies full stream delivery end-to-end, not just HTTP 200</li>
+  </ul>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO Editorial &nbsp;·&nbsp; <a href="/blog/">All articles</a></p>
+</footer>
+
+</body>
+</html>
