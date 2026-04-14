@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Agent Orchestration with Claude: Patterns for Parallel Subagents | CEO Blog</title>
+  <meta name="description" content="Production patterns for multi-agent systems using Claude — orchestrator-subagent architecture, parallel fan-out with asyncio TaskGroup, result synthesis, agent routing, handoff protocols, and error isolation across agent boundaries.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/multi-agent-orchestration-claude.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a4a;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --purple: #7c3aed; --violet: #8b5cf6; --cyan: #06b6d4;
+      --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+    .kw { color: #ff79c6; } .fn { color: #50fa7b; } .st { color: #f1fa8c; }
+    .cm { color: #6272a4; } .cl { color: #8be9fd; } .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; }
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav><a href="/">Home</a><a href="/blog/">Blog</a></nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Multi-Agent Orchestration with Claude: Patterns for Parallel Subagents</h1>
+  <p>Orchestrator-subagent architecture, parallel fan-out with asyncio TaskGroup, result synthesis, agent routing, handoff protocols, and error isolation across agent boundaries.</p>
+  <div class="hero-meta">Apr 14, 2026 &nbsp;·&nbsp; 13 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>Single-agent systems hit a wall on complex tasks. Long context windows help, but they don't solve the fundamental problem: one agent doing everything sequentially is slow, and a single large context costs more than several focused smaller ones. Multi-agent architectures solve both problems — parallelism cuts latency, and specialized subagents use focused contexts that are cheaper per token.</p>
+
+  <p>This guide covers the patterns that work in production: the orchestrator-subagent model, parallel execution with <code>asyncio.TaskGroup</code>, result synthesis, routing, agent handoffs, and error isolation so one failed subagent doesn't take down the entire pipeline.</p>
+
+  <h2>1. The Orchestrator-Subagent Pattern</h2>
+
+  <p>The orchestrator receives a high-level task, decomposes it, dispatches subagents, and synthesizes results. Subagents are narrow: they receive a well-defined subtask and return a structured result. Neither knows about the other's existence.</p>
+
+<pre><code><span class="kw">from</span> <span class="dc">dataclasses</span> <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> <span class="dc">typing</span> <span class="kw">import</span> Any
+<span class="kw">import</span> <span class="dc">anthropic</span>
+<span class="kw">import</span> <span class="dc">asyncio</span>
+<span class="kw">import</span> <span class="dc">json</span>
+
+client = anthropic.AsyncAnthropic()
+
+<span class="nm">@dataclass</span>
+<span class="kw">class</span> <span class="cl">SubtaskResult</span>:
+    agent_id: str
+    task: str
+    result: str
+    success: bool
+    tokens_used: int = 0
+
+<span class="nm">@dataclass</span>
+<span class="kw">class</span> <span class="cl">OrchestrationPlan</span>:
+    subtasks: list[dict] = field(default_factory=list)
+    synthesis_prompt: str = <span class="st">""</span>
+
+<span class="kw">async def</span> <span class="fn">orchestrate</span>(task: str) -> str:
+    <span class="cm"># Step 1: plan decomposition</span>
+    plan = <span class="kw">await</span> <span class="fn">decompose_task</span>(task)
+
+    <span class="cm"># Step 2: parallel subagent execution</span>
+    results = <span class="kw">await</span> <span class="fn">run_subagents_parallel</span>(plan.subtasks)
+
+    <span class="cm"># Step 3: synthesis</span>
+    <span class="kw">return</span> <span class="kw">await</span> <span class="fn">synthesize_results</span>(task, results, plan.synthesis_prompt)</code></pre>
+
+  <h3>Decomposition via structured output</h3>
+
+  <p>The orchestrator uses a JSON schema tool to produce a machine-readable plan. This is more reliable than parsing free text — Claude fills in a defined structure rather than improvising a format.</p>
+
+<pre><code>DECOMPOSE_TOOL = {
+    <span class="st">"name"</span>: <span class="st">"create_plan"</span>,
+    <span class="st">"description"</span>: <span class="st">"Decompose a complex task into parallel subtasks"</span>,
+    <span class="st">"input_schema"</span>: {
+        <span class="st">"type"</span>: <span class="st">"object"</span>,
+        <span class="st">"properties"</span>: {
+            <span class="st">"subtasks"</span>: {
+                <span class="st">"type"</span>: <span class="st">"array"</span>,
+                <span class="st">"items"</span>: {
+                    <span class="st">"type"</span>: <span class="st">"object"</span>,
+                    <span class="st">"properties"</span>: {
+                        <span class="st">"agent_id"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+                        <span class="st">"task"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+                        <span class="st">"context"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>},
+                        <span class="st">"can_run_parallel"</span>: {<span class="st">"type"</span>: <span class="st">"boolean"</span>}
+                    },
+                    <span class="st">"required"</span>: [<span class="st">"agent_id"</span>, <span class="st">"task"</span>, <span class="st">"context"</span>, <span class="st">"can_run_parallel"</span>]
+                }
+            },
+            <span class="st">"synthesis_prompt"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>}
+        },
+        <span class="st">"required"</span>: [<span class="st">"subtasks"</span>, <span class="st">"synthesis_prompt"</span>]
+    }
+}
+
+<span class="kw">async def</span> <span class="fn">decompose_task</span>(task: str) -> OrchestrationPlan:
+    response = <span class="kw">await</span> client.messages.create(
+        model=<span class="st">"claude-opus-4-6"</span>,
+        max_tokens=1024,
+        system=<span class="st">"You are a task planner. Break complex requests into focused parallel subtasks."</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: task}],
+        tools=[DECOMPOSE_TOOL],
+        tool_choice={<span class="st">"type"</span>: <span class="st">"tool"</span>, <span class="st">"name"</span>: <span class="st">"create_plan"</span>}
+    )
+    tool_use = next(b <span class="kw">for</span> b <span class="kw">in</span> response.content <span class="kw">if</span> b.type == <span class="st">"tool_use"</span>)
+    plan_data = tool_use.input
+    <span class="kw">return</span> OrchestrationPlan(
+        subtasks=plan_data[<span class="st">"subtasks"</span>],
+        synthesis_prompt=plan_data[<span class="st">"synthesis_prompt"</span>]
+    )</code></pre>
+
+  <h2>2. Parallel Fan-Out with asyncio.TaskGroup</h2>
+
+  <p><code>asyncio.TaskGroup</code> (Python 3.11+) is the right primitive for parallel subagents. It runs all tasks concurrently, surfaces the first exception if any task fails, and cancels remaining tasks automatically — cleaner than managing <code>gather()</code> with <code>return_exceptions=True</code>.</p>
+
+<pre><code><span class="kw">async def</span> <span class="fn">run_subagents_parallel</span>(
+    subtasks: list[dict],
+    max_concurrent: int = 5
+) -> list[SubtaskResult]:
+    semaphore = asyncio.Semaphore(max_concurrent)
+    results: list[SubtaskResult] = []
+
+    <span class="kw">async def</span> <span class="fn">run_one</span>(subtask: dict) -> SubtaskResult:
+        <span class="kw">async with</span> semaphore:
+            <span class="kw">try</span>:
+                result = <span class="kw">await</span> <span class="fn">run_subagent</span>(
+                    agent_id=subtask[<span class="st">"agent_id"</span>],
+                    task=subtask[<span class="st">"task"</span>],
+                    context=subtask[<span class="st">"context"</span>]
+                )
+                results.append(result)
+                <span class="kw">return</span> result
+            <span class="kw">except</span> Exception <span class="kw">as</span> e:
+                <span class="cm"># Isolate: record failure but don't crash others</span>
+                failed = SubtaskResult(
+                    agent_id=subtask[<span class="st">"agent_id"</span>],
+                    task=subtask[<span class="st">"task"</span>],
+                    result=f<span class="st">"ERROR: {e}"</span>,
+                    success=<span class="nm">False</span>
+                )
+                results.append(failed)
+                <span class="kw">return</span> failed
+
+    <span class="cm"># Run parallel and sequential tasks separately</span>
+    parallel = [t <span class="kw">for</span> t <span class="kw">in</span> subtasks <span class="kw">if</span> t[<span class="st">"can_run_parallel"</span>]]
+    sequential = [t <span class="kw">for</span> t <span class="kw">in</span> subtasks <span class="kw">if</span> <span class="kw">not</span> t[<span class="st">"can_run_parallel"</span>]]
+
+    <span class="kw">async with</span> asyncio.TaskGroup() <span class="kw">as</span> tg:
+        <span class="kw">for</span> subtask <span class="kw">in</span> parallel:
+            tg.create_task(<span class="fn">run_one</span>(subtask))
+
+    <span class="cm"># Sequential tasks run after parallel batch completes</span>
+    <span class="kw">for</span> subtask <span class="kw">in</span> sequential:
+        <span class="kw">await</span> <span class="fn">run_one</span>(subtask)
+
+    <span class="kw">return</span> results</code></pre>
+
+  <div class="callout yellow">
+    <strong>Semaphore vs TaskGroup</strong>
+    The semaphore caps concurrent Claude API calls to avoid rate limit errors. TaskGroup handles the concurrency primitives. Set <code>max_concurrent</code> based on your tier's requests-per-minute limit — at Tier 2, 5 concurrent Sonnet calls is safe; at Tier 4, you can push 20+.
+  </div>
+
+  <h3>Individual subagent execution</h3>
+
+<pre><code><span class="kw">async def</span> <span class="fn">run_subagent</span>(
+    agent_id: str,
+    task: str,
+    context: str,
+    model: str = <span class="st">"claude-sonnet-4-6"</span>
+) -> SubtaskResult:
+    <span class="cm"># Subagents use focused system prompts, not the orchestrator's full context</span>
+    system = f<span class="st">"""You are a specialized agent with ID '{agent_id}'.
+Complete the assigned subtask and return ONLY the result.
+Be concise. The orchestrator will handle synthesis.
+Context: {context}"""</span>
+
+    response = <span class="kw">await</span> client.messages.create(
+        model=model,
+        max_tokens=2048,
+        system=[{
+            <span class="st">"type"</span>: <span class="st">"text"</span>,
+            <span class="st">"text"</span>: system,
+            <span class="st">"cache_control"</span>: {<span class="st">"type"</span>: <span class="st">"ephemeral"</span>}  <span class="cm"># cache repeated system prompts</span>
+        }],
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: task}]
+    )
+
+    <span class="kw">return</span> SubtaskResult(
+        agent_id=agent_id,
+        task=task,
+        result=response.content[0].text,
+        success=<span class="nm">True</span>,
+        tokens_used=response.usage.input_tokens + response.usage.output_tokens
+    )</code></pre>
+
+  <h2>3. Result Synthesis</h2>
+
+  <p>Synthesis is where the orchestrator earns its place. It receives all subagent outputs and produces a unified response. The orchestrator model (Opus) is appropriate here — it needs to reason across multiple perspectives and catch contradictions.</p>
+
+<pre><code><span class="kw">async def</span> <span class="fn">synthesize_results</span>(
+    original_task: str,
+    results: list[SubtaskResult],
+    synthesis_prompt: str
+) -> str:
+    <span class="cm"># Build a structured summary of what succeeded and what failed</span>
+    success_results = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.success]
+    failed_results = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> <span class="kw">not</span> r.success]
+
+    agent_outputs = <span class="st">"\n\n"</span>.join([
+        f<span class="st">"=== Agent {r.agent_id} ===\nTask: {r.task}\nResult: {r.result}"</span>
+        <span class="kw">for</span> r <span class="kw">in</span> success_results
+    ])
+
+    failure_note = <span class="st">""</span>
+    <span class="kw">if</span> failed_results:
+        failed_ids = <span class="st">", "</span>.join(r.agent_id <span class="kw">for</span> r <span class="kw">in</span> failed_results)
+        failure_note = f<span class="st">"\n\nNote: agents [{failed_ids}] failed. Synthesize from available results."</span>
+
+    response = <span class="kw">await</span> client.messages.create(
+        model=<span class="st">"claude-opus-4-6"</span>,
+        max_tokens=4096,
+        system=<span class="st">"You are a synthesis engine. Combine agent outputs into a coherent, unified response."</span>,
+        messages=[{
+            <span class="st">"role"</span>: <span class="st">"user"</span>,
+            <span class="st">"content"</span>: f<span class="st">"""Original task: {original_task}
+
+Agent outputs:
+{agent_outputs}{failure_note}
+
+Synthesis instructions: {synthesis_prompt}"""</span>
+        }]
+    )
+    <span class="kw">return</span> response.content[0].text</code></pre>
+
+  <h2>4. Agent Routing</h2>
+
+  <p>Not every task needs decomposition. A router inspects the incoming request and selects the appropriate specialist agent — no orchestration overhead for simple cases.</p>
+
+<pre><code><span class="kw">from</span> <span class="dc">enum</span> <span class="kw">import</span> StrEnum
+
+<span class="kw">class</span> <span class="cl">AgentType</span>(StrEnum):
+    CODE_REVIEW = <span class="st">"code_review"</span>
+    DATA_ANALYSIS = <span class="st">"data_analysis"</span>
+    DOCUMENT_SUMMARY = <span class="st">"document_summary"</span>
+    ORCHESTRATOR = <span class="st">"orchestrator"</span>
+
+AGENT_CONFIGS: dict[AgentType, dict] = {
+    AgentType.CODE_REVIEW: {
+        <span class="st">"model"</span>: <span class="st">"claude-sonnet-4-6"</span>,
+        <span class="st">"system"</span>: <span class="st">"You are a senior code reviewer. Focus on correctness, security, and maintainability."</span>,
+        <span class="st">"max_tokens"</span>: 2048
+    },
+    AgentType.DATA_ANALYSIS: {
+        <span class="st">"model"</span>: <span class="st">"claude-sonnet-4-6"</span>,
+        <span class="st">"system"</span>: <span class="st">"You are a data analyst. Identify patterns, anomalies, and actionable insights."</span>,
+        <span class="st">"max_tokens"</span>: 3000
+    },
+    AgentType.DOCUMENT_SUMMARY: {
+        <span class="st">"model"</span>: <span class="st">"claude-haiku-4-5-20251001"</span>,  <span class="cm"># cheaper for simple summarization</span>
+        <span class="st">"system"</span>: <span class="st">"You are a document summarizer. Be concise and structured."</span>,
+        <span class="st">"max_tokens"</span>: 1024
+    },
+    AgentType.ORCHESTRATOR: {
+        <span class="st">"model"</span>: <span class="st">"claude-opus-4-6"</span>,
+        <span class="st">"system"</span>: <span class="st">"You handle complex multi-step tasks requiring decomposition."</span>,
+        <span class="st">"max_tokens"</span>: 4096
+    }
+}
+
+ROUTE_TOOL = {
+    <span class="st">"name"</span>: <span class="st">"route_request"</span>,
+    <span class="st">"description"</span>: <span class="st">"Route the request to the appropriate specialized agent"</span>,
+    <span class="st">"input_schema"</span>: {
+        <span class="st">"type"</span>: <span class="st">"object"</span>,
+        <span class="st">"properties"</span>: {
+            <span class="st">"agent_type"</span>: {
+                <span class="st">"type"</span>: <span class="st">"string"</span>,
+                <span class="st">"enum"</span>: [e.value <span class="kw">for</span> e <span class="kw">in</span> AgentType]
+            },
+            <span class="st">"reason"</span>: {<span class="st">"type"</span>: <span class="st">"string"</span>}
+        },
+        <span class="st">"required"</span>: [<span class="st">"agent_type"</span>, <span class="st">"reason"</span>]
+    }
+}
+
+<span class="kw">async def</span> <span class="fn">route_request</span>(user_input: str) -> tuple[AgentType, str]:
+    <span class="cm"># Use Haiku for routing — fast and cheap</span>
+    response = <span class="kw">await</span> client.messages.create(
+        model=<span class="st">"claude-haiku-4-5-20251001"</span>,
+        max_tokens=256,
+        system=<span class="st">"Classify requests and route them to the correct specialist agent."</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: user_input}],
+        tools=[ROUTE_TOOL],
+        tool_choice={<span class="st">"type"</span>: <span class="st">"tool"</span>, <span class="st">"name"</span>: <span class="st">"route_request"</span>}
+    )
+    tool_use = next(b <span class="kw">for</span> b <span class="kw">in</span> response.content <span class="kw">if</span> b.type == <span class="st">"tool_use"</span>)
+    agent_type = AgentType(tool_use.input[<span class="st">"agent_type"</span>])
+    reason = tool_use.input[<span class="st">"reason"</span>]
+    <span class="kw">return</span> agent_type, reason
+
+<span class="kw">async def</span> <span class="fn">handle_request</span>(user_input: str) -> str:
+    agent_type, _ = <span class="kw">await</span> <span class="fn">route_request</span>(user_input)
+    config = AGENT_CONFIGS[agent_type]
+
+    <span class="kw">if</span> agent_type == AgentType.ORCHESTRATOR:
+        <span class="kw">return</span> <span class="kw">await</span> <span class="fn">orchestrate</span>(user_input)
+
+    response = <span class="kw">await</span> client.messages.create(
+        model=config[<span class="st">"model"</span>],
+        max_tokens=config[<span class="st">"max_tokens"</span>],
+        system=config[<span class="st">"system"</span>],
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: user_input}]
+    )
+    <span class="kw">return</span> response.content[0].text</code></pre>
+
+  <div class="callout cyan">
+    <strong>Model selection by role</strong>
+    Use Haiku for routing (fast, cheap, needs low reasoning). Use Sonnet for subagents (capable, cost-effective). Use Opus for orchestration and synthesis (complex reasoning across many inputs). A typical orchestrated request costs ~3–5x a single Sonnet call but does 4–8x the work in parallel.
+  </div>
+
+  <h2>5. Agent Handoff Protocol</h2>
+
+  <p>Some tasks require sequential handoffs where agent B needs agent A's output before it can start. This differs from fan-out — the agents form a pipeline, and each step's output becomes the next step's input.</p>
+
+<pre><code><span class="nm">@dataclass</span>
+<span class="kw">class</span> <span class="cl">HandoffContext</span>:
+    <span class="st">"""Passed between agents in a pipeline."""</span>
+    original_task: str
+    pipeline_stage: int
+    prior_outputs: list[SubtaskResult]
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    <span class="kw">def</span> <span class="fn">as_context_string</span>(self) -> str:
+        prior = <span class="st">"\n"</span>.join([
+            f<span class="st">"Stage {i+1} ({r.agent_id}): {r.result[:500]}..."</span>
+            <span class="kw">if</span> len(r.result) > 500
+            <span class="kw">else</span> f<span class="st">"Stage {i+1} ({r.agent_id}): {r.result}"</span>
+            <span class="kw">for</span> i, r <span class="kw">in</span> enumerate(self.prior_outputs)
+        ])
+        <span class="kw">return</span> f<span class="st">"Original task: {self.original_task}\n\nPrior stages:\n{prior}"</span>
+
+<span class="kw">async def</span> <span class="fn">run_pipeline</span>(
+    task: str,
+    stages: list[dict]  <span class="cm"># each: {agent_id, role, system_prompt}</span>
+) -> HandoffContext:
+    ctx = HandoffContext(original_task=task, pipeline_stage=0, prior_outputs=[])
+
+    <span class="kw">for</span> stage <span class="kw">in</span> stages:
+        handoff_message = f<span class="st">"""{ctx.as_context_string()}
+
+Your role: {stage['role']}
+Your task: Based on the above context, perform your specialized analysis."""</span>
+
+        response = <span class="kw">await</span> client.messages.create(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=2048,
+            system=stage[<span class="st">"system_prompt"</span>],
+            messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: handoff_message}]
+        )
+
+        ctx.prior_outputs.append(SubtaskResult(
+            agent_id=stage[<span class="st">"agent_id"</span>],
+            task=stage[<span class="st">"role"</span>],
+            result=response.content[0].text,
+            success=<span class="nm">True</span>,
+            tokens_used=response.usage.input_tokens + response.usage.output_tokens
+        ))
+        ctx.pipeline_stage += 1
+
+    <span class="kw">return</span> ctx
+
+<span class="cm"># Example: research → draft → critique pipeline</span>
+RESEARCH_PIPELINE = [
+    {
+        <span class="st">"agent_id"</span>: <span class="st">"researcher"</span>,
+        <span class="st">"role"</span>: <span class="st">"Identify key facts, statistics, and relevant context"</span>,
+        <span class="st">"system_prompt"</span>: <span class="st">"You are a research agent. Extract and organize factual information."</span>
+    },
+    {
+        <span class="st">"agent_id"</span>: <span class="st">"drafter"</span>,
+        <span class="st">"role"</span>: <span class="st">"Write a structured first draft using the research findings"</span>,
+        <span class="st">"system_prompt"</span>: <span class="st">"You are a writing agent. Produce clear, structured content from research."</span>
+    },
+    {
+        <span class="st">"agent_id"</span>: <span class="st">"critic"</span>,
+        <span class="st">"role"</span>: <span class="st">"Identify gaps, factual errors, and improvements in the draft"</span>,
+        <span class="st">"system_prompt"</span>: <span class="st">"You are an editorial critic. Be rigorous and specific in your feedback."</span>
+    }
+]</code></pre>
+
+  <h2>6. Error Isolation and Retry Logic</h2>
+
+  <p>Production multi-agent systems need two layers of resilience: per-subagent retry for transient API errors, and graceful degradation when retries exhaust. The orchestrator should always complete — either with all results or with a partial synthesis that acknowledges the gaps.</p>
+
+<pre><code><span class="kw">import</span> <span class="dc">asyncio</span>
+<span class="kw">from</span> <span class="dc">anthropic</span> <span class="kw">import</span> APIStatusError, APITimeoutError, RateLimitError
+
+<span class="kw">async def</span> <span class="fn">run_subagent_with_retry</span>(
+    agent_id: str,
+    task: str,
+    context: str,
+    max_retries: int = 3,
+    base_delay: float = 1.0
+) -> SubtaskResult:
+    last_error: Exception | <span class="nm">None</span> = <span class="nm">None</span>
+
+    <span class="kw">for</span> attempt <span class="kw">in</span> range(max_retries):
+        <span class="kw">try</span>:
+            <span class="kw">return</span> <span class="kw">await</span> <span class="fn">run_subagent</span>(agent_id, task, context)
+
+        <span class="kw">except</span> RateLimitError <span class="kw">as</span> e:
+            <span class="cm"># Exponential backoff for rate limits</span>
+            delay = base_delay * (2 ** attempt)
+            <span class="kw">await</span> asyncio.sleep(delay)
+            last_error = e
+
+        <span class="kw">except</span> APITimeoutError <span class="kw">as</span> e:
+            <span class="cm"># Shorter retry for timeouts</span>
+            <span class="kw">await</span> asyncio.sleep(base_delay)
+            last_error = e
+
+        <span class="kw">except</span> APIStatusError <span class="kw">as</span> e:
+            <span class="kw">if</span> e.status_code >= 500:
+                <span class="cm"># Server error — retry</span>
+                <span class="kw">await</span> asyncio.sleep(base_delay * (attempt + 1))
+                last_error = e
+            <span class="kw">else</span>:
+                <span class="cm"># Client error (4xx) — don't retry</span>
+                <span class="kw">return</span> SubtaskResult(
+                    agent_id=agent_id, task=task,
+                    result=f<span class="st">"Client error {e.status_code}: {e.message}"</span>,
+                    success=<span class="nm">False</span>
+                )
+
+    <span class="kw">return</span> SubtaskResult(
+        agent_id=agent_id, task=task,
+        result=f<span class="st">"Failed after {max_retries} attempts: {last_error}"</span>,
+        success=<span class="nm">False</span>
+    )</code></pre>
+
+  <div class="callout green">
+    <strong>Minimum viable result threshold</strong>
+    Before calling the synthesis step, check if enough subagents succeeded. If fewer than 50% succeeded, abort synthesis and return an error rather than producing an unreliable partial result. Define this threshold per task type — a legal document analysis needs all agents; a content summary can tolerate 1–2 failures.
+  </div>
+
+  <h2>7. Prompt Caching Across Subagents</h2>
+
+  <p>When multiple subagents share a large common context (a document, a codebase, a knowledge base), prompt caching saves significant cost. Mark the shared context with <code>cache_control: {"type": "ephemeral"}</code> — the cache persists for 5 minutes, long enough to cover all parallel subagent calls.</p>
+
+<pre><code><span class="kw">async def</span> <span class="fn">analyze_document_parallel</span>(document: str, analysis_tasks: list[str]) -> list[SubtaskResult]:
+    <span class="cm"># Shared document cached once, reused by all subagents</span>
+    shared_context = [{
+        <span class="st">"type"</span>: <span class="st">"text"</span>,
+        <span class="st">"text"</span>: f<span class="st">"Document to analyze:\n\n{document}"</span>,
+        <span class="st">"cache_control"</span>: {<span class="st">"type"</span>: <span class="st">"ephemeral"</span>}
+    }]
+
+    <span class="kw">async def</span> <span class="fn">analyze_one</span>(task: str, i: int) -> SubtaskResult:
+        response = <span class="kw">await</span> client.messages.create(
+            model=<span class="st">"claude-sonnet-4-6"</span>,
+            max_tokens=1024,
+            system=<span class="st">"You are a document analyst. Answer the specific question asked."</span>,
+            messages=[{
+                <span class="st">"role"</span>: <span class="st">"user"</span>,
+                <span class="st">"content"</span>: shared_context + [{
+                    <span class="st">"type"</span>: <span class="st">"text"</span>,
+                    <span class="st">"text"</span>: task  <span class="cm"># not cached — unique per subagent</span>
+                }]
+            }]
+        )
+        cache_read = response.usage.cache_read_input_tokens
+        print(f<span class="st">"Agent {i}: {cache_read} tokens from cache"</span>)
+        <span class="kw">return</span> SubtaskResult(
+            agent_id=f<span class="st">"analyst_{i}"</span>,
+            task=task,
+            result=response.content[0].text,
+            success=<span class="nm">True</span>,
+            tokens_used=response.usage.input_tokens + response.usage.output_tokens
+        )
+
+    <span class="kw">async with</span> asyncio.TaskGroup() <span class="kw">as</span> tg:
+        tasks = [tg.create_task(<span class="fn">analyze_one</span>(t, i)) <span class="kw">for</span> i, t <span class="kw">in</span> enumerate(analysis_tasks)]
+
+    <span class="kw">return</span> [t.result() <span class="kw">for</span> t <span class="kw">in</span> tasks]</code></pre>
+
+  <h2>8. Monitoring and Cost Tracking</h2>
+
+  <p>Multi-agent systems can silently accumulate high token costs. Track spend per orchestration run, not per API call — this makes it easy to set cost ceilings per task type.</p>
+
+<pre><code><span class="nm">@dataclass</span>
+<span class="kw">class</span> <span class="cl">OrchestrationMetrics</span>:
+    run_id: str
+    total_tokens: int = 0
+    total_cost_usd: float = 0.0
+    agent_count: int = 0
+    failed_agents: int = 0
+    wall_time_ms: float = 0.0
+
+<span class="cm"># Pricing per million tokens (input/output)</span>
+MODEL_PRICING = {
+    <span class="st">"claude-opus-4-6"</span>:       {<span class="st">"input"</span>: 15.00, <span class="st">"output"</span>: 75.00},
+    <span class="st">"claude-sonnet-4-6"</span>:     {<span class="st">"input"</span>: 3.00,  <span class="st">"output"</span>: 15.00},
+    <span class="st">"claude-haiku-4-5-20251001"</span>: {<span class="st">"input"</span>: 0.80,  <span class="st">"output"</span>: 4.00},
+}
+
+<span class="kw">def</span> <span class="fn">calculate_cost</span>(model: str, input_tokens: int, output_tokens: int) -> float:
+    pricing = MODEL_PRICING.get(model, MODEL_PRICING[<span class="st">"claude-sonnet-4-6"</span>])
+    return (
+        (input_tokens / 1_000_000) * pricing[<span class="st">"input"</span>] +
+        (output_tokens / 1_000_000) * pricing[<span class="st">"output"</span>]
+    )
+
+<span class="kw">async def</span> <span class="fn">orchestrate_with_metrics</span>(task: str) -> tuple[str, OrchestrationMetrics]:
+    <span class="kw">import</span> <span class="dc">time</span>, <span class="dc">uuid</span>
+    metrics = OrchestrationMetrics(run_id=str(uuid.uuid4())[:8])
+    start = time.monotonic()
+
+    plan = <span class="kw">await</span> <span class="fn">decompose_task</span>(task)
+    results = <span class="kw">await</span> <span class="fn">run_subagents_parallel</span>(plan.subtasks)
+    final = <span class="kw">await</span> <span class="fn">synthesize_results</span>(task, results, plan.synthesis_prompt)
+
+    metrics.wall_time_ms = (time.monotonic() - start) * 1000
+    metrics.agent_count = len(results)
+    metrics.failed_agents = sum(1 <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> <span class="kw">not</span> r.success)
+    metrics.total_tokens = sum(r.tokens_used <span class="kw">for</span> r <span class="kw">in</span> results)
+
+    <span class="kw">return</span> final, metrics</code></pre>
+
+  <h2>Pattern Summary</h2>
+
+  <table>
+    <thead>
+      <tr><th>Pattern</th><th>When to use</th><th>Key primitive</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Fan-out / Fan-in</td><td>Independent subtasks — parallel research, multi-aspect analysis</td><td><code>asyncio.TaskGroup</code> + semaphore</td></tr>
+      <tr><td>Router</td><td>Mixed request types, single-agent sufficient for most</td><td>Haiku + <code>tool_choice</code></td></tr>
+      <tr><td>Pipeline / handoff</td><td>Sequential steps where each depends on prior output</td><td><code>HandoffContext</code> passed forward</td></tr>
+      <tr><td>Shared-context fan-out</td><td>Many agents analyzing the same large document</td><td><code>cache_control: ephemeral</code></td></tr>
+      <tr><td>Retry with degradation</td><td>Production systems that must always return a result</td><td>Exponential backoff + partial synthesis</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout purple">
+    <strong>Cost rule of thumb</strong>
+    A 4-subagent Sonnet fan-out with Opus synthesis costs roughly $0.01–0.05 per orchestration run for 2K–10K total tokens. Use Haiku subagents for high-volume workflows. Cache shared context aggressively — on a 50K-token document, cache hits save ~90% of input cost on the second and subsequent subagent calls.
+  </div>
+
+  <p>Multi-agent systems pay off when tasks are genuinely parallelizable or when specialist agents outperform a generalist on subtasks. For simple requests, routing to a single Sonnet call is always cheaper than spinning up an orchestrator. Build the router first — it gives you clean data on which request types actually benefit from decomposition before you invest in the full orchestration stack.</p>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO &mdash; <a href="/blog/">All Articles</a> &mdash; Built with Claude</p>
+</footer>
+
+</body>
+</html>
