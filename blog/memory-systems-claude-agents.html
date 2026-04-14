@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Systems for Long-Running Claude Agents | CEO Blog</title>
+  <meta name="description" content="Practical Python patterns for agent memory — working memory (conversation history), episodic memory (event store), semantic memory (vector search), procedural memory (tool registry), memory compression, and cross-session persistence for Claude agents.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/memory-systems-claude-agents.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a4a;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --purple: #7c3aed; --violet: #8b5cf6; --cyan: #06b6d4;
+      --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+    .kw { color: #ff79c6; } .fn { color: #50fa7b; } .st { color: #f1fa8c; }
+    .cm { color: #6272a4; } .cl { color: #8be9fd; } .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; }
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav><a href="/">Home</a><a href="/blog/">Blog</a></nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Memory Systems for Long-Running Claude Agents</h1>
+  <p>The four memory types agents need — working, episodic, semantic, and procedural — with Python implementations for each, memory compression to stay within context limits, and Redis-backed cross-session persistence.</p>
+  <div class="hero-meta">Apr 14, 2026 &nbsp;·&nbsp; 12 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>A single Claude conversation is stateless between API calls. Everything the model "knows" must fit in the context window on each request. For short interactions this is fine; for agents that operate over hours, days, or many sessions, naive approaches — dumping the full conversation history into every call — hit context limits fast and become expensive.</p>
+
+  <p>The solution is a layered memory architecture that mirrors how humans store information: immediate working memory for the current task, episodic memory for past events, semantic memory for knowledge and facts, and procedural memory for skills and tools.</p>
+
+  <h2>1. The Four Memory Types</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>What it stores</th>
+        <th>Retrieval</th>
+        <th>Backing store</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Working memory</strong></td>
+        <td>Current conversation — the messages list for the active call</td>
+        <td>Always in context</td>
+        <td>In-process list</td>
+      </tr>
+      <tr>
+        <td><strong>Episodic memory</strong></td>
+        <td>Past events: actions taken, results observed, decisions made</td>
+        <td>Recent N entries or semantic search</td>
+        <td>Redis / SQLite / Postgres</td>
+      </tr>
+      <tr>
+        <td><strong>Semantic memory</strong></td>
+        <td>Facts, knowledge, user preferences, world state</td>
+        <td>Vector similarity search</td>
+        <td>pgvector / Pinecone / Chroma</td>
+      </tr>
+      <tr>
+        <td><strong>Procedural memory</strong></td>
+        <td>Available tools, their signatures, and when to use them</td>
+        <td>Static injection or dynamic lookup by task type</td>
+        <td>In-process registry</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>2. Working Memory — Conversation History</h2>
+
+  <p>Working memory is the messages list. The challenge is keeping it bounded. Use a sliding window with compression: when the history grows past a token threshold, summarize the oldest turns and replace them with the summary.</p>
+
+<pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">WorkingMemory</span>:
+    messages: list[dict] = field(default_factory=list)
+    system: str = <span class="st">""</span>
+    max_tokens: int = <span class="nm">16_000</span>  <span class="cm"># compress when history exceeds this</span>
+    model: str = <span class="st">"claude-sonnet-4-6"</span>
+
+    <span class="kw">def</span> <span class="fn">add</span>(self, role: str, content: str) -> <span class="kw">None</span>:
+        self.messages.append({<span class="st">"role"</span>: role, <span class="st">"content"</span>: content})
+        self._maybe_compress()
+
+    <span class="kw">def</span> <span class="fn">_token_count</span>(self) -> int:
+        result = client.messages.count_tokens(
+            model=self.model,
+            system=self.system,
+            messages=self.messages,
+        )
+        <span class="kw">return</span> result.input_tokens
+
+    <span class="kw">def</span> <span class="fn">_maybe_compress</span>(self) -> <span class="kw">None</span>:
+        <span class="kw">if</span> self._token_count() < self.max_tokens:
+            <span class="kw">return</span>
+
+        <span class="cm"># Summarize the oldest half of the conversation</span>
+        split = len(self.messages) // <span class="nm">2</span>
+        old_turns = self.messages[:split]
+        self.messages = self.messages[split:]
+
+        old_text = <span class="st">"\n"</span>.join(
+            <span class="st">f"</span>{m['role']}<span class="st">: </span>{m['content']}"</span> <span class="kw">for</span> m <span class="kw">in</span> old_turns
+        )
+        summary_response = client.messages.create(
+            model=<span class="st">"claude-haiku-4-5-20251001"</span>,
+            max_tokens=<span class="nm">512</span>,
+            system=<span class="st">"Summarize this conversation excerpt concisely, preserving key facts, decisions, and context needed to continue the conversation."</span>,
+            messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: old_text}]
+        )
+        summary = summary_response.content[<span class="nm">0</span>].text
+
+        <span class="cm"># Prepend summary as a system injection</span>
+        self.messages.insert(<span class="nm">0</span>, {
+            <span class="st">"role"</span>: <span class="st">"user"</span>,
+            <span class="st">"content"</span>: <span class="st">f"[Prior context summary]\n</span>{summary}"</span>
+        })
+        self.messages.insert(<span class="nm">1</span>, {
+            <span class="st">"role"</span>: <span class="st">"assistant"</span>,
+            <span class="st">"content"</span>: <span class="st">"Understood, I have the prior context."</span>
+        })</code></pre>
+
+  <h2>3. Episodic Memory — Event Store</h2>
+
+  <p>Episodic memory records what the agent did and observed — a durable log of past sessions. On each new session, the agent can load recent episodes to understand what it was doing and what it learned.</p>
+
+<pre><code><span class="kw">import</span> json, time, sqlite3
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, asdict
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">Episode</span>:
+    session_id: str
+    timestamp: float
+    action: str           <span class="cm"># what the agent did</span>
+    observation: str      <span class="cm"># what it observed / result</span>
+    importance: float     <span class="cm"># 0.0–1.0, set by agent</span>
+    tags: list[str]
+
+<span class="kw">class</span> <span class="cl">EpisodicMemory</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, db_path: str = <span class="st">"agent_memory.db"</span>):
+        self.conn = sqlite3.connect(db_path)
+        self._init_schema()
+
+    <span class="kw">def</span> <span class="fn">_init_schema</span>(self) -> <span class="kw">None</span>:
+        self.conn.execute(<span class="st">"""
+            CREATE TABLE IF NOT EXISTS episodes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT,
+                timestamp REAL,
+                action TEXT,
+                observation TEXT,
+                importance REAL,
+                tags TEXT
+            )
+        """</span>)
+        self.conn.commit()
+
+    <span class="kw">def</span> <span class="fn">store</span>(self, episode: Episode) -> <span class="kw">None</span>:
+        self.conn.execute(
+            <span class="st">"INSERT INTO episodes (session_id, timestamp, action, observation, importance, tags) VALUES (?,?,?,?,?,?)"</span>,
+            (episode.session_id, episode.timestamp, episode.action,
+             episode.observation, episode.importance, json.dumps(episode.tags))
+        )
+        self.conn.commit()
+
+    <span class="kw">def</span> <span class="fn">recall_recent</span>(self, n: int = <span class="nm">10</span>, min_importance: float = <span class="nm">0.5</span>) -> list[Episode]:
+        rows = self.conn.execute(
+            <span class="st">"SELECT session_id, timestamp, action, observation, importance, tags FROM episodes WHERE importance >= ? ORDER BY timestamp DESC LIMIT ?"</span>,
+            (min_importance, n)
+        ).fetchall()
+        <span class="kw">return</span> [
+            Episode(r[<span class="nm">0</span>], r[<span class="nm">1</span>], r[<span class="nm">2</span>], r[<span class="nm">3</span>], r[<span class="nm">4</span>], json.loads(r[<span class="nm">5</span>]))
+            <span class="kw">for</span> r <span class="kw">in</span> rows
+        ]
+
+    <span class="kw">def</span> <span class="fn">format_for_context</span>(self, episodes: list[Episode]) -> str:
+        <span class="kw">if not</span> episodes:
+            <span class="kw">return</span> <span class="st">"No prior episodes."</span>
+        lines = [<span class="st">"Recent episodes (newest first):"</span>]
+        <span class="kw">for</span> ep <span class="kw">in</span> episodes:
+            ts = time.strftime(<span class="st">"%Y-%m-%d %H:%M"</span>, time.localtime(ep.timestamp))
+            lines.append(<span class="st">f"[</span>{ts}<span class="st">] </span>{ep.action}<span class="st"> → </span>{ep.observation}"</span>)
+        <span class="kw">return</span> <span class="st">"\n"</span>.join(lines)</code></pre>
+
+  <div class="callout cyan">
+    <strong>Importance scoring</strong>
+    Have the agent score each episode's importance (0–1) before storing it. A tool call that returned an error is high importance (0.9); a routine status check is low (0.2). Filtering by importance at recall time keeps the context injection concise. You can also let Claude score importance: one Haiku call at end-of-episode costs fractions of a cent.
+  </div>
+
+  <h2>4. Semantic Memory — Fact Store</h2>
+
+  <p>Semantic memory stores facts the agent has learned — user preferences, domain knowledge, world state that shouldn't be re-derived each session. It's a small vector store the agent can query by semantic similarity.</p>
+
+<pre><code><span class="kw">import</span> voyageai
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+voyage = voyageai.Client()
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">Fact</span>:
+    content: str
+    source: str          <span class="cm"># where this fact came from</span>
+    confidence: float    <span class="cm"># 0–1</span>
+    embedding: list[float] = None
+
+<span class="kw">class</span> <span class="cl">SemanticMemory</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self.facts: list[Fact] = []
+
+    <span class="kw">def</span> <span class="fn">store_fact</span>(self, content: str, source: str, confidence: float = <span class="nm">1.0</span>) -> <span class="kw">None</span>:
+        embedding = voyage.embed([content], model=<span class="st">"voyage-3"</span>, input_type=<span class="st">"document"</span>).embeddings[<span class="nm">0</span>]
+        self.facts.append(Fact(content=content, source=source, confidence=confidence, embedding=embedding))
+
+    <span class="kw">def</span> <span class="fn">recall</span>(self, query: str, k: int = <span class="nm">5</span>, min_confidence: float = <span class="nm">0.6</span>) -> list[Fact]:
+        <span class="kw">if not</span> self.facts:
+            <span class="kw">return</span> []
+
+        q_emb = np.array(voyage.embed([query], model=<span class="st">"voyage-3"</span>, input_type=<span class="st">"query"</span>).embeddings[<span class="nm">0</span>])
+        eligible = [f <span class="kw">for</span> f <span class="kw">in</span> self.facts <span class="kw">if</span> f.confidence >= min_confidence]
+
+        scored = []
+        <span class="kw">for</span> fact <span class="kw">in</span> eligible:
+            f_emb = np.array(fact.embedding)
+            sim = float(np.dot(q_emb, f_emb) / (np.linalg.norm(q_emb) * np.linalg.norm(f_emb)))
+            scored.append((sim, fact))
+
+        scored.sort(reverse=<span class="kw">True</span>, key=<span class="kw">lambda</span> x: x[<span class="nm">0</span>])
+        <span class="kw">return</span> [f <span class="kw">for</span> _, f <span class="kw">in</span> scored[:k]]
+
+    <span class="kw">def</span> <span class="fn">update_fact</span>(self, old_content: str, new_content: str, source: str) -> <span class="kw">None</span>:
+        <span class="st">"""Replace an existing fact (agents can correct their beliefs)."""</span>
+        self.facts = [f <span class="kw">for</span> f <span class="kw">in</span> self.facts <span class="kw">if</span> f.content != old_content]
+        self.store_fact(new_content, source)</code></pre>
+
+  <h2>5. Procedural Memory — Tool Registry</h2>
+
+  <p>Procedural memory is the agent's knowledge of what it can do. A static tool list works for simple agents; for complex ones, a registry that selects tools by task type avoids flooding the context with irrelevant tool definitions.</p>
+
+<pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">from</span> typing <span class="kw">import</span> Callable
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">Tool</span>:
+    name: str
+    description: str
+    input_schema: dict
+    handler: Callable
+    tags: list[str]  <span class="cm"># e.g. ["search", "web", "research"]</span>
+
+<span class="kw">class</span> <span class="cl">ProceduralMemory</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self._tools: dict[str, Tool] = {}
+
+    <span class="kw">def</span> <span class="fn">register</span>(self, tool: Tool) -> <span class="kw">None</span>:
+        self._tools[tool.name] = tool
+
+    <span class="kw">def</span> <span class="fn">get_for_task</span>(self, task_tags: list[str]) -> list[dict]:
+        <span class="st">"""Return API-formatted tool definitions relevant to the task."""</span>
+        relevant = [
+            t <span class="kw">for</span> t <span class="kw">in</span> self._tools.values()
+            <span class="kw">if</span> any(tag <span class="kw">in</span> t.tags <span class="kw">for</span> tag <span class="kw">in</span> task_tags)
+        ]
+        <span class="kw">return</span> [
+            {<span class="st">"name"</span>: t.name, <span class="st">"description"</span>: t.description, <span class="st">"input_schema"</span>: t.input_schema}
+            <span class="kw">for</span> t <span class="kw">in</span> relevant
+        ]
+
+    <span class="kw">def</span> <span class="fn">execute</span>(self, name: str, inputs: dict) -> str:
+        tool = self._tools.get(name)
+        <span class="kw">if not</span> tool:
+            <span class="kw">raise</span> ValueError(<span class="st">f"Unknown tool: </span>{name}<span class="st">"</span>)
+        <span class="kw">return</span> tool.handler(**inputs)</code></pre>
+
+  <h2>6. Assembling the Full Memory Context</h2>
+
+  <p>At the start of each agent call, assemble relevant memories into the system prompt. Order matters: procedural context (what tools exist) first, then semantic facts (what the agent knows), then episodic summary (what it did recently).</p>
+
+<pre><code><span class="kw">def</span> <span class="fn">build_agent_context</span>(
+    base_system: str,
+    query: str,
+    episodic: EpisodicMemory,
+    semantic: SemanticMemory,
+    procedural: ProceduralMemory,
+    task_tags: list[str],
+) -> tuple[str, list[dict]]:
+    <span class="st">"""Returns (system_prompt, tools) with memory injected."""</span>
+
+    <span class="cm"># Episodic: last 5 important episodes</span>
+    recent_eps = episodic.recall_recent(n=<span class="nm">5</span>, min_importance=<span class="nm">0.6</span>)
+    episodic_block = episodic.format_for_context(recent_eps)
+
+    <span class="cm"># Semantic: facts relevant to this query</span>
+    relevant_facts = semantic.recall(query, k=<span class="nm">4</span>)
+    semantic_block = <span class="st">"\n"</span>.join(
+        <span class="st">f"- </span>{f.content}<span class="st"> (confidence: </span>{f.confidence:.1f}<span class="st">)"</span>
+        <span class="kw">for</span> f <span class="kw">in</span> relevant_facts
+    ) <span class="kw">or</span> <span class="st">"None relevant."</span>
+
+    system = <span class="st">f"""</span>{base_system}<span class="st">
+
+## What you know
+</span>{semantic_block}<span class="st">
+
+## Recent actions
+</span>{episodic_block}<span class="st">"""</span>
+
+    <span class="cm"># Procedural: tools relevant to this task</span>
+    tools = procedural.get_for_task(task_tags)
+
+    <span class="kw">return</span> system, tools</code></pre>
+
+  <div class="callout purple">
+    <strong>Memory injection budget</strong>
+    Memory context competes with user input and response tokens for the context window. Budget explicitly: episodic block ≤ 500 tokens, semantic block ≤ 300 tokens, tool definitions ≤ 1,000 tokens. Use <code>count_tokens</code> to verify before sending. If a block would exceed budget, trim to the highest-importance items.
+  </div>
+
+  <h2>Production Checklist</h2>
+
+  <ul>
+    <li>Working memory compresses when token count exceeds threshold — never truncates hard</li>
+    <li>Episodic events scored for importance before storage; recall filters by importance threshold</li>
+    <li>Semantic facts include source and confidence — agent can update or retract beliefs</li>
+    <li>Procedural tool registry selects tools by task type — full tool list never injected blindly</li>
+    <li>Memory injection is token-budgeted — each block has an explicit max</li>
+    <li>Episodic and semantic stores backed by durable storage (SQLite / Postgres) for cross-session persistence</li>
+    <li>Compression uses Haiku (cheap) not Sonnet — meta-tasks don't need frontier reasoning</li>
+    <li>Memory context assembled once per agent turn, not rebuilt for each sub-call in a multi-agent pipeline</li>
+    <li>Tests verify agent behavior across session boundaries — memory retrieval is tested, not just storage</li>
+    <li>Stale semantic facts have a TTL or explicit invalidation path — agents don't act on outdated beliefs indefinitely</li>
+  </ul>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO Editorial &nbsp;·&nbsp; <a href="/blog/">All articles</a></p>
+</footer>
+
+</body>
+</html>
