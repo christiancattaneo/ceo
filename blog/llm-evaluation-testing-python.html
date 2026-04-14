@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Evaluation and Testing in Python | CEO Blog</title>
+  <meta name="description" content="Practical Python framework for evaluating LLM outputs — LLM-as-judge patterns, golden dataset regression testing, metric selection (ROUGE, semantic similarity, faithfulness), and a pytest-based eval harness for Claude applications.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/llm-evaluation-testing-python.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a4a;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --purple: #7c3aed; --violet: #8b5cf6; --cyan: #06b6d4;
+      --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+    .kw { color: #ff79c6; } .fn { color: #50fa7b; } .st { color: #f1fa8c; }
+    .cm { color: #6272a4; } .cl { color: #8be9fd; } .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; }
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav><a href="/">Home</a><a href="/blog/">Blog</a></nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>LLM Evaluation and Testing in Python</h1>
+  <p>A practical framework for measuring whether your Claude application actually works — golden datasets, LLM-as-judge scoring, semantic similarity metrics, faithfulness checks, and a pytest harness that catches regressions before they reach production.</p>
+  <div class="hero-meta">Apr 14, 2026 &nbsp;·&nbsp; 12 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>Unit tests verify that your code runs. They don't verify that your LLM application produces good outputs. Those are different problems — and most teams discover this difference in production, after a prompt change silently degraded answer quality across thousands of requests.</p>
+
+  <p>LLM evaluation fills this gap. It's not about perfection; it's about catching regressions and building confidence that changes improve rather than break things. Here's how to build an eval framework that's actually useful — not just theoretically sound.</p>
+
+  <h2>1. The Eval Dataset</h2>
+
+  <p>Everything starts with cases. An eval case pairs an input (prompt, context, or conversation) with an expected output — either a reference answer or a set of pass/fail criteria. Without cases, you're flying blind.</p>
+
+<pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> Any
+<span class="kw">import</span> json, pathlib
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">EvalCase</span>:
+    id: str
+    input: str
+    expected: str                    <span class="cm"># reference answer (may be approximate)</span>
+    criteria: list[str]              <span class="cm"># pass/fail rubric items</span>
+    tags: list[str] = field(default_factory=list)
+    context: str = <span class="st">""</span>               <span class="cm"># for RAG evals: retrieved docs</span>
+    min_score: float = <span class="nm">0.7</span>          <span class="cm"># threshold for this case to pass</span>
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">EvalDataset</span>:
+    name: str
+    cases: list[EvalCase]
+    version: str = <span class="st">"1.0"</span>
+
+    <span class="kw">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">load</span>(cls, path: str) -> <span class="st">"EvalDataset"</span>:
+        data = json.loads(pathlib.Path(path).read_text())
+        cases = [EvalCase(**c) <span class="kw">for</span> c <span class="kw">in</span> data[<span class="st">"cases"</span>]]
+        <span class="kw">return</span> cls(name=data[<span class="st">"name"</span>], cases=cases, version=data.get(<span class="st">"version"</span>, <span class="st">"1.0"</span>))
+
+    <span class="kw">def</span> <span class="fn">filter_by_tag</span>(self, tag: str) -> <span class="st">"EvalDataset"</span>:
+        filtered = [c <span class="kw">for</span> c <span class="kw">in</span> self.cases <span class="kw">if</span> tag <span class="kw">in</span> c.tags]
+        <span class="kw">return</span> EvalDataset(name=<span class="st">f"</span>{self.name}<span class="st">[</span>{tag}<span class="st">]"</span>, cases=filtered)
+
+<span class="cm"># evals/qa_dataset.json</span>
+EXAMPLE_DATASET = {
+    <span class="st">"name"</span>: <span class="st">"qa_v1"</span>,
+    <span class="st">"version"</span>: <span class="st">"1.0"</span>,
+    <span class="st">"cases"</span>: [
+        {
+            <span class="st">"id"</span>: <span class="st">"qa_001"</span>,
+            <span class="st">"input"</span>: <span class="st">"What is the capital of France?"</span>,
+            <span class="st">"expected"</span>: <span class="st">"Paris"</span>,
+            <span class="st">"criteria"</span>: [
+                <span class="st">"Answer names Paris"</span>,
+                <span class="st">"Answer is concise (under 50 words)"</span>
+            ],
+            <span class="st">"tags"</span>: [<span class="st">"factual"</span>, <span class="st">"geography"</span>],
+            <span class="st">"min_score"</span>: <span class="nm">0.9</span>
+        }
+    ]
+}</code></pre>
+
+  <div class="callout cyan">
+    <strong>How many cases do you need?</strong>
+    20–50 curated cases beats 500 auto-generated ones. Start with cases that represent your actual failure modes — pull from user feedback, edge cases found in prod, and known-hard inputs. Add cases when you fix a bug so the bug never silently returns.
+  </div>
+
+  <h2>2. LLM-as-Judge Scoring</h2>
+
+  <p>For open-ended outputs, automated string matching fails. LLM-as-judge uses a second Claude call to evaluate the first one against a rubric. It's not perfect, but it correlates well with human judgment at scale.</p>
+
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field
+<span class="kw">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="kw">class</span> <span class="cl">CriterionResult</span>(BaseModel):
+    criterion: str
+    passed: bool
+    reasoning: str
+
+<span class="kw">class</span> <span class="cl">JudgeResult</span>(BaseModel):
+    score: float = Field(ge=<span class="nm">0.0</span>, le=<span class="nm">1.0</span>)
+    criteria_results: list[CriterionResult]
+    summary: str
+
+<span class="kw">def</span> <span class="fn">judge_response</span>(
+    question: str,
+    expected: str,
+    actual: str,
+    criteria: list[str],
+) -> JudgeResult:
+    criteria_block = <span class="st">"\n"</span>.join(<span class="st">f"</span>{i+<span class="nm">1</span>}. {c}"</span> <span class="kw">for</span> i, c <span class="kw">in</span> enumerate(criteria))
+
+    prompt = <span class="st">f"""Evaluate this AI response against the criteria below.
+
+Question: {question}
+Expected answer: {expected}
+Actual response: {actual}
+
+Criteria:
+{criteria_block}
+
+For each criterion, assess pass/fail with a one-sentence reasoning.
+Then give an overall score from 0.0 to 1.0 (fraction of criteria passed, weighted by importance).
+Output JSON matching this schema:
+{{
+  "score": float,
+  "criteria_results": [{{"criterion": str, "passed": bool, "reasoning": str}}],
+  "summary": str
+}}"""</span>
+
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">1024</span>,
+        system=<span class="st">"You are an objective evaluator. Be strict but fair. Output only valid JSON."</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+    )
+    <span class="kw">return</span> JudgeResult.model_validate_json(response.content[<span class="nm">0</span>].text)</code></pre>
+
+  <div class="callout yellow">
+    <strong>Judge model selection</strong>
+    Use a model at least as capable as the one being judged — or one tier above. Judging Opus outputs with Haiku produces unreliable scores. Use Sonnet to judge Haiku; use Opus to judge Sonnet. The judge model's cost is amortized across your eval runs, not per request.
+  </div>
+
+  <h2>3. Semantic Similarity Scoring</h2>
+
+  <p>For factual Q&amp;A with deterministic expected answers, semantic similarity catches paraphrases that exact-match misses. Embed both expected and actual, then compute cosine similarity.</p>
+
+<pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> voyageai  <span class="cm"># pip install voyageai</span>
+
+voyage = voyageai.Client()
+
+<span class="kw">def</span> <span class="fn">embed_texts</span>(texts: list[str]) -> list[list[float]]:
+    result = voyage.embed(texts, model=<span class="st">"voyage-3"</span>, input_type=<span class="st">"document"</span>)
+    <span class="kw">return</span> result.embeddings
+
+<span class="kw">def</span> <span class="fn">cosine_similarity</span>(a: list[float], b: list[float]) -> float:
+    va, vb = np.array(a), np.array(b)
+    <span class="kw">return</span> float(np.dot(va, vb) / (np.linalg.norm(va) * np.linalg.norm(vb)))
+
+<span class="kw">def</span> <span class="fn">semantic_score</span>(expected: str, actual: str) -> float:
+    <span class="st">"""Returns 0.0–1.0; >0.85 is typically a good match."""</span>
+    embeddings = embed_texts([expected, actual])
+    <span class="kw">return</span> cosine_similarity(embeddings[<span class="nm">0</span>], embeddings[<span class="nm">1</span>])
+
+<span class="cm"># For batch evals: embed once, compare many</span>
+<span class="kw">def</span> <span class="fn">batch_semantic_scores</span>(
+    expected_list: list[str],
+    actual_list: list[str],
+) -> list[float]:
+    all_texts = expected_list + actual_list
+    embeddings = embed_texts(all_texts)
+    n = len(expected_list)
+    <span class="kw">return</span> [
+        cosine_similarity(embeddings[i], embeddings[n + i])
+        <span class="kw">for</span> i <span class="kw">in</span> range(n)
+    ]</code></pre>
+
+  <h2>4. Faithfulness Check for RAG</h2>
+
+  <p>For RAG pipelines, the critical failure mode is hallucination — claiming facts not in the retrieved context. A faithfulness scorer asks the judge: "Does every claim in the response appear in the context?"</p>
+
+<pre><code><span class="kw">class</span> <span class="cl">FaithfulnessResult</span>(BaseModel):
+    is_faithful: bool
+    unsupported_claims: list[str]
+    score: float  <span class="cm"># fraction of claims that are supported</span>
+
+<span class="kw">def</span> <span class="fn">check_faithfulness</span>(
+    context: str,
+    response: str,
+) -> FaithfulnessResult:
+    prompt = <span class="st">f"""Given this context and AI response, identify any claims in the response
+that are NOT supported by the context.
+
+Context:
+{context}
+
+Response:
+{response}
+
+List each unsupported claim. If all claims are supported, return an empty list.
+Output JSON: {{"is_faithful": bool, "unsupported_claims": [str], "score": float}}
+score = (total_claims - unsupported_claims) / total_claims"""</span>
+
+    response_obj = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">512</span>,
+        system=<span class="st">"You are a fact-checker. Be precise. Output only valid JSON."</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+    )
+    <span class="kw">return</span> FaithfulnessResult.model_validate_json(response_obj.content[<span class="nm">0</span>].text)</code></pre>
+
+  <h2>5. pytest-Based Eval Harness</h2>
+
+  <p>Wire everything into pytest so evals run in CI. Use <code>pytest.mark.parametrize</code> over the dataset and <code>pytest.mark.eval</code> to keep evals separate from unit tests — they're slower and call the real API.</p>
+
+<pre><code><span class="cm"># evals/test_qa_pipeline.py</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> your_app <span class="kw">import</span> answer_question  <span class="cm"># the function under test</span>
+<span class="kw">from</span> evals.framework <span class="kw">import</span> EvalDataset, judge_response, semantic_score
+
+dataset = EvalDataset.load(<span class="st">"evals/qa_dataset.json"</span>)
+
+<span class="kw">@pytest.mark.eval</span>
+<span class="kw">@pytest.mark.parametrize</span>(<span class="st">"case"</span>, dataset.cases, ids=[c.id <span class="kw">for</span> c <span class="kw">in</span> dataset.cases])
+<span class="kw">def</span> <span class="fn">test_qa_response_quality</span>(case):
+    actual = answer_question(case.input, context=case.context)
+
+    <span class="cm"># Fast check: semantic similarity against reference answer</span>
+    sim = semantic_score(case.expected, actual)
+
+    <span class="cm"># Slow check: LLM judge evaluates rubric criteria</span>
+    judge = judge_response(
+        question=case.input,
+        expected=case.expected,
+        actual=actual,
+        criteria=case.criteria,
+    )
+
+    <span class="cm"># Combined score: weight similarity 30%, judge 70%</span>
+    combined = <span class="nm">0.3</span> * sim + <span class="nm">0.7</span> * judge.score
+
+    assert combined >= case.min_score, (
+        <span class="st">f"[</span>{case.id}<span class="st">] Score </span>{combined:.2f}<span class="st"> < threshold </span>{case.min_score}<span class="st">\n"</span>
+        <span class="st">f"Judge summary: </span>{judge.summary}<span class="st">\n"</span>
+        <span class="st">f"Semantic similarity: </span>{sim:.2f}<span class="st">\n"</span>
+        <span class="st">f"Failed criteria: </span>{[r.criterion <span class="kw">for</span> r <span class="kw">in</span> judge.criteria_results <span class="kw">if not</span> r.passed]}"</span>
+    )
+
+<span class="cm"># Run: pytest -m eval -v --tb=short</span>
+<span class="cm"># Skip in normal CI: pytest -m "not eval"</span></code></pre>
+
+  <h2>6. Regression Tracking</h2>
+
+  <p>A single eval run tells you today's score. Regression tracking tells you whether it's getting better or worse. Store results in a JSON file per run and compare against baseline.</p>
+
+<pre><code><span class="kw">import</span> json, time
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, asdict
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">EvalRunResult</span>:
+    run_id: str
+    timestamp: float
+    dataset: str
+    model: str
+    pass_rate: float
+    mean_score: float
+    case_results: list[dict]
+
+<span class="kw">def</span> <span class="fn">save_run</span>(result: EvalRunResult, path: str = <span class="st">"evals/results/"</span>) -> <span class="kw">None</span>:
+    p = Path(path)
+    p.mkdir(parents=True, exist_ok=True)
+    filename = p / <span class="st">f"</span>{result.run_id}<span class="st">.json"</span>
+    filename.write_text(json.dumps(asdict(result), indent=<span class="nm">2</span>))
+
+<span class="kw">def</span> <span class="fn">load_baseline</span>(dataset: str, path: str = <span class="st">"evals/results/"</span>) -> EvalRunResult | <span class="kw">None</span>:
+    <span class="st">"""Load the most recent run for this dataset as baseline."""</span>
+    results_dir = Path(path)
+    runs = sorted(results_dir.glob(<span class="st">"*.json"</span>), key=<span class="kw">lambda</span> p: p.stat().st_mtime)
+    <span class="kw">for</span> run_file <span class="kw">in</span> reversed(runs):
+        data = json.loads(run_file.read_text())
+        <span class="kw">if</span> data[<span class="st">"dataset"</span>] == dataset:
+            <span class="kw">return</span> EvalRunResult(**data)
+    <span class="kw">return None</span>
+
+<span class="kw">def</span> <span class="fn">check_regression</span>(
+    current: EvalRunResult,
+    baseline: EvalRunResult,
+    max_regression: float = <span class="nm">0.05</span>,
+) -> <span class="kw">None</span>:
+    <span class="st">"""Raise if mean_score dropped more than max_regression vs baseline."""</span>
+    delta = current.mean_score - baseline.mean_score
+    <span class="kw">if</span> delta < -max_regression:
+        <span class="kw">raise</span> AssertionError(
+            <span class="st">f"Regression detected: score dropped </span>{abs(delta):.3f}<span class="st"> "
+            f"(</span>{baseline.mean_score:.3f}<span class="st"> → </span>{current.mean_score:.3f}<span class="st">). "
+            f"Max allowed regression: </span>{max_regression}"</span>
+        )</code></pre>
+
+  <div class="callout purple">
+    <strong>Gate on regressions, not on absolute score</strong>
+    Your baseline score will never be 1.0 — some cases are genuinely hard. What matters is that changes don't make things worse. Set <code>max_regression=0.05</code> (5 percentage points) as your CI gate. Alert on drops; celebrate improvements; don't block on a fixed absolute threshold that was always aspirational.
+  </div>
+
+  <h2>Metric Selection Guide</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Task type</th>
+        <th>Primary metric</th>
+        <th>When to also use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Factual Q&amp;A</td>
+        <td>Semantic similarity (&gt;0.85)</td>
+        <td>Exact match for short deterministic answers</td>
+      </tr>
+      <tr>
+        <td>Open-ended generation</td>
+        <td>LLM-as-judge (rubric criteria)</td>
+        <td>Human review for 10% sample</td>
+      </tr>
+      <tr>
+        <td>RAG / retrieval</td>
+        <td>Faithfulness score + answer relevance</td>
+        <td>Context precision/recall for retrieval quality</td>
+      </tr>
+      <tr>
+        <td>Classification / routing</td>
+        <td>Exact match accuracy</td>
+        <td>Confusion matrix for error pattern analysis</td>
+      </tr>
+      <tr>
+        <td>Code generation</td>
+        <td>Test pass rate (execute the code)</td>
+        <td>LLM judge for style + correctness explanation</td>
+      </tr>
+      <tr>
+        <td>Summarization</td>
+        <td>LLM-as-judge (coverage + concision)</td>
+        <td>ROUGE-L for recall of key facts</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Production Checklist</h2>
+
+  <ul>
+    <li>Eval dataset is version-controlled alongside the code it tests</li>
+    <li>Cases added for every bug fixed in production — golden dataset grows over time</li>
+    <li>Judge model is one tier above or equal to the model being evaluated</li>
+    <li>Eval tests tagged with <code>pytest.mark.eval</code> — skipped in fast CI, run on merge to main</li>
+    <li>Results saved per run with timestamp and model version</li>
+    <li>Regression check gates on delta vs. baseline, not absolute score</li>
+    <li>Faithfulness check runs on all RAG pipeline evals — hallucination is the primary failure mode</li>
+    <li>Semantic similarity threshold calibrated per task — 0.85 for factual, 0.70 for creative</li>
+    <li>LLM judge criteria are specific and binary ("mentions X", "under N words") not vague ("is good")</li>
+    <li>Human review sample (10–20 cases) run before any major prompt change ships</li>
+  </ul>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO Editorial &nbsp;·&nbsp; <a href="/blog/">All articles</a></p>
+</footer>
+
+</body>
+</html>
