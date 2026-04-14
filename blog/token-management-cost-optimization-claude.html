@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Management and Cost Optimization for Claude Applications | CEO Blog</title>
+  <meta name="description" content="Practical techniques for reducing Claude API costs — token counting, prompt compression, prompt caching, model tier selection, batching, context window management, and a Python cost tracking middleware.">
+  <link rel="canonical" href="https://ceo-plum-ten.vercel.app/blog/token-management-cost-optimization-claude.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a4a;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --purple: #7c3aed; --violet: #8b5cf6; --cyan: #06b6d4;
+      --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--violet); font-size: 1.1rem; }
+    header nav a { color: var(--muted); margin-left: 1.5rem; font-size: 0.9rem; }
+    .hero { background: linear-gradient(135deg, #1a0533 0%, #0f172a 60%, #0c1a3a 100%); padding: 3.5rem 2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hero-tag { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: var(--violet); border-radius: 999px; padding: 0.25rem 0.9rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 700; max-width: 780px; margin: 0 auto 1rem; color: #f1f5f9; }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .hero-meta { margin-top: 1.25rem; font-size: 0.82rem; color: #64748b; }
+    .layout { max-width: 860px; margin: 3rem auto; padding: 0 1.5rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--violet); margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 1.75rem 0 0.5rem; }
+    p { color: var(--text); margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+    li { margin-bottom: 0.4rem; }
+    pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.25rem 0; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    p code, li code { background: rgba(124,58,237,0.15); color: var(--violet); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+    .kw { color: #ff79c6; } .fn { color: #50fa7b; } .st { color: #f1fa8c; }
+    .cm { color: #6272a4; } .cl { color: #8be9fd; } .nm { color: #bd93f9; }
+    .dc { color: #06b6d4; }
+    .callout { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0; border-left: 3px solid; }
+    .callout.purple { background: rgba(124,58,237,0.08); border-color: var(--purple); }
+    .callout.cyan { background: rgba(6,182,212,0.08); border-color: var(--cyan); }
+    .callout.yellow { background: rgba(245,158,11,0.08); border-color: var(--yellow); }
+    .callout.green { background: rgba(16,185,129,0.08); border-color: var(--green); }
+    .callout strong { display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .callout.purple strong { color: var(--violet); }
+    .callout.cyan strong { color: var(--cyan); }
+    .callout.yellow strong { color: var(--yellow); }
+    .callout.green strong { color: var(--green); }
+    table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.9rem; }
+    th { background: rgba(124,58,237,0.2); color: var(--violet); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 2rem; margin-top: 4rem; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">$ ceo</span>
+  <nav><a href="/">Home</a><a href="/blog/">Blog</a></nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">AI Infrastructure</span>
+  <h1>Token Management and Cost Optimization for Claude Applications</h1>
+  <p>Practical techniques for cutting Claude API costs without degrading quality — token counting, prompt compression, prompt caching, model tier selection, batching, and a Python middleware that tracks spend per request.</p>
+  <div class="hero-meta">Apr 14, 2026 &nbsp;·&nbsp; 12 min read &nbsp;·&nbsp; CEO Editorial</div>
+</div>
+
+<div class="layout">
+
+  <p>Claude API costs scale with tokens. At low volume this is invisible; at production scale — thousands of requests per hour — a 30% reduction in average token count translates directly to a 30% reduction in your monthly bill. Most teams leave this savings on the table because they optimize too late and optimize the wrong things.</p>
+
+  <p>This guide covers the full stack of cost levers, from token counting and prompt compression to caching and model selection, with Python implementations for each.</p>
+
+  <h2>1. Count Tokens Before You Send</h2>
+
+  <p>The Anthropic SDK's <code>count_tokens</code> endpoint returns an exact token count for a messages payload without executing the request. Use it to enforce budgets, log cost estimates per request type, and catch runaway prompts before they hit the API.</p>
+
+<pre><code><span class="kw">import</span> anthropic
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+client = anthropic.Anthropic()
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">TokenBudget</span>:
+    max_input_tokens: int
+    max_output_tokens: int
+    warn_at: int  <span class="cm"># log warning above this input count</span>
+
+<span class="kw">def</span> <span class="fn">count_and_validate</span>(
+    messages: list[dict],
+    system: str,
+    budget: TokenBudget,
+    model: str = <span class="st">"claude-sonnet-4-6"</span>,
+) -> int:
+    <span class="st">"""Returns input token count; raises if over budget."""</span>
+    result = client.messages.count_tokens(
+        model=model,
+        system=system,
+        messages=messages,
+    )
+    n = result.input_tokens
+
+    <span class="kw">if</span> n > budget.max_input_tokens:
+        <span class="kw">raise</span> ValueError(
+            <span class="st">f"Input too large: </span>{n}<span class="st"> tokens (max </span>{budget.max_input_tokens}<span class="st">)"</span>
+        )
+    <span class="kw">if</span> n > budget.warn_at:
+        <span class="kw">import</span> logging
+        logging.warning(<span class="st">f"Large prompt: </span>{n}<span class="st"> input tokens"</span>)
+
+    <span class="kw">return</span> n
+
+<span class="cm"># Enforce a 16K input budget on all user-facing requests</span>
+BUDGET = TokenBudget(max_input_tokens=<span class="nm">16_000</span>, max_output_tokens=<span class="nm">2_048</span>, warn_at=<span class="nm">8_000</span>)
+
+<span class="kw">def</span> <span class="fn">safe_completion</span>(system: str, user_message: str) -> str:
+    messages = [{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: user_message}]
+    count_and_validate(messages, system, BUDGET)
+
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=BUDGET.max_output_tokens,
+        system=system,
+        messages=messages,
+    )
+    <span class="kw">return</span> response.content[<span class="nm">0</span>].text</code></pre>
+
+  <h2>2. Prompt Compression</h2>
+
+  <p>Long prompts often contain filler that adds tokens without adding information. The compression techniques below apply to system prompts, retrieved context, and conversation history — wherever token volume accumulates.</p>
+
+  <h3>System Prompt Compression</h3>
+
+<pre><code><span class="kw">def</span> <span class="fn">compress_system_prompt</span>(verbose_prompt: str) -> str:
+    <span class="st">"""Use Claude itself to rewrite a verbose system prompt more concisely."""</span>
+    response = client.messages.create(
+        model=<span class="st">"claude-haiku-4-5-20251001"</span>,  <span class="cm"># cheap for meta-tasks</span>
+        max_tokens=<span class="nm">1024</span>,
+        system=<span class="st">"Rewrite the following system prompt to be as concise as possible while preserving all instructions. Remove redundancy, filler phrases, and verbose explanations. Output only the rewritten prompt."</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: verbose_prompt}]
+    )
+    <span class="kw">return</span> response.content[<span class="nm">0</span>].text
+
+<span class="cm"># Measure the savings before deploying</span>
+<span class="kw">def</span> <span class="fn">compression_report</span>(original: str, compressed: str) -> dict:
+    orig_tokens = client.messages.count_tokens(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        system=original,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"hi"</span>}]
+    ).input_tokens
+
+    comp_tokens = client.messages.count_tokens(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        system=compressed,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"hi"</span>}]
+    ).input_tokens
+
+    savings = orig_tokens - comp_tokens
+    <span class="kw">return</span> {
+        <span class="st">"original_tokens"</span>: orig_tokens,
+        <span class="st">"compressed_tokens"</span>: comp_tokens,
+        <span class="st">"savings"</span>: savings,
+        <span class="st">"reduction_pct"</span>: <span class="st">f"</span>{savings / orig_tokens * <span class="nm">100</span>:.1f}<span class="st">%"</span>,
+    }</code></pre>
+
+  <h3>Context Window Trimming for Conversations</h3>
+
+<pre><code><span class="kw">def</span> <span class="fn">trim_history</span>(
+    messages: list[dict],
+    system: str,
+    max_tokens: int = <span class="nm">12_000</span>,
+    model: str = <span class="st">"claude-sonnet-4-6"</span>,
+) -> list[dict]:
+    <span class="st">"""Drop oldest messages until the conversation fits in budget."""</span>
+    <span class="kw">while</span> len(messages) > <span class="nm">2</span>:  <span class="cm"># keep at least last exchange</span>
+        count = client.messages.count_tokens(
+            model=model, system=system, messages=messages
+        ).input_tokens
+
+        <span class="kw">if</span> count <= max_tokens:
+            <span class="kw">break</span>
+
+        <span class="cm"># Drop the oldest user+assistant pair</span>
+        messages = messages[<span class="nm">2</span>:]
+
+    <span class="kw">return</span> messages</code></pre>
+
+  <div class="callout yellow">
+    <strong>Summarize before you drop</strong>
+    Dropping history cold loses context abruptly. A better pattern: when history exceeds 80% of budget, summarize the oldest half into a single "Prior context:" block (one Haiku call), then replace those turns with the summary. The model keeps the gist; you save 60–80% of the dropped tokens' cost.
+  </div>
+
+  <h2>3. Prompt Caching</h2>
+
+  <p>Prompt caching stores the KV representation of a prompt prefix server-side. Subsequent requests that share the same prefix pay ~10% of the full input token price for cached tokens. The cache TTL is 5 minutes — design your traffic patterns to exploit it.</p>
+
+<pre><code><span class="cm"># Large static system prompt — cache it</span>
+DOMAIN_KNOWLEDGE = <span class="st">"""...(20,000+ tokens of reference material)..."""</span>
+
+<span class="kw">def</span> <span class="fn">cached_completion</span>(user_message: str) -> str:
+    response = client.messages.create(
+        model=<span class="st">"claude-sonnet-4-6"</span>,
+        max_tokens=<span class="nm">1024</span>,
+        system=[
+            {
+                <span class="st">"type"</span>: <span class="st">"text"</span>,
+                <span class="st">"text"</span>: DOMAIN_KNOWLEDGE,
+                <span class="st">"cache_control"</span>: {<span class="st">"type"</span>: <span class="st">"ephemeral"</span>}
+            }
+        ],
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: user_message}]
+    )
+
+    usage = response.usage
+    cache_hit = usage.cache_read_input_tokens > <span class="nm">0</span>
+    <span class="kw">return</span> response.content[<span class="nm">0</span>].text, cache_hit
+
+<span class="cm"># Log cache hit rate to measure effectiveness</span>
+<span class="kw">def</span> <span class="fn">estimate_savings</span>(usage) -> float:
+    <span class="st">"""Approximate dollar savings from cache hit vs full price (Sonnet rates)."""</span>
+    FULL_PRICE_PER_MTok = <span class="nm">3.00</span>   <span class="cm"># $3/MTok input</span>
+    CACHE_PRICE_PER_MTok = <span class="nm">0.30</span>  <span class="cm"># $0.30/MTok cache read</span>
+
+    cached = getattr(usage, <span class="st">"cache_read_input_tokens"</span>, <span class="nm">0</span>)
+    saved = cached * (FULL_PRICE_PER_MTok - CACHE_PRICE_PER_MTok) / <span class="nm">1_000_000</span>
+    <span class="kw">return</span> saved</code></pre>
+
+  <h2>4. Model Tier Selection</h2>
+
+  <p>Using Opus for every request is the single most common cost mistake. Most tasks don't require Opus-level reasoning. A tiered routing strategy routes simple tasks to Haiku, moderate tasks to Sonnet, and reserves Opus for genuinely complex work.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Relative cost</th>
+        <th>Right for</th>
+        <th>Wrong for</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Haiku 4.5</strong></td>
+        <td>~0.05×</td>
+        <td>Classification, routing, extraction, short answers, meta-tasks (token counting, compression)</td>
+        <td>Multi-step reasoning, long-form generation, nuanced judgment</td>
+      </tr>
+      <tr>
+        <td><strong>Sonnet 4.6</strong></td>
+        <td>~0.20×</td>
+        <td>Most production workloads — Q&amp;A, summarization, code generation, RAG responses</td>
+        <td>Tasks requiring extended thinking or frontier-level reasoning</td>
+      </tr>
+      <tr>
+        <td><strong>Opus 4.6</strong></td>
+        <td>1.0×</td>
+        <td>Complex reasoning, multi-step planning, orchestration decisions, high-stakes outputs</td>
+        <td>High-volume simple tasks — cost will be punishing</td>
+      </tr>
+    </tbody>
+  </table>
+
+<pre><code><span class="kw">def</span> <span class="fn">select_model</span>(task_complexity: str) -> str:
+    <span class="st">"""Route to the cheapest model that can handle the task."""</span>
+    <span class="kw">return</span> {
+        <span class="st">"classification"</span>: <span class="st">"claude-haiku-4-5-20251001"</span>,
+        <span class="st">"extraction"</span>:     <span class="st">"claude-haiku-4-5-20251001"</span>,
+        <span class="st">"routing"</span>:        <span class="st">"claude-haiku-4-5-20251001"</span>,
+        <span class="st">"qa"</span>:             <span class="st">"claude-sonnet-4-6"</span>,
+        <span class="st">"summarization"</span>:  <span class="st">"claude-sonnet-4-6"</span>,
+        <span class="st">"code_generation"</span>:<span class="st">"claude-sonnet-4-6"</span>,
+        <span class="st">"orchestration"</span>:  <span class="st">"claude-opus-4-6"</span>,
+        <span class="st">"complex_analysis"</span>:<span class="st">"claude-opus-4-6"</span>,
+    }.get(task_complexity, <span class="st">"claude-sonnet-4-6"</span>)  <span class="cm"># default to Sonnet</span></code></pre>
+
+  <h2>5. Cost Tracking Middleware</h2>
+
+  <p>You can't optimize what you don't measure. This middleware wraps every Claude call and accumulates per-request cost data for logging, alerting, and per-feature attribution.</p>
+
+<pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> Any
+<span class="kw">import</span> time, logging
+
+<span class="cm"># Pricing per million tokens (update as Anthropic changes rates)</span>
+MODEL_PRICING = {
+    <span class="st">"claude-opus-4-6"</span>:          {<span class="st">"input"</span>: <span class="nm">15.00</span>, <span class="st">"output"</span>: <span class="nm">75.00</span>, <span class="st">"cache_read"</span>: <span class="nm">1.50</span>,  <span class="st">"cache_write"</span>: <span class="nm">18.75</span>},
+    <span class="st">"claude-sonnet-4-6"</span>:        {<span class="st">"input"</span>:  <span class="nm">3.00</span>, <span class="st">"output"</span>: <span class="nm">15.00</span>, <span class="st">"cache_read"</span>: <span class="nm">0.30</span>,  <span class="st">"cache_write"</span>:  <span class="nm">3.75</span>},
+    <span class="st">"claude-haiku-4-5-20251001"</span>: {<span class="st">"input"</span>:  <span class="nm">0.80</span>, <span class="st">"output"</span>:  <span class="nm">4.00</span>, <span class="st">"cache_read"</span>: <span class="nm">0.08</span>,  <span class="st">"cache_write"</span>:  <span class="nm">1.00</span>},
+}
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="cl">RequestCost</span>:
+    model: str
+    input_tokens: int
+    output_tokens: int
+    cache_read_tokens: int
+    cache_write_tokens: int
+    total_usd: float
+    latency_ms: float
+    feature: str = <span class="st">"unknown"</span>
+
+<span class="kw">def</span> <span class="fn">calculate_cost</span>(model: str, usage) -> float:
+    prices = MODEL_PRICING.get(model, MODEL_PRICING[<span class="st">"claude-sonnet-4-6"</span>])
+    <span class="kw">return</span> (
+        getattr(usage, <span class="st">"input_tokens"</span>, <span class="nm">0</span>)             * prices[<span class="st">"input"</span>]       / <span class="nm">1_000_000</span>
+      + getattr(usage, <span class="st">"output_tokens"</span>, <span class="nm">0</span>)            * prices[<span class="st">"output"</span>]      / <span class="nm">1_000_000</span>
+      + getattr(usage, <span class="st">"cache_read_input_tokens"</span>, <span class="nm">0</span>)  * prices[<span class="st">"cache_read"</span>] / <span class="nm">1_000_000</span>
+      + getattr(usage, <span class="st">"cache_creation_input_tokens"</span>, <span class="nm">0</span>) * prices[<span class="st">"cache_write"</span>] / <span class="nm">1_000_000</span>
+    )
+
+<span class="kw">def</span> <span class="fn">tracked_call</span>(
+    feature: str,
+    model: str,
+    **kwargs
+) -> Any:
+    <span class="st">"""Wrapper that logs cost and latency for every Claude call."""</span>
+    t0 = time.perf_counter()
+    response = client.messages.create(model=model, **kwargs)
+    latency_ms = (time.perf_counter() - t0) * <span class="nm">1000</span>
+
+    cost = calculate_cost(model, response.usage)
+    rc = RequestCost(
+        model=model,
+        input_tokens=response.usage.input_tokens,
+        output_tokens=response.usage.output_tokens,
+        cache_read_tokens=getattr(response.usage, <span class="st">"cache_read_input_tokens"</span>, <span class="nm">0</span>),
+        cache_write_tokens=getattr(response.usage, <span class="st">"cache_creation_input_tokens"</span>, <span class="nm">0</span>),
+        total_usd=cost,
+        latency_ms=latency_ms,
+        feature=feature,
+    )
+
+    logging.info(
+        <span class="st">"claude_call"</span>,
+        extra={
+            <span class="st">"feature"</span>: rc.feature,
+            <span class="st">"model"</span>: rc.model,
+            <span class="st">"input_tokens"</span>: rc.input_tokens,
+            <span class="st">"output_tokens"</span>: rc.output_tokens,
+            <span class="st">"cache_hit"</span>: rc.cache_read_tokens > <span class="nm">0</span>,
+            <span class="st">"cost_usd"</span>: <span class="st">f"</span>{rc.total_usd:.6f}<span class="st">"</span>,
+            <span class="st">"latency_ms"</span>: <span class="st">f"</span>{rc.latency_ms:.0f}<span class="st">"</span>,
+        }
+    )
+    <span class="kw">return</span> response</code></pre>
+
+  <div class="callout cyan">
+    <strong>Attribution drives optimization</strong>
+    Log <code>feature</code> (e.g., "chat", "doc_summary", "code_review") on every call. Within a week you'll know which features consume 80% of your token budget. That's where to focus compression work — not on the cheap requests that already run on Haiku.
+  </div>
+
+  <h2>6. Batching with the Message Batches API</h2>
+
+  <p>For async workloads — nightly processing, bulk analysis, background enrichment — the Anthropic Batches API processes requests at 50% of standard pricing with 24-hour turnaround. Any workload that doesn't need a real-time response should be batched.</p>
+
+<pre><code><span class="kw">import</span> anthropic
+
+<span class="kw">def</span> <span class="fn">batch_analyze</span>(documents: list[str]) -> str:
+    <span class="st">"""Submit a batch job; returns batch_id for later retrieval."""</span>
+    requests = [
+        {
+            <span class="st">"custom_id"</span>: <span class="st">f"doc_</span>{i}"</span>,
+            <span class="st">"params"</span>: {
+                <span class="st">"model"</span>: <span class="st">"claude-sonnet-4-6"</span>,
+                <span class="st">"max_tokens"</span>: <span class="nm">512</span>,
+                <span class="st">"system"</span>: <span class="st">"Summarize in 2 sentences. Output JSON: {summary: str, topics: [str]}"</span>,
+                <span class="st">"messages"</span>: [{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: doc}]
+            }
+        }
+        <span class="kw">for</span> i, doc <span class="kw">in</span> enumerate(documents)
+    ]
+
+    batch = client.messages.batches.create(requests=requests)
+    <span class="kw">return</span> batch.id  <span class="cm"># poll later: client.messages.batches.retrieve(batch_id)</span></code></pre>
+
+  <h2>Cost Optimization Priority Order</h2>
+
+  <ol>
+    <li><strong>Model tier selection</strong> — switching from Opus to Sonnet for eligible requests is the highest-leverage change; typically 5–10× cost reduction per call</li>
+    <li><strong>Prompt caching</strong> — for high-volume apps with stable system prompts, cache hits cut input costs by 90%</li>
+    <li><strong>Batching</strong> — 50% discount on all batch-eligible workloads; zero code complexity</li>
+    <li><strong>Prompt compression</strong> — compress verbose system prompts; trim conversation history; remove redundant context</li>
+    <li><strong>Output token management</strong> — set <code>max_tokens</code> conservatively; for structured outputs, JSON is more token-efficient than prose</li>
+    <li><strong>Token counting pre-flight</strong> — catch oversized prompts before they hit the API; enforce per-request budgets</li>
+    <li><strong>Feature attribution logging</strong> — identify which features drive spend before optimizing anything else</li>
+  </ol>
+
+  <div class="callout green">
+    <strong>Measure first, optimize second</strong>
+    Add the cost tracking middleware before doing anything else. Run it for a week in production. You'll almost certainly find that 2–3 features account for 70%+ of spend — and those features may be good candidates for caching or model downgrade. Optimizing the wrong requests wastes engineering time.
+  </div>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 CEO Editorial &nbsp;·&nbsp; <a href="/blog/">All articles</a></p>
+</footer>
+
+</body>
+</html>
